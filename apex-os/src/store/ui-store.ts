@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type QuickAddContext = 'task' | 'transaction' | 'workout' | 'food' | null;
+export type QuickAddContext = 'task' | 'transaction' | 'workout' | 'food' | 'block' | 'planner' | null;
 
 interface UIState {
   sidebarCollapsed: boolean;

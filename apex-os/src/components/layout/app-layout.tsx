@@ -7,12 +7,18 @@ import { CommandPalette } from './command-palette';
 import { QuickAddFab } from './quick-add-fab';
 import { HelpModal } from './help-modal';
 import { DailyDigestModal } from './daily-digest-modal';
+import { TaskFormModal } from '@/modules/tasks/task-form-modal';
+import TransactionFormModal from '@/modules/finance/transaction-form-modal';
+import { TimetableBlockModal } from '@/modules/timetable/timetable-block-modal';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useUIStore } from '@/store/ui-store';
 
 export default function AppLayout() {
   useKeyboardShortcuts();
-  const { commandPaletteOpen, setCommandPaletteOpen } = useUIStore();
+  const { 
+    commandPaletteOpen, setCommandPaletteOpen, 
+    quickAddOpen, quickAddContext, closeQuickAdd 
+  } = useUIStore();
   const [digestOpen, setDigestOpen] = useState(false);
 
   useEffect(() => {
@@ -25,7 +31,7 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
+    <div className="flex h-screen w-full bg-[#08080c] text-foreground overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header />
@@ -40,6 +46,20 @@ export default function AppLayout() {
       <QuickAddFab />
       <HelpModal />
       <DailyDigestModal isOpen={digestOpen} onClose={() => setDigestOpen(false)} />
+
+      {/* Global Quick Add Modals */}
+      <TaskFormModal 
+        isOpen={quickAddOpen && quickAddContext === 'task'} 
+        onClose={closeQuickAdd} 
+      />
+      <TransactionFormModal 
+        isOpen={quickAddOpen && quickAddContext === 'transaction'} 
+        onClose={closeQuickAdd} 
+      />
+      <TimetableBlockModal 
+        isOpen={quickAddOpen && quickAddContext === 'block'} 
+        onClose={closeQuickAdd} 
+      />
     </div>
   );
 }

@@ -1,32 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCFATopics, useUpdateCFATopic, useLinkTopicToTask, useUnlinkTopicFromTask } from './hooks';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  useCFATopics, useUpdateCFATopic, useAddCFATopic, 
+  useLinkTopicToTask, useUnlinkTopicFromTask, CFA_MODULE_CONFIG 
+} from './hooks';
+import { ProgressRing } from './progress-ring';
+import { 
+  Search, Plus, BookOpen, CheckCircle2, Award, Clock, 
+  Filter, Sparkles, ArrowLeft, Check, AlertCircle, RefreshCw, Zap 
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const MODULES = [
-  'All Modules', 'Quant', 'Econ', 'CorpFin', 'FSA', 'Equities', 
-  'FixedIncome', 'Derivatives', 'Alts', 'Portfolio', 'Ethics'
-];
+const STATUSES = ['Not Started', 'In Progress', 'Completed'];
+const REVISION_STATUSES = ['Not Started', 'First Pass Done', 'Revised Once', 'Revised Twice', 'Mastered'];
+const PRIORITIES = ['High', 'Medium', 'Low'];
+const ROW_TYPES = ['STUDY', 'REVIEW'];
 
 export default function CFATopicsPage() {
-  const [filterModule, setFilterModule] = useState('All Modules');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const initialModule = searchParams.get('module') || 'All Modules';
+
+  const [filterModule, setFilterModule] = useState(initialModule);
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterRevision, setFilterRevision] = useState('All');
+  const [filterPriority, setFilterPriority] = useState('All');
+  const [filterType, setFilterType] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Sync state if URL search params change
+  useEffect(() => {
+    const urlMod = searchParams.get('module');
+    if (urlMod) {
+      setFilterModule(urlMod);
+    }
+  }, [searchParams]);
+
+  const handleModuleSelect = (modName: string) => {
+    setFilterModule(modName);
+    if (modName === 'All Modules' || modName === 'All') {
+      searchParams.delete('module');
+      setSearchParams(searchParams);
+    } else {
+      setSearchParams({ module: modName });
+    }
+  };
+
   const { data: topics = [], isLoading } = useCFATopics({ 
-    module: filterModule === 'All Modules' ? undefined : filterModule, 
-    status: filterStatus === 'All' ? undefined : filterStatus, 
-    revision_status: filterRevision === 'All' ? undefined : filterRevision, 
+    module: filterModule, 
+    status: filterStatus, 
+    revision_status: filterRevision, 
+    priority: filterPriority,
+    row_type: filterType,
     search: searchQuery 
   });
   
   const updateTopic = useUpdateCFATopic();
+  const addTopicMutation = useAddCFATopic();
   const linkTask = useLinkTopicToTask();
   const unlinkTask = useUnlinkTopicFromTask();
 
-  const handleStatusChange = (id: string, status: any) => updateTopic.mutate({ id, updates: { status } });
-  const handleRevisionChange = (id: string, revision_status: any) => updateTopic.mutate({ id, updates: { revision_status } });
-  const handleCompletedToggle = (id: string, completed: boolean) => updateTopic.mutate({ id, updates: { completed, status: completed ? 'Completed' : 'In Progress' } });
+  // Add Topic Modal State
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [newModule, setNewModule] = useState(CFA_MODULE_CONFIG[0].fullName);
+  const [newChapter, setNewChapter] = useState('');
+  const [newSubtopic, setNewSubtopic] = useState('');
+  const [newTaskText, setNewTaskText] = useState('Learn concepts + solve practice questions');
+  const [newHours, setNewHours] = useState('2.0');
+  const [newPriority, setNewPriority] = useState('High');
+  const [newType, setNewType] = useState('STUDY');
+
+  const handleCreateTopic = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newChapter.trim()) return;
+
+    await addTopicMutation.mutateAsync({
+      module: newModule,
+      chapter_topic: newChapter,
+      subtopic_lo: newSubtopic,
+      task: newTaskText,
+      planned_hours: parseFloat(newHours) || 2.0,
+      priority: newPriority as any,
+      row_type: newType as any,
+      status: 'Not Started',
+      completed: false,
+      revision_status: 'Not Started',
+    });
+    setNewChapter('');
+    setNewSubtopic('');
+    setAddModalOpen(false);
+  };
+
+  const handleStatusChange = (id: string, status: any) => {
+    const isComp = status === 'Completed';
+    updateTopic.mutate({ id, updates: { status, completed: isComp } });
+  };
+
+  const handleRevisionChange = (id: string, revision_status: any) => {
+    updateTopic.mutate({ id, updates: { revision_status } });
+  };
+
+  const handleCompletedToggle = (id: string, completed: boolean) => {
+    updateTopic.mutate({ 
+      id, 
+      updates: { 
+        completed, 
+        status: completed ? 'Completed' : 'In Progress' 
+      } 
+    });
+  };
   
   const toggleTaskLink = (topic: any) => {
     if (topic.linked_task_id) {
@@ -36,145 +124,484 @@ export default function CFATopicsPage() {
     }
   };
 
-  const filteredTopics = topics; // Logic would apply local filtering if not done by backend
+  // Compute selected module's detailed analysis metrics
+  const selectedConfig = CFA_MODULE_CONFIG.find(c => c.fullName === filterModule || c.short === filterModule || c.aliases?.includes(filterModule));
+  const isSpecificModule = Boolean(selectedConfig && filterModule !== 'All Modules');
+
+  const totalModuleTopics = topics.length;
+  const completedModuleTopics = topics.filter(t => t.completed || t.status === 'Completed').length;
+  const moduleHoursTotal = topics.reduce((sum, t) => sum + Number(t.planned_hours || 0), 0);
+  const moduleHoursDone = topics.filter(t => t.completed || t.status === 'Completed').reduce((sum, t) => sum + Number(t.planned_hours || 0), 0);
+  const modulePct = totalModuleTopics > 0 ? Math.round((completedModuleTopics / totalModuleTopics) * 100) : 0;
+
+  const firstPassCount = topics.filter(t => t.revision_status === 'First Pass Done').length;
+  const revisedCount = topics.filter(t => t.revision_status === 'Revised Once' || t.revision_status === 'Revised Twice').length;
+  const masteredCount = topics.filter(t => t.revision_status === 'Mastered').length;
+  const notStartedCount = Math.max(0, totalModuleTopics - (firstPassCount + revisedCount + masteredCount));
+
+  const studyCount = topics.filter(t => t.row_type === 'STUDY').length;
+  const reviewCount = topics.filter(t => t.row_type === 'REVIEW').length;
+  const highPriorityCount = topics.filter(t => t.priority === 'High' && !t.completed).length;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-gray-100 p-8 font-inter">
-      <div className="max-w-[1600px] mx-auto space-y-6">
-        
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Topics Tracker</h1>
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-            + Add Topic
-          </button>
+    <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto text-foreground font-sans">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={() => navigate('/cfa')} 
+              variant="ghost" 
+              size="sm" 
+              className="p-1.5 h-8 text-zinc-400 hover:text-white rounded-lg"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="text-3xl font-black text-white tracking-tight">CFA Topics & LOS Tracker</h1>
+            <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
+              324 Learning Outcomes
+            </Badge>
+          </div>
+          <p className="text-sm text-zinc-400 mt-1">
+            Master each reading, track revision stages from First Pass to Mastered, and link topics to your daily Task list.
+          </p>
         </div>
 
-        {/* Filters */}
-        <div className="bg-[#111118] border border-gray-800 rounded-2xl p-4 flex flex-wrap gap-4 items-center">
-          <input 
-            type="text" 
-            placeholder="Search topics..." 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500 min-w-[200px]"
-          />
-          <select value={filterModule} onChange={(e) => setFilterModule(e.target.value)} className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none">
-            {MODULES.map(m => <option key={m} value={m}>{m}</option>)}
-          </select>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none">
-            <option value="All">All Status</option>
-            <option value="Not Started">Not Started</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-          <select value={filterRevision} onChange={(e) => setFilterRevision(e.target.value)} className="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none">
-            <option value="All">All Revision</option>
-            <option value="Not Started">Not Started</option>
-            <option value="First Pass Done">First Pass Done</option>
-            <option value="Revised Once">Revised Once</option>
-            <option value="Revised Twice">Revised Twice</option>
-            <option value="Mastered">Mastered</option>
-          </select>
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => setAddModalOpen(true)}
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-semibold"
+          >
+            <Plus className="w-4 h-4" /> Add Topic
+          </Button>
+        </div>
+      </div>
+
+      {/* Module Quick Filter Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+        <button
+          onClick={() => handleModuleSelect('All Modules')}
+          className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+            filterModule === 'All Modules'
+              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+              : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-white/5'
+          }`}
+        >
+          All Modules (324)
+        </button>
+        {CFA_MODULE_CONFIG.map((m) => {
+          const isSelected = filterModule === m.fullName || filterModule === m.short;
+          return (
+            <button
+              key={m.fullName}
+              onClick={() => handleModuleSelect(m.fullName)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
+                isSelected
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 border border-blue-400/40'
+                  : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-white/5'
+              }`}
+            >
+              <span>{m.short}</span>
+              <span className="text-[10px] opacity-75 font-mono">({m.weight})</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Detailed Analysis of the Selected Module Banner */}
+      <motion.div 
+        layout 
+        className="bg-gradient-to-r from-[#0d1322] via-[#0b0f19] to-[#05060a] border border-blue-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="shrink-0 mt-1">
+              <ProgressRing 
+                progress={modulePct} 
+                size={84} 
+                strokeWidth={7} 
+                color={modulePct >= 75 ? '#10b981' : modulePct >= 25 ? '#f59e0b' : '#3b82f6'} 
+                label={`${modulePct}%`} 
+              />
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                  {isSpecificModule ? selectedConfig?.fullName : 'All 10 CFA Curriculum Modules'}
+                </h2>
+                {isSpecificModule && (
+                  <Badge variant="outline" className="border-red-500/40 text-red-400 bg-red-500/10 text-xs font-bold px-2.5 py-0.5">
+                    Official Exam Weight: {selectedConfig?.weight}
+                  </Badge>
+                )}
+              </div>
+              <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
+                {isSpecificModule 
+                  ? `Focusing on ${selectedConfig?.fullName}. Target comprehensive mastery of formulas, concept checks, and end-of-reading item sets.` 
+                  : 'Displaying complete 2027 Level I syllabus. Filter by module above to inspect specific chapters and subtopics.'
+                }
+              </p>
+
+              {/* Progress Stage Distribution Bar */}
+              <div className="pt-2 space-y-1.5 max-w-xl">
+                <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden flex border border-white/5">
+                  <div style={{ width: `${(masteredCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-emerald-500 h-full" title="Mastered" />
+                  <div style={{ width: `${(revisedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-purple-500 h-full" title="Revised" />
+                  <div style={{ width: `${(firstPassCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-blue-500 h-full" title="First Pass Done" />
+                  <div style={{ width: `${(notStartedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-zinc-800 h-full" title="Not Started" />
+                </div>
+                <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-zinc-400">
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500" /> Revised: <strong className="text-purple-400">{revisedCount}</strong></span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> First Pass: <strong className="text-blue-400">{firstPassCount}</strong></span>
+                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-zinc-700" /> Not Started: <strong className="text-zinc-400">{notStartedCount}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Metrics Block */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 shrink-0">
+            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Topics Completed</span>
+              <span className="text-lg font-black text-white font-mono mt-0.5 block">{completedModuleTopics} / {totalModuleTopics}</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Study Hours</span>
+              <span className="text-lg font-black text-blue-400 font-mono mt-0.5 block">{moduleHoursDone.toFixed(1)} / {moduleHoursTotal.toFixed(1)}h</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Study vs Review</span>
+              <span className="text-lg font-black text-purple-400 font-mono mt-0.5 block">{studyCount} / {reviewCount}</span>
+            </div>
+            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">High Priority Remaining</span>
+              <span className="text-lg font-black text-rose-400 font-mono mt-0.5 block">{highPriorityCount} topics</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Interactive Filters Bar */}
+      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl backdrop-blur-xl">
+        <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="w-4 h-4 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Input 
+              type="text" 
+              placeholder="Search chapters, formulas, learning outcomes..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-[#111827] border-white/10 pl-9 text-xs rounded-xl focus-visible:ring-blue-500 text-white placeholder:text-zinc-500 h-9"
+            />
+          </div>
+
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[125px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+              <SelectItem value="All">All Status</SelectItem>
+              {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterRevision} onValueChange={setFilterRevision}>
+            <SelectTrigger className="w-[145px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+              <SelectValue placeholder="Revision" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+              <SelectItem value="All">All Revision</SelectItem>
+              {REVISION_STATUSES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterPriority} onValueChange={setFilterPriority}>
+            <SelectTrigger className="w-[115px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+              <SelectValue placeholder="Priority" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+              <SelectItem value="All">All Priority</SelectItem>
+              {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+            </SelectContent>
+          </Select>
+
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[110px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+              <SelectItem value="All">All Types</SelectItem>
+              {ROW_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Table */}
-        <div className="bg-[#111118] border border-gray-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-900/50 text-gray-400 text-xs uppercase tracking-wider border-b border-gray-800">
-                  <th className="p-4 font-medium">Mod</th>
-                  <th className="p-4 font-medium">Chapter/Topic</th>
-                  <th className="p-4 font-medium">Subtopic/LOs</th>
-                  <th className="p-4 font-medium text-center">Type</th>
-                  <th className="p-4 font-medium text-center">Status</th>
-                  <th className="p-4 font-medium text-center">Done</th>
-                  <th className="p-4 font-medium text-center">Revision</th>
-                  <th className="p-4 font-medium text-center">Tasks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800/50 text-sm">
-                <AnimatePresence>
-                  {isLoading ? (
-                    <tr><td colSpan={8} className="p-8 text-center text-gray-500">Loading topics...</td></tr>
-                  ) : filteredTopics.length === 0 ? (
-                    <tr><td colSpan={8} className="p-8 text-center text-gray-500">No topics found.</td></tr>
-                  ) : filteredTopics.map((topic) => (
+        <div className="text-xs text-zinc-400 font-medium shrink-0">
+          Showing <strong className="text-white">{topics.length}</strong> items
+        </div>
+      </div>
+
+      {/* Main Table */}
+      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-2xl">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white/5 text-zinc-400 text-xs uppercase tracking-wider font-bold border-b border-white/10">
+                <th className="p-4 w-12 text-center">Done</th>
+                <th className="p-4">Module</th>
+                <th className="p-4">Chapter / Topic</th>
+                <th className="p-4 min-w-[300px]">Learning Outcome Statements (LOS)</th>
+                <th className="p-4 text-center">Type</th>
+                <th className="p-4 text-center">Priority</th>
+                <th className="p-4 text-center">Status</th>
+                <th className="p-4 text-center">Revision Status</th>
+                <th className="p-4 text-center">Tasks Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-sm">
+              <AnimatePresence>
+                {isLoading ? (
+                  <tr><td colSpan={9} className="p-12 text-center text-zinc-500 font-medium animate-pulse">Loading CFA topics...</td></tr>
+                ) : topics.length === 0 ? (
+                  <tr><td colSpan={9} className="p-12 text-center text-zinc-500 font-medium">No matching CFA topics found.</td></tr>
+                ) : topics.map((topic) => {
+                  const isDone = topic.completed || topic.status === 'Completed';
+                  const modCfg = CFA_MODULE_CONFIG.find(c => c.fullName === topic.module || c.aliases?.includes(topic.module));
+                  const modShort = modCfg?.short || topic.module;
+
+                  return (
                     <motion.tr 
                       key={topic.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="hover:bg-gray-800/20 transition-colors group"
+                      className={`hover:bg-white/[0.03] transition-colors group ${isDone ? 'bg-emerald-950/10' : ''}`}
                     >
-                      <td className="p-4">
-                        <span className="bg-indigo-500/10 text-indigo-400 px-2 py-1 rounded text-xs font-semibold">{topic.module}</span>
-                      </td>
-                      <td className="p-4 font-medium text-gray-200">{topic.chapter_topic}</td>
-                      <td className="p-4 text-gray-400 max-w-[200px] truncate hover:whitespace-normal hover:bg-gray-900 rounded p-1 transition-all">{topic.subtopic_lo}</td>
-                      <td className="p-4 text-center">
-                        <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wide ${topic.row_type === 'STUDY' ? 'bg-blue-500/10 text-blue-400' : 'bg-purple-500/10 text-purple-400'}`}>
-                          {topic.row_type}
-                        </span>
-                      </td>
-                      <td className="p-4 text-center">
-                        <select 
-                          value={topic.status} 
-                          onChange={(e) => handleStatusChange(topic.id, e.target.value)}
-                          className="bg-transparent border-none text-gray-300 text-xs focus:ring-0 cursor-pointer w-full text-center hover:bg-gray-800 rounded p-1"
-                        >
-                          <option className="bg-gray-900" value="Not Started">Not Started</option>
-                          <option className="bg-gray-900" value="In Progress">In Progress</option>
-                          <option className="bg-gray-900" value="Completed">Completed</option>
-                        </select>
-                      </td>
+                      {/* Done Checkbox */}
                       <td className="p-4 text-center">
                         <input 
                           type="checkbox" 
-                          checked={topic.completed}
+                          checked={isDone}
                           onChange={(e) => handleCompletedToggle(topic.id, e.target.checked)}
-                          className="w-4 h-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-500/50 bg-gray-900 cursor-pointer"
+                          className="w-4 h-4 rounded border-zinc-700 text-blue-600 focus:ring-blue-500/50 bg-[#111827] cursor-pointer"
                         />
                       </td>
+
+                      {/* Module Badge */}
+                      <td className="p-4">
+                        <Badge 
+                          variant="outline" 
+                          className="text-[10px] font-bold px-2 py-0.5 border-blue-500/30 text-blue-300 bg-blue-500/10 whitespace-nowrap"
+                        >
+                          {modShort}
+                        </Badge>
+                      </td>
+
+                      {/* Chapter Title */}
+                      <td className="p-4 font-semibold text-white">
+                        <span className={isDone ? 'line-through text-zinc-400' : ''}>
+                          {topic.chapter_topic}
+                        </span>
+                        {topic.planned_hours && (
+                          <span className="block text-[10px] text-zinc-500 font-mono mt-0.5">
+                            Est: {topic.planned_hours}h
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Subtopic / LOS */}
+                      <td className="p-4 text-xs text-zinc-300 max-w-md leading-relaxed">
+                        <span className="line-clamp-2 hover:line-clamp-none transition-all cursor-text">
+                          {topic.subtopic_lo}
+                        </span>
+                      </td>
+
+                      {/* Row Type */}
+                      <td className="p-4 text-center">
+                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                          topic.row_type === 'STUDY' 
+                            ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' 
+                            : 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
+                        }`}>
+                          {topic.row_type}
+                        </span>
+                      </td>
+
+                      {/* Priority */}
+                      <td className="p-4 text-center">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                          topic.priority === 'High'
+                            ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                            : topic.priority === 'Low'
+                            ? 'bg-zinc-800 text-zinc-400'
+                            : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                        }`}>
+                          {topic.priority || 'Medium'}
+                        </span>
+                      </td>
+
+                      {/* Status Dropdown */}
                       <td className="p-4 text-center">
                         <select 
-                          value={topic.revision_status} 
-                          onChange={(e) => handleRevisionChange(topic.id, e.target.value)}
-                          className="bg-transparent border-none text-gray-300 text-xs focus:ring-0 cursor-pointer w-full text-center hover:bg-gray-800 rounded p-1"
+                          value={topic.status || 'Not Started'} 
+                          onChange={(e) => handleStatusChange(topic.id, e.target.value)}
+                          className="bg-[#111827] border border-white/10 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-blue-500 outline-none cursor-pointer"
                         >
-                          <option className="bg-gray-900" value="Not Started">Not Started</option>
-                          <option className="bg-gray-900" value="First Pass Done">First Pass Done</option>
-                          <option className="bg-gray-900" value="Revised Once">Revised Once</option>
-                          <option className="bg-gray-900" value="Revised Twice">Revised Twice</option>
-                          <option className="bg-gray-900" value="Mastered">Mastered</option>
+                          <option value="Not Started">Not Started</option>
+                          <option value="In Progress">In Progress ⏳</option>
+                          <option value="Completed">Completed ✓</option>
                         </select>
                       </td>
+
+                      {/* Revision Status Dropdown */}
+                      <td className="p-4 text-center">
+                        <select 
+                          value={topic.revision_status || 'Not Started'} 
+                          onChange={(e) => handleRevisionChange(topic.id, e.target.value)}
+                          className={`text-xs rounded-lg px-2.5 py-1.5 border outline-none cursor-pointer font-medium ${
+                            topic.revision_status === 'Mastered'
+                              ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/40'
+                              : topic.revision_status?.includes('Revised')
+                              ? 'bg-purple-950/40 text-purple-300 border-purple-500/40'
+                              : topic.revision_status === 'First Pass Done'
+                              ? 'bg-blue-950/40 text-blue-300 border-blue-500/40'
+                              : 'bg-[#111827] text-zinc-400 border-white/10'
+                          }`}
+                        >
+                          {REVISION_STATUSES.map(r => <option key={r} value={r} className="bg-[#111827] text-white">{r}</option>)}
+                        </select>
+                      </td>
+
+                      {/* Task Link Button */}
                       <td className="p-4 text-center">
                         <button 
                           onClick={() => toggleTaskLink(topic)}
-                          className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
+                          className={`text-xs px-3 py-1.5 rounded-xl font-semibold transition-all shadow-sm ${
                             topic.linked_task_id 
-                            ? 'bg-green-500/10 text-green-400 hover:bg-red-500/10 hover:text-red-400'
-                            : 'bg-gray-800 text-gray-400 hover:bg-indigo-500 hover:text-white'
+                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/40'
+                            : 'bg-white/5 border border-white/10 text-zinc-300 hover:bg-blue-600 hover:text-white hover:border-blue-500'
                           }`}
-                          title={topic.linked_task_id ? 'Click to unlink task' : 'Add to task list'}
+                          title={topic.linked_task_id ? 'Linked in Task Manager (Click to unlink)' : 'Click to create a linked task in Task Manager'}
                         >
-                          {topic.linked_task_id ? 'In Tasks' : '+ Task'}
+                          {topic.linked_task_id ? '✓ In Tasks' : '+ Add Task'}
                         </button>
                       </td>
                     </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-          
-          <div className="p-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between">
-            <span>Showing {filteredTopics.length} topics</span>
-            <span>Total Planned: {filteredTopics.reduce((acc, curr) => acc + (curr.planned_hours || 0), 0)}h</span>
+                  );
+                })}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer Summary */}
+        <div className="p-4 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/[0.02]">
+          <span>Showing <strong>{topics.length}</strong> CFA learning topics</span>
+          <div className="flex items-center gap-4 font-mono text-zinc-300">
+            <span>Total Planned: <strong className="text-white">{moduleHoursTotal.toFixed(1)} hrs</strong></span>
+            <span>•</span>
+            <span>Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
           </div>
         </div>
       </div>
+
+      {/* Add CFA Topic Modal */}
+      <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
+        <DialogContent className="sm:max-w-lg bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-blue-400" />
+              Add CFA Learning Topic
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateTopic} className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-300 font-bold uppercase">CFA Curriculum Module</Label>
+              <Select value={newModule} onValueChange={setNewModule}>
+                <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#111827] border-white/10 text-white">
+                  {CFA_MODULE_CONFIG.map(m => (
+                    <SelectItem key={m.fullName} value={m.fullName}>
+                      {m.fullName} ({m.weight})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-300 font-bold uppercase">Chapter / Reading Title</Label>
+              <Input
+                value={newChapter}
+                onChange={(e) => setNewChapter(e.target.value)}
+                placeholder="e.g. Yield Curves and Term Structure"
+                required
+                className="bg-[#111827] border-white/10 text-white rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-zinc-300 font-bold uppercase">Learning Outcome Statements (LOS)</Label>
+              <Input
+                value={newSubtopic}
+                onChange={(e) => setNewSubtopic(e.target.value)}
+                placeholder="Describe spot rates, forward rates, and yield spread analysis..."
+                className="bg-[#111827] border-white/10 text-white rounded-xl"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300 font-bold uppercase">Planned Hours</Label>
+                <Input
+                  type="number"
+                  step="0.5"
+                  value={newHours}
+                  onChange={(e) => setNewHours(e.target.value)}
+                  className="bg-[#111827] border-white/10 text-white rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300 font-bold uppercase">Priority</Label>
+                <Select value={newPriority} onValueChange={setNewPriority}>
+                  <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111827] border-white/10 text-white">
+                    {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-zinc-300 font-bold uppercase">Type</Label>
+                <Select value={newType} onValueChange={setNewType}>
+                  <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#111827] border-white/10 text-white">
+                    {ROW_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <DialogFooter className="pt-3 border-t border-white/10 flex justify-end gap-2">
+              <Button type="button" variant="ghost" onClick={() => setAddModalOpen(false)} className="text-zinc-400 hover:text-white rounded-xl">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={addTopicMutation.isPending} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold px-5 shadow-lg shadow-blue-600/30">
+                {addTopicMutation.isPending ? 'Saving...' : 'Add Topic'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

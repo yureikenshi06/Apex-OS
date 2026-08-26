@@ -1,5 +1,5 @@
+import React, { useEffect } from 'react';
 import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
-import { useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
@@ -15,6 +15,7 @@ interface StatCardProps {
   color?: string;
   format?: 'number' | 'currency' | 'percent' | 'hours';
   className?: string;
+  gradient?: string;
 }
 
 function AnimatedNumber({ value, format = 'number', prefix = '', suffix = '' }: {
@@ -39,7 +40,7 @@ function AnimatedNumber({ value, format = 'number', prefix = '', suffix = '' }: 
 
   useEffect(() => {
     const controls = animate(motionValue, value, {
-      duration: 1,
+      duration: 0.8,
       ease: 'easeOut',
     });
     return () => controls.stop();
@@ -56,46 +57,63 @@ export function StatCard({
   change,
   changeLabel,
   icon: Icon,
-  color = 'text-primary',
+  color = 'text-indigo-400',
   format = 'number',
   className,
+  gradient = 'from-indigo-500/10 via-purple-500/5 to-transparent',
 }: StatCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      whileHover={{ y: -2, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -3, transition: { duration: 0.15 } }}
+      className="h-full"
     >
-      <Card className={cn('p-4 md:p-6', className)}>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <p className="text-xs md:text-sm text-muted-foreground font-medium">{title}</p>
-            <p className={cn('text-xl md:text-2xl font-bold', color)}>
+      <Card className={cn(
+        'relative overflow-hidden h-full min-h-[135px] flex flex-col justify-between p-5 rounded-2xl',
+        'bg-[#111118]/80 backdrop-blur-xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group',
+        className
+      )}>
+        {/* Subtle background glow */}
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none", gradient)} />
+        
+        <div className="relative z-10 flex items-start justify-between gap-2">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 truncate">{title}</p>
+            <p className={cn('text-2xl md:text-3xl font-extrabold tracking-tight text-white', color)}>
               <AnimatedNumber value={value} format={format} prefix={prefix} suffix={suffix} />
             </p>
           </div>
           {Icon && (
-            <div className={cn('p-2 rounded-xl bg-primary/10', color)}>
-              <Icon className="w-4 h-4 md:w-5 md:h-5" />
+            <div className={cn(
+              'p-2.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md shadow-inner transition-transform duration-300 group-hover:scale-110 shrink-0',
+              color
+            )}>
+              <Icon className="w-5 h-5" />
             </div>
           )}
         </div>
-        {change !== undefined && (
-          <div className="mt-2 flex items-center gap-1">
+
+        {/* Bottom Subtitle / Change Row - Always rendered to ensure identical height */}
+        <div className="relative z-10 mt-3 pt-2 border-t border-white/5 flex items-center gap-1.5 text-xs text-zinc-400">
+          {change !== undefined && (
             <span
               className={cn(
-                'text-xs font-medium',
-                change >= 0 ? 'text-emerald-400' : 'text-red-400'
+                'font-semibold inline-flex items-center',
+                change >= 0 ? 'text-emerald-400' : 'text-rose-400'
               )}
             >
               {change >= 0 ? '↑' : '↓'} {Math.abs(change).toFixed(1)}%
             </span>
-            {changeLabel && (
-              <span className="text-xs text-muted-foreground">{changeLabel}</span>
-            )}
-          </div>
-        )}
+          )}
+          {changeLabel && (
+            <span className="truncate font-medium text-zinc-400">{changeLabel}</span>
+          )}
+          {change === undefined && !changeLabel && (
+            <span className="text-zinc-600 font-medium">—</span>
+          )}
+        </div>
       </Card>
     </motion.div>
   );

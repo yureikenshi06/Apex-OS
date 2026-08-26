@@ -4,14 +4,36 @@ import { addTask } from '@/api/tasks';
 import { useAuth } from '@/hooks/use-auth';
 import type { CFATopic, CFARevisionPlan, CFATopicInsert } from '@/api/types';
 
+export const CFA_MODULE_CONFIG = [
+  { name: 'M1', fullName: 'Quantitative Methods', short: 'Quant', weight: '6% – 9%', weightMid: 7.5, color: '#3b82f6' },
+  { name: 'M2', fullName: 'Economics', short: 'Econ', weight: '6% – 9%', weightMid: 7.5, color: '#06b6d4' },
+  { name: 'M3', fullName: 'Corporate Issuers', aliases: ['Corporate Issuers', 'Corporate Finance', 'CorpFin'], short: 'Corp Issuers', weight: '6% – 9%', weightMid: 7.5, color: '#8b5cf6' },
+  { name: 'M4', fullName: 'Financial Statement Analysis', aliases: ['Financial Statement Analysis', 'FSA'], short: 'FSA', weight: '11% – 14%', weightMid: 12.5, color: '#ef4444' },
+  { name: 'M5', fullName: 'Equity Investments', aliases: ['Equity Investments', 'Equities'], short: 'Equities', weight: '11% – 14%', weightMid: 12.5, color: '#10b981' },
+  { name: 'M6', fullName: 'Fixed Income', aliases: ['Fixed Income', 'FixedIncome'], short: 'Fixed Income', weight: '11% – 14%', weightMid: 12.5, color: '#f59e0b' },
+  { name: 'M7', fullName: 'Derivatives', aliases: ['Derivatives'], short: 'Derivatives', weight: '5% – 8%', weightMid: 6.5, color: '#ec4899' },
+  { name: 'M8', fullName: 'Alternative Investments', aliases: ['Alternative Investments', 'Alts'], short: 'Alts', weight: '7% – 10%', weightMid: 8.5, color: '#6366f1' },
+  { name: 'M9', fullName: 'Portfolio Management', aliases: ['Portfolio Management', 'Portfolio Construction', 'Portfolio'], short: 'Portfolio', weight: '8% – 12%', weightMid: 10, color: '#14b8a6' },
+  { name: 'M10', fullName: 'Ethical and Professional Standards', aliases: ['Ethical and Professional Standards', 'Ethics'], short: 'Ethics', weight: '15% – 20%', weightMid: 17.5, color: '#dc2626' },
+];
+
 export function useCFATopics(filters?: { module?: string; status?: string; priority?: string; revision_status?: string; row_type?: string; search?: string }) {
   const { user } = useAuth();
   return useQuery({
     queryKey: ['cfaTopics', user?.id, filters],
     queryFn: async () => {
       if (!user?.id) return [];
-      const topics = await api.getCFATopics(user.id, filters?.module === 'All' ? undefined : filters?.module);
+      const topics = await api.getCFATopics(user.id);
+      const modFilter = filters?.module;
+      
       return topics.filter(t => {
+        if (modFilter && modFilter !== 'All Modules' && modFilter !== 'All') {
+          const cfg = CFA_MODULE_CONFIG.find(c => c.fullName === modFilter || c.short === modFilter || (c.aliases && c.aliases.includes(modFilter)));
+          const matchesModule = cfg 
+            ? (t.module === cfg.fullName || (cfg.aliases && cfg.aliases.includes(t.module)))
+            : t.module.toLowerCase().includes(modFilter.toLowerCase());
+          if (!matchesModule) return false;
+        }
         if (filters?.status && filters.status !== 'All' && t.status !== filters.status) return false;
         if (filters?.priority && filters.priority !== 'All' && t.priority !== filters.priority) return false;
         if (filters?.revision_status && filters.revision_status !== 'All' && t.revision_status !== filters.revision_status) return false;
@@ -20,7 +42,8 @@ export function useCFATopics(filters?: { module?: string; status?: string; prior
           const s = filters.search.toLowerCase();
           const matchCh = t.chapter_topic?.toLowerCase().includes(s);
           const matchSub = t.subtopic_lo?.toLowerCase().includes(s);
-          if (!matchCh && !matchSub) return false;
+          const matchMod = t.module?.toLowerCase().includes(s);
+          if (!matchCh && !matchSub && !matchMod) return false;
         }
         return true;
       });
@@ -33,7 +56,7 @@ export function useAddCFATopic() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
-    mutationFn: (topic: CFATopicInsert) => api.addCFATopic({ ...topic, owner_id: user?.id! }),
+    mutationFn: (topic: Omit<CFATopicInsert, 'owner_id'>) => api.addCFATopic({ ...topic, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cfaTopics'] });
       queryClient.invalidateQueries({ queryKey: ['cfaDashboardStats'] });
@@ -84,7 +107,7 @@ export function useLinkTopicToTask() {
       if (!user?.id) throw new Error('No user');
       const newTask = await addTask({
         owner_id: user.id,
-        title: `[${topic.module}] ${topic.chapter_topic}`,
+        title: `[CFA ${topic.module}] ${topic.chapter_topic}`,
         category: 'CFA',
         priority: topic.priority === 'High' ? 'High' : topic.priority === 'Low' ? 'Low' : 'Medium',
         status: topic.completed ? 'Done' : 'To Do',
@@ -150,65 +173,76 @@ export function useDeleteRevisionItem() {
   });
 }
 
-const CFA_MODULES = [
-  'Quantitative Methods',
-  'Economics',
-  'Corporate Finance',
-  'Financial Statement Analysis',
-  'Equities',
-  'Fixed Income',
-  'Derivatives',
-  'Alternative Investments',
-  'Portfolio Construction',
-  'Ethical and Professional Standards',
-];
-
 export function useCFADashboardStats() {
   const { user } = useAuth();
   return useQuery({
     queryKey: ['cfaDashboardStats', user?.id],
     queryFn: async () => {
-      if (!user?.id) return {
-        totalCompleted: 0,
-        totalTopics: 0,
-        overallHoursLogged: 0,
-        modules: [],
-        chaptersCompleted: 0,
-        losCovered: 0,
-        studyTopicsDone: 0,
-        reviewTopicsDone: 0,
-      };
+      if (!user?.id) return null;
 
-      const stats = await api.getCFADashboardStats(user.id);
       const topics = await api.getCFATopics(user.id);
+      const totalTopics = topics.length || 324;
+      const completedTopics = topics.filter(t => t.completed || t.status === 'Completed').length;
 
-      const modules = CFA_MODULES.map((modName, i) => {
-        const total = stats.totalByModule[modName] || 0;
-        const completed = stats.completedByModule[modName] || 0;
-        const plannedHours = stats.hoursPerModule[modName] || 0;
+      const modules = CFA_MODULE_CONFIG.map((cfg) => {
+        const modTopics = topics.filter(t => t.module === cfg.fullName || cfg.aliases?.includes(t.module));
+        const total = modTopics.length || 1;
+        const completed = modTopics.filter(t => t.completed || t.status === 'Completed').length;
+        const plannedHours = modTopics.reduce((sum, t) => sum + Number(t.planned_hours || 0), 0);
+        const actualHours = completed > 0 ? (plannedHours * (completed / total)) : 0;
+        const firstPassDone = modTopics.filter(t => t.revision_status === 'First Pass Done').length;
+        const revisedCount = modTopics.filter(t => t.revision_status === 'Revised Once' || t.revision_status === 'Revised Twice').length;
+        const masteredCount = modTopics.filter(t => t.revision_status === 'Mastered').length;
+
         return {
-          name: `M${i + 1}`,
-          fullName: modName,
+          name: cfg.name,
+          fullName: cfg.fullName,
+          short: cfg.short,
+          weight: cfg.weight,
+          weightMid: cfg.weightMid,
+          color: cfg.color,
           completed,
-          total: total || 1,
-          percentage: total > 0 ? Math.round((completed / total) * 100) : 0,
-          plannedHours,
-          actualHours: completed > 0 ? Math.round(plannedHours * (completed / (total || 1))) : 0,
+          total: modTopics.length,
+          percentage: modTopics.length > 0 ? Math.round((completed / modTopics.length) * 100) : 0,
+          plannedHours: Number(plannedHours.toFixed(1)),
+          actualHours: Number(actualHours.toFixed(1)),
+          firstPassDone,
+          revisedCount,
+          masteredCount,
         };
       });
 
       const studyTopicsDone = topics.filter(t => t.row_type === 'STUDY' && (t.completed || t.status === 'Completed')).length;
       const reviewTopicsDone = topics.filter(t => t.row_type === 'REVIEW' && (t.completed || t.status === 'Completed')).length;
+      const firstPassTotal = topics.filter(t => t.revision_status === 'First Pass Done').length;
+      const revisedTotal = topics.filter(t => t.revision_status === 'Revised Once' || t.revision_status === 'Revised Twice').length;
+      const masteredTotal = topics.filter(t => t.revision_status === 'Mastered').length;
+      const totalHoursLogged = topics.filter(t => t.completed || t.status === 'Completed').reduce((sum, t) => sum + Number(t.planned_hours || 0), 0);
+
+      // Trajectory Burn-up simulation
+      const trajectory = [
+        { month: 'Aug 26', targetHours: 20, actualHours: Math.min(25, Math.round(totalHoursLogged)) },
+        { month: 'Sep 26', targetHours: 60, actualHours: totalHoursLogged > 50 ? 55 : null },
+        { month: 'Oct 26', targetHours: 110, actualHours: null },
+        { month: 'Nov 26', targetHours: 165, actualHours: null },
+        { month: 'Dec 26', targetHours: 225, actualHours: null },
+        { month: 'Jan 27', targetHours: 300, actualHours: null },
+        { month: 'Feb 27 (Mocks)', targetHours: 340, actualHours: null },
+      ];
 
       return {
-        totalCompleted: stats.completedTopics,
-        totalTopics: stats.totalTopics,
-        overallHoursLogged: topics.filter(t => t.completed || t.status === 'Completed').reduce((sum, t) => sum + Number(t.planned_hours || 0), 0),
+        totalCompleted: completedTopics,
+        totalTopics,
+        overallHoursLogged: Number(totalHoursLogged.toFixed(1)),
         modules,
-        chaptersCompleted: stats.completedTopics,
-        losCovered: stats.completedTopics * 2,
+        chaptersCompleted: completedTopics,
+        losCovered: completedTopics * 2,
         studyTopicsDone,
         reviewTopicsDone,
+        firstPassTotal,
+        revisedTotal,
+        masteredTotal,
+        trajectory,
       };
     },
     enabled: !!user?.id,
@@ -222,7 +256,9 @@ export function useCFADeadlineCountdown() {
       const deadline = new Date('2027-01-31T00:00:00Z');
       const now = new Date();
       const diff = deadline.getTime() - now.getTime();
-      return Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
+      const days = Math.max(0, Math.ceil(diff / (1000 * 3600 * 24)));
+      const weeks = (days / 7).toFixed(1);
+      return { days, weeks };
     },
   });
 }

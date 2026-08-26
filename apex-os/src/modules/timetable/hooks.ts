@@ -37,6 +37,10 @@ export function useDeleteBlock() {
   });
 }
 
+export const useAddTimetableBlock = useAddBlock;
+export const useUpdateTimetableBlock = useUpdateBlock;
+export const useDeleteTimetableBlock = useDeleteBlock;
+
 // --- Daily Planner ---
 export function useDailyPlanner(date: string) {
   const { user } = useAuth();
@@ -78,8 +82,8 @@ export function useGenerateFromTemplate() {
   return useMutation({
     mutationFn: async (date: string) => {
       if (!user?.id) return;
-      const targetDay = new Date(date).getDay();
-      // Map JS getDay() (0=Sun, 1=Mon, ..., 6=Sat)
+      const jsDay = new Date(date).getDay();
+      const targetDay = (jsDay + 6) % 7; // Map JS getDay() (0=Sun, 1=Mon, ..., 6=Sat) to 0=Mon, ..., 6=Sun
       const blocks = await api.getTimetableBlocks(user.id);
       const dayBlocks = blocks.filter(b => b.day_of_week === targetDay);
       for (const block of dayBlocks) {
@@ -241,6 +245,10 @@ export function useDeleteBrand() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['personalBrand'] }),
   });
 }
+
+export const useAddPersonalBrand = useAddBrand;
+export const useUpdatePersonalBrand = useUpdateBrand;
+export const useDeletePersonalBrand = useDeleteBrand;
 
 // --- Weekly Review ---
 export function useWeeklyReviews() {

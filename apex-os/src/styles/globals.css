@@ -4,35 +4,35 @@
 
 @layer base {
   :root {
-    --background: #0a0a0f;
-    --foreground: #fafafa;
+    --background: #05060a;
+    --foreground: #f8fafc;
 
-    --card: #111118;
-    --card-foreground: #fafafa;
+    --card: #0c1019;
+    --card-foreground: #f8fafc;
 
-    --popover: #111118;
-    --popover-foreground: #fafafa;
+    --popover: #0c1019;
+    --popover-foreground: #f8fafc;
 
-    --primary: #6366f1;
-    --primary-foreground: #fafafa;
+    --primary: #3b82f6;
+    --primary-foreground: #ffffff;
 
-    --secondary: #1e1e2e;
-    --secondary-foreground: #fafafa;
+    --secondary: #111827;
+    --secondary-foreground: #f8fafc;
 
-    --muted: #1e1e2e;
-    --muted-foreground: #a1a1aa;
+    --muted: #131b2e;
+    --muted-foreground: #94a3b8;
 
-    --accent: #6366f1;
-    --accent-foreground: #fafafa;
+    --accent: #ef4444;
+    --accent-foreground: #ffffff;
 
     --destructive: #ef4444;
-    --destructive-foreground: #fafafa;
+    --destructive-foreground: #ffffff;
 
-    --border: #27272a;
-    --input: #27272a;
-    --ring: #6366f1;
+    --border: #1e293b;
+    --input: #1e293b;
+    --ring: #3b82f6;
 
-    --radius: 0.75rem;
+    --radius: 0.85rem;
   }
 }
 
@@ -49,26 +49,26 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom Scrollbar for Webkit */
+/* Modern Cyber Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background);
+  background: #05060a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted);
+  background: #1e293b;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--border);
+  background: #3b82f6;
 }
 
 ::selection {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
+  background-color: rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
 }
