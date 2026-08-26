@@ -72,12 +72,9 @@ export default function CFARevisionPage() {
             </Button>
             <h1 className="text-3xl font-black text-white tracking-tight">CFA Revision Plan</h1>
             <Badge variant="secondary" className="bg-red-900/50 text-red-200 border-red-700/50 font-bold px-2.5">
-              February 2027 Intensive
+              February 2027
             </Badge>
           </div>
-          <p className="text-sm text-zinc-400 mt-1">
-            Structured review rounds, topic consolidation, mock exams, and weak area mastery.
-          </p>
         </div>
 
         <Button 

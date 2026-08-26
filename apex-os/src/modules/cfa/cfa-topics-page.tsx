@@ -8,7 +8,7 @@ import {
 import { ProgressRing } from './progress-ring';
 import { 
   Search, Plus, BookOpen, CheckCircle2, Award, Clock, 
-  Filter, Sparkles, ArrowLeft, Check, AlertCircle, RefreshCw, Zap 
+  ArrowLeft, Check, AlertCircle, RefreshCw, Zap, Layers, Sparkles 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -141,36 +141,31 @@ export default function CFATopicsPage() {
 
   const studyCount = topics.filter(t => t.row_type === 'STUDY').length;
   const reviewCount = topics.filter(t => t.row_type === 'REVIEW').length;
-  const highPriorityCount = topics.filter(t => t.priority === 'High' && !t.completed).length;
+  const highPriorityIncomplete = topics.filter(t => t.priority === 'High' && !t.completed).length;
 
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto text-foreground font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <Button 
-              onClick={() => navigate('/cfa')} 
-              variant="ghost" 
-              size="sm" 
-              className="p-1.5 h-8 text-zinc-400 hover:text-white rounded-lg"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-            <h1 className="text-3xl font-black text-white tracking-tight">CFA Topics & LOS Tracker</h1>
-            <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
-              324 Learning Outcomes
-            </Badge>
-          </div>
-          <p className="text-sm text-zinc-400 mt-1">
-            Master each reading, track revision stages from First Pass to Mastered, and link topics to your daily Task list.
-          </p>
+        <div className="flex items-center gap-3">
+          <Button 
+            onClick={() => navigate('/cfa')} 
+            variant="ghost" 
+            size="sm" 
+            className="p-1.5 h-8 text-zinc-400 hover:text-white rounded-lg"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <h1 className="text-3xl font-black text-white tracking-tight">CFA Topics & LOS Tracker</h1>
+          <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
+            324 Topics
+          </Badge>
         </div>
 
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => setAddModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-semibold"
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-semibold text-xs h-9 px-4"
           >
             <Plus className="w-4 h-4" /> Add Topic
           </Button>
@@ -178,7 +173,7 @@ export default function CFATopicsPage() {
       </div>
 
       {/* Module Quick Filter Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => handleModuleSelect('All Modules')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
@@ -202,102 +197,98 @@ export default function CFATopicsPage() {
               }`}
             >
               <span>{m.short}</span>
-              <span className="text-[10px] opacity-75 font-mono">({m.weight})</span>
             </button>
           );
         })}
       </div>
 
-      {/* Detailed Analysis of the Selected Module Banner */}
+      {/* High-Impact Progress Analysis Dashboard */}
       <motion.div 
         layout 
-        className="bg-gradient-to-r from-[#0d1322] via-[#0b0f19] to-[#05060a] border border-blue-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl"
+        className="bg-gradient-to-r from-[#0d1424] via-[#090d17] to-[#05060a] border border-blue-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl"
       >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="flex items-start gap-4">
-            <div className="shrink-0 mt-1">
+          {/* Left: Progress Ring & Title */}
+          <div className="flex items-center gap-5">
+            <div className="shrink-0">
               <ProgressRing 
                 progress={modulePct} 
-                size={84} 
-                strokeWidth={7} 
-                color={modulePct >= 75 ? '#10b981' : modulePct >= 25 ? '#f59e0b' : '#3b82f6'} 
+                size={90} 
+                strokeWidth={8} 
+                color={modulePct >= 75 ? '#10b981' : modulePct >= 25 ? '#3b82f6' : '#ef4444'} 
                 label={`${modulePct}%`} 
               />
             </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2.5">
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2.5 flex-wrap">
                 <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                  {isSpecificModule ? selectedConfig?.fullName : 'All 10 CFA Curriculum Modules'}
+                  {isSpecificModule ? selectedConfig?.fullName : 'All CFA Curriculum Modules'}
                 </h2>
-                {isSpecificModule && (
-                  <Badge variant="outline" className="border-red-500/40 text-red-400 bg-red-500/10 text-xs font-bold px-2.5 py-0.5">
-                    Official Exam Weight: {selectedConfig?.weight}
-                  </Badge>
-                )}
+                <Badge variant="outline" className="border-blue-500/40 text-blue-300 bg-blue-500/10 text-xs font-mono font-bold px-2.5 py-0.5">
+                  {completedModuleTopics} / {totalModuleTopics} Topics
+                </Badge>
               </div>
-              <p className="text-xs text-zinc-400 max-w-2xl leading-relaxed">
-                {isSpecificModule 
-                  ? `Focusing on ${selectedConfig?.fullName}. Target comprehensive mastery of formulas, concept checks, and end-of-reading item sets.` 
-                  : 'Displaying complete 2027 Level I syllabus. Filter by module above to inspect specific chapters and subtopics.'
-                }
-              </p>
 
               {/* Progress Stage Distribution Bar */}
-              <div className="pt-2 space-y-1.5 max-w-xl">
-                <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden flex border border-white/5">
-                  <div style={{ width: `${(masteredCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-emerald-500 h-full" title="Mastered" />
-                  <div style={{ width: `${(revisedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-purple-500 h-full" title="Revised" />
-                  <div style={{ width: `${(firstPassCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-blue-500 h-full" title="First Pass Done" />
-                  <div style={{ width: `${(notStartedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-zinc-800 h-full" title="Not Started" />
+              <div className="space-y-1.5 max-w-lg">
+                <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden flex border border-white/5 shadow-inner">
+                  <div style={{ width: `${(masteredCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-emerald-500 h-full transition-all duration-500" title="Mastered" />
+                  <div style={{ width: `${(revisedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-purple-500 h-full transition-all duration-500" title="Revised" />
+                  <div style={{ width: `${(firstPassCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-blue-500 h-full transition-all duration-500" title="First Pass Done" />
+                  <div style={{ width: `${(notStartedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-zinc-800 h-full transition-all duration-500" title="Not Started" />
                 </div>
-                <div className="flex flex-wrap items-center gap-3 text-[11px] font-medium text-zinc-400">
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-purple-500" /> Revised: <strong className="text-purple-400">{revisedCount}</strong></span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500" /> First Pass: <strong className="text-blue-400">{firstPassCount}</strong></span>
-                  <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-zinc-700" /> Not Started: <strong className="text-zinc-400">{notStartedCount}</strong></span>
+                <div className="flex flex-wrap items-center gap-3.5 text-xs font-semibold text-zinc-300">
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" /> Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm" /> Revised: <strong className="text-purple-400">{revisedCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm" /> First Pass: <strong className="text-blue-400">{firstPassCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-zinc-700 shadow-sm" /> Pending: <strong className="text-zinc-400">{notStartedCount}</strong></span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Metrics Block */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-3 shrink-0">
-            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Topics Completed</span>
-              <span className="text-lg font-black text-white font-mono mt-0.5 block">{completedModuleTopics} / {totalModuleTopics}</span>
+          {/* Right: 4 Sleek Glass Metric Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 shrink-0">
+            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Completion</span>
+              <span className="text-xl font-black text-white font-mono mt-0.5 block">{modulePct}%</span>
+              <span className="text-[10px] text-emerald-400 font-medium block">{completedModuleTopics}/{totalModuleTopics} done</span>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
+            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
               <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Study Hours</span>
-              <span className="text-lg font-black text-blue-400 font-mono mt-0.5 block">{moduleHoursDone.toFixed(1)} / {moduleHoursTotal.toFixed(1)}h</span>
+              <span className="text-xl font-black text-blue-400 font-mono mt-0.5 block">{moduleHoursDone.toFixed(1)}h</span>
+              <span className="text-[10px] text-zinc-400 font-medium block">of {moduleHoursTotal.toFixed(1)}h planned</span>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Study vs Review</span>
-              <span className="text-lg font-black text-purple-400 font-mono mt-0.5 block">{studyCount} / {reviewCount}</span>
+            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Type Split</span>
+              <span className="text-xl font-black text-purple-400 font-mono mt-0.5 block">{studyCount} / {reviewCount}</span>
+              <span className="text-[10px] text-zinc-400 font-medium block">Study / Review</span>
             </div>
-            <div className="bg-white/5 border border-white/10 p-3 rounded-2xl">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">High Priority Remaining</span>
-              <span className="text-lg font-black text-rose-400 font-mono mt-0.5 block">{highPriorityCount} topics</span>
+            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">High Priority</span>
+              <span className="text-xl font-black text-rose-400 font-mono mt-0.5 block">{highPriorityIncomplete}</span>
+              <span className="text-[10px] text-rose-300/80 font-medium block">pending action</span>
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Interactive Filters Bar */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl backdrop-blur-xl">
+      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xl backdrop-blur-xl">
         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
-          <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <div className="relative flex-1 min-w-[180px] max-w-xs">
             <Search className="w-4 h-4 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input 
               type="text" 
-              placeholder="Search chapters, formulas, learning outcomes..." 
+              placeholder="Search topics or LOS..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#111827] border-white/10 pl-9 text-xs rounded-xl focus-visible:ring-blue-500 text-white placeholder:text-zinc-500 h-9"
+              className="bg-[#111827] border-white/10 pl-9 text-xs rounded-xl focus-visible:ring-blue-500 text-white placeholder:text-zinc-500 h-8"
             />
           </div>
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[125px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+            <SelectTrigger className="w-[120px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
@@ -307,7 +298,7 @@ export default function CFATopicsPage() {
           </Select>
 
           <Select value={filterRevision} onValueChange={setFilterRevision}>
-            <SelectTrigger className="w-[145px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+            <SelectTrigger className="w-[135px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Revision" />
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
@@ -317,7 +308,7 @@ export default function CFATopicsPage() {
           </Select>
 
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="w-[115px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+            <SelectTrigger className="w-[110px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
@@ -327,7 +318,7 @@ export default function CFATopicsPage() {
           </Select>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[110px] bg-[#111827] border-white/10 text-xs rounded-xl h-9 text-zinc-300">
+            <SelectTrigger className="w-[105px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
@@ -342,21 +333,21 @@ export default function CFATopicsPage() {
         </div>
       </div>
 
-      {/* Main Table */}
+      {/* Main Table - Internal Viewport Scroll Container so horizontal/vertical scrollbars are ALWAYS visible in viewport */}
       <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white/5 text-zinc-400 text-xs uppercase tracking-wider font-bold border-b border-white/10">
-                <th className="p-4 w-12 text-center">Done</th>
-                <th className="p-4">Module</th>
-                <th className="p-4">Chapter / Topic</th>
-                <th className="p-4 min-w-[300px]">Learning Outcome Statements (LOS)</th>
-                <th className="p-4 text-center">Type</th>
-                <th className="p-4 text-center">Priority</th>
-                <th className="p-4 text-center">Status</th>
-                <th className="p-4 text-center">Revision Status</th>
-                <th className="p-4 text-center">Tasks Action</th>
+        <div className="max-h-[600px] overflow-auto relative">
+          <table className="w-full text-left border-collapse min-w-[1000px]">
+            <thead className="sticky top-0 z-10 bg-[#0e1424] text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-white/10 shadow-sm">
+              <tr>
+                <th className="p-3.5 w-12 text-center">Done</th>
+                <th className="p-3.5 w-24">Module</th>
+                <th className="p-3.5 w-64">Chapter / Reading</th>
+                <th className="p-3.5">Learning Outcome Statements (LOS)</th>
+                <th className="p-3.5 w-20 text-center">Type</th>
+                <th className="p-3.5 w-24 text-center">Priority</th>
+                <th className="p-3.5 w-32 text-center">Status</th>
+                <th className="p-3.5 w-36 text-center">Revision</th>
+                <th className="p-3.5 w-28 text-center">Tasks</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-sm">
@@ -379,7 +370,7 @@ export default function CFATopicsPage() {
                       className={`hover:bg-white/[0.03] transition-colors group ${isDone ? 'bg-emerald-950/10' : ''}`}
                     >
                       {/* Done Checkbox */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <input 
                           type="checkbox" 
                           checked={isDone}
@@ -389,7 +380,7 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Module Badge */}
-                      <td className="p-4">
+                      <td className="p-3">
                         <Badge 
                           variant="outline" 
                           className="text-[10px] font-bold px-2 py-0.5 border-blue-500/30 text-blue-300 bg-blue-500/10 whitespace-nowrap"
@@ -399,7 +390,7 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Chapter Title */}
-                      <td className="p-4 font-semibold text-white">
+                      <td className="p-3 font-semibold text-white">
                         <span className={isDone ? 'line-through text-zinc-400' : ''}>
                           {topic.chapter_topic}
                         </span>
@@ -411,14 +402,14 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Subtopic / LOS */}
-                      <td className="p-4 text-xs text-zinc-300 max-w-md leading-relaxed">
+                      <td className="p-3 text-xs text-zinc-300 leading-relaxed">
                         <span className="line-clamp-2 hover:line-clamp-none transition-all cursor-text">
                           {topic.subtopic_lo}
                         </span>
                       </td>
 
                       {/* Row Type */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                           topic.row_type === 'STUDY' 
                             ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' 
@@ -429,7 +420,7 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Priority */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
                           topic.priority === 'High'
                             ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
@@ -442,11 +433,11 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Status Dropdown */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <select 
                           value={topic.status || 'Not Started'} 
                           onChange={(e) => handleStatusChange(topic.id, e.target.value)}
-                          className="bg-[#111827] border border-white/10 text-zinc-200 text-xs rounded-lg px-2.5 py-1.5 focus:border-blue-500 outline-none cursor-pointer"
+                          className="bg-[#111827] border border-white/10 text-zinc-200 text-xs rounded-lg px-2 py-1 focus:border-blue-500 outline-none cursor-pointer"
                         >
                           <option value="Not Started">Not Started</option>
                           <option value="In Progress">In Progress ⏳</option>
@@ -455,11 +446,11 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Revision Status Dropdown */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <select 
                           value={topic.revision_status || 'Not Started'} 
                           onChange={(e) => handleRevisionChange(topic.id, e.target.value)}
-                          className={`text-xs rounded-lg px-2.5 py-1.5 border outline-none cursor-pointer font-medium ${
+                          className={`text-xs rounded-lg px-2 py-1 border outline-none cursor-pointer font-medium ${
                             topic.revision_status === 'Mastered'
                               ? 'bg-emerald-950/40 text-emerald-400 border-emerald-500/40'
                               : topic.revision_status?.includes('Revised')
@@ -474,17 +465,17 @@ export default function CFATopicsPage() {
                       </td>
 
                       {/* Task Link Button */}
-                      <td className="p-4 text-center">
+                      <td className="p-3 text-center">
                         <button 
                           onClick={() => toggleTaskLink(topic)}
-                          className={`text-xs px-3 py-1.5 rounded-xl font-semibold transition-all shadow-sm ${
+                          className={`text-xs px-2.5 py-1 rounded-xl font-semibold transition-all shadow-sm ${
                             topic.linked_task_id 
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/40'
                             : 'bg-white/5 border border-white/10 text-zinc-300 hover:bg-blue-600 hover:text-white hover:border-blue-500'
                           }`}
                           title={topic.linked_task_id ? 'Linked in Task Manager (Click to unlink)' : 'Click to create a linked task in Task Manager'}
                         >
-                          {topic.linked_task_id ? '✓ In Tasks' : '+ Add Task'}
+                          {topic.linked_task_id ? '✓ In Tasks' : '+ Task'}
                         </button>
                       </td>
                     </motion.tr>
@@ -496,7 +487,7 @@ export default function CFATopicsPage() {
         </div>
 
         {/* Footer Summary */}
-        <div className="p-4 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/[0.02]">
+        <div className="p-3.5 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/[0.02]">
           <span>Showing <strong>{topics.length}</strong> CFA learning topics</span>
           <div className="flex items-center gap-4 font-mono text-zinc-300">
             <span>Total Planned: <strong className="text-white">{moduleHoursTotal.toFixed(1)} hrs</strong></span>
