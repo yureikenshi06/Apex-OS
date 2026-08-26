@@ -133,11 +133,6 @@ export function CommandPalette({ isOpen, onClose }: { isOpen: boolean; onClose: 
                     <CheckSquare className="w-4 h-4 mr-2.5 text-indigo-400" />
                     <span>Task Manager</span>
                   </Command.Item>
-                  <Command.Item onSelect={() => runCommand(() => navigate('/settings'))} className={commandItemClass}>
-                    <Settings className="w-4 h-4 mr-2.5 text-zinc-400" />
-                    <span>Settings & Backups</span>
-                    <span className="ml-auto text-xs text-zinc-500 font-mono">g s</span>
-                  </Command.Item>
                 </Command.Group>
               </Command.List>
             </Command>

@@ -243,24 +243,24 @@ export default function CFAPage() {
               <AreaChart data={stats?.trajectory || []}>
                 <defs>
                   <linearGradient id="targetHoursGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.35}/>
                     <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="actualHoursGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.45}/>
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.4} />
                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}h`} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: '#0e131f', borderColor: '#1e293b', borderRadius: '12px', color: '#fff' }} 
+                  contentStyle={{ backgroundColor: '#090d18', borderColor: '#1e293b', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.8)' }} 
                   formatter={(val: any) => [`${val} hrs`, '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} />
                 <Area type="monotone" dataKey="targetHours" name="Target (hrs)" stroke="#3b82f6" strokeWidth={2} strokeDasharray="4 4" fill="url(#targetHoursGrad)" />
-                <Area type="monotone" dataKey="actualHours" name="Actual (hrs)" stroke="#10b981" strokeWidth={2.5} fill="url(#actualHoursGrad)" />
+                <Area type="monotone" dataKey="actualHours" name="Actual (hrs)" stroke="#ef4444" strokeWidth={2.5} fill="url(#actualHoursGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>

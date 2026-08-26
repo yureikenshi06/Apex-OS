@@ -76,7 +76,7 @@ export const router = createBrowserRouter([
       { path: 'cfa', element: <CFAPage /> },
       { path: 'cfa/topics', element: <CFATopicsPage /> },
       { path: 'cfa/revision', element: <CFARevisionPage /> },
-      { path: 'settings', element: <SettingsPage /> },
+      { path: 'settings', element: <Navigate to="/home" replace /> },
     ],
   },
 ]);

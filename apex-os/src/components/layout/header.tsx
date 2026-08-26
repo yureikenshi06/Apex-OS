@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, User as UserIcon, LogOut, Settings as SettingsIcon } from 'lucide-react';
+import { Search, Plus, LogOut } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from './auth-provider';
@@ -57,14 +57,6 @@ export function Header() {
           <Plus className="h-4 w-4 stroke-[2.5]" />
           <span className="hidden sm:inline">Quick Add</span>
         </Button>
-        
-        <button
-          onClick={() => navigate('/settings')}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
-          title="Settings"
-        >
-          <SettingsIcon className="w-4 h-4" />
-        </button>
 
         <button
           onClick={handleSignOut}

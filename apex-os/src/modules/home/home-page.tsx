@@ -103,37 +103,41 @@ export default function HomePage() {
         <div className="absolute -left-16 -bottom-16 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="space-y-3 z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> Apex Executive OS
-          </div>
-          
-          <div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white">
-              Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-cyan-300">Master Yurei Kenshi</span>
-            </h1>
+          <div className="flex items-center gap-3">
+            <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+              Welcome back, <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-rose-400 bg-clip-text text-transparent">Master Yurei Kenshi</span>
+            </h2>
           </div>
           
           <div className="flex flex-wrap gap-2 pt-1">
-            <Badge variant="secondary" className="bg-orange-500/15 text-orange-300 border-orange-500/30 px-3 py-1 text-xs font-semibold gap-1.5 shadow-sm">
-              <Flame className="w-3.5 h-3.5 text-orange-400" /> 12-Day Workout Streak
-            </Badge>
-            <Badge variant="secondary" className="bg-emerald-500/15 text-emerald-300 border-emerald-500/30 px-3 py-1 text-xs font-semibold gap-1.5 shadow-sm">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 5-Day Habit Streak
+            <Badge variant="secondary" className="bg-rose-500/15 text-rose-300 border-rose-500/30 px-3 py-1 text-xs font-semibold gap-1.5 shadow-sm">
+              <Flame className="w-3.5 h-3.5 text-rose-400" /> 12-Day Workout Streak
             </Badge>
             <Badge variant="secondary" className="bg-blue-500/15 text-blue-300 border-blue-500/30 px-3 py-1 text-xs font-semibold gap-1.5 shadow-sm">
-              <GraduationCap className="w-3.5 h-3.5 text-blue-400" /> 8-Day CFA Streak
+              <CheckCircle2 className="w-3.5 h-3.5 text-blue-400" /> 5-Day Habit Streak
+            </Badge>
+            <Badge variant="secondary" className="bg-cyan-500/15 text-cyan-300 border-cyan-500/30 px-3 py-1 text-xs font-semibold gap-1.5 shadow-sm">
+              <GraduationCap className="w-3.5 h-3.5 text-cyan-400" /> 8-Day CFA Streak
             </Badge>
           </div>
         </div>
         
-        {/* Animated Daily Mastery Score Ring */}
-        <div className="flex items-center gap-5 bg-[#0b0f19]/90 p-5 rounded-3xl border border-blue-500/30 shadow-2xl z-10 shrink-0">
+        {/* Animated Daily Mastery Score Ring with Blue-Red Dual Gradient */}
+        <div className="flex items-center gap-5 bg-[#090d18]/90 p-5 rounded-3xl border border-blue-500/30 shadow-2xl z-10 shrink-0">
           <div className="relative w-24 h-24">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="42" className="fill-none stroke-zinc-800" strokeWidth="8" />
+              <defs>
+                <linearGradient id="scoreBlueRed" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#3b82f6" />
+                  <stop offset="50%" stopColor="#8b5cf6" />
+                  <stop offset="100%" stopColor="#ef4444" />
+                </linearGradient>
+              </defs>
+              <circle cx="50" cy="50" r="42" className="fill-none stroke-zinc-800/80" strokeWidth="8" />
               <circle 
                 cx="50" cy="50" r="42" 
-                className="fill-none stroke-blue-500 transition-all duration-1000 ease-out shadow-lg" 
+                className="fill-none transition-all duration-1000 ease-out" 
+                stroke="url(#scoreBlueRed)"
                 strokeWidth="8" 
                 strokeDasharray="263.89" 
                 strokeDashoffset={263.89 - (263.89 * (dailyScore || 0)) / 100}
@@ -141,12 +145,13 @@ export default function HomePage() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-black text-white">{Math.round(dailyScore)}%</span>
+              <span className="text-2xl font-black text-white font-mono">{Math.round(dailyScore)}%</span>
               <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest">Mastery</span>
             </div>
           </div>
           <div>
-            <h3 className="font-bold text-white text-base">Execution Score</h3>
+            <h3 className="font-black text-white text-base">Execution Score</h3>
+            <span className="text-xs text-zinc-400 font-mono">Live Composite</span>
           </div>
         </div>
       </motion.div>

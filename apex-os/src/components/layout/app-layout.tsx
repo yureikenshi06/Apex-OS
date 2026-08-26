@@ -13,6 +13,8 @@ import { TimetableBlockModal } from '@/modules/timetable/timetable-block-modal';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useUIStore } from '@/store/ui-store';
 
+import { AmbientBackground } from './ambient-background';
+
 export default function AppLayout() {
   useKeyboardShortcuts();
   const { 
@@ -31,9 +33,10 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="flex h-screen w-full bg-[#08080c] text-foreground overflow-hidden font-sans selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div className="flex h-screen w-full bg-[#05060a] text-foreground overflow-hidden font-sans selection:bg-blue-600/30 selection:text-cyan-300 relative">
+      <AmbientBackground />
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden relative z-10">
         <Header />
         <main className="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
           <div className="mx-auto max-w-7xl h-full">

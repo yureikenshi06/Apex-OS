@@ -58,7 +58,6 @@ export function useKeyboardShortcuts() {
           case 'f': navigate('/finance'); break;
           case 'w': navigate('/fitness'); break;
           case 'c': navigate('/cfa'); break;
-          case 's': navigate('/settings'); break;
         }
         setKeySequence([]);
         if (timeoutRef.current) clearTimeout(timeoutRef.current);

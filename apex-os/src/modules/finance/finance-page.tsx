@@ -373,12 +373,12 @@ export default function FinancePage() {
                 <AreaChart data={trendData} margin={{ top: 10, right: 15, left: -10, bottom: 0 }}>
                   <defs>
                     <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.35}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.0}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0}/>
                     </linearGradient>
                     <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.35}/>
-                      <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.0}/>
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.4} />
@@ -399,7 +399,7 @@ export default function FinancePage() {
                     type="monotone" 
                     name="Income" 
                     dataKey="income" 
-                    stroke="#10b981" 
+                    stroke="#3b82f6" 
                     strokeWidth={2.5} 
                     fillOpacity={1} 
                     fill="url(#incomeGrad)" 
@@ -408,7 +408,7 @@ export default function FinancePage() {
                     type="monotone" 
                     name="Expenses" 
                     dataKey="expenses" 
-                    stroke="#f43f5e" 
+                    stroke="#ef4444" 
                     strokeWidth={2.5} 
                     fillOpacity={1} 
                     fill="url(#expenseGrad)" 

@@ -42,6 +42,14 @@ export async function deleteWorkoutPlanItem(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function bulkAddWorkoutPlan(ownerId: string, items: Omit<WorkoutPlanInsert, 'owner_id'>[]): Promise<WorkoutPlan[]> {
+  await supabase.from('workout_plan').delete().eq('owner_id', ownerId);
+  const payload = items.map(i => ({ ...i, owner_id: ownerId }));
+  const { data, error } = await supabase.from('workout_plan').insert(payload).select();
+  if (error) throw error;
+  return data || [];
+}
+
 // Workout Logs
 export async function getWorkoutLogs(ownerId: string, date?: string): Promise<WorkoutLog[]> {
   let query = supabase.from('workout_log').select('*').eq('owner_id', ownerId).order('date', { ascending: false });
@@ -352,4 +360,15 @@ export async function updateSleepLog(id: string, updates: Partial<SleepLogInsert
 export async function deleteSleepLog(id: string): Promise<void> {
   const { error } = await supabase.from('sleep_log').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function resetAllFitnessData(ownerId: string): Promise<void> {
+  await Promise.all([
+    supabase.from('body_measurements').delete().eq('owner_id', ownerId),
+    supabase.from('cardio_steps_log').delete().eq('owner_id', ownerId),
+    supabase.from('sleep_log').delete().eq('owner_id', ownerId),
+    supabase.from('workout_log').delete().eq('owner_id', ownerId),
+    supabase.from('workout_plan').delete().eq('owner_id', ownerId),
+    supabase.from('fitness_habit_daily').delete().eq('owner_id', ownerId),
+  ]);
 }

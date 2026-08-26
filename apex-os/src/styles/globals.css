@@ -7,22 +7,22 @@
     --background: #05060a;
     --foreground: #f8fafc;
 
-    --card: #0c1019;
+    --card: #090d16;
     --card-foreground: #f8fafc;
 
-    --popover: #0c1019;
+    --popover: #090d16;
     --popover-foreground: #f8fafc;
 
-    --primary: #3b82f6;
+    --primary: #3b82f6; /* Electric Cyber Blue */
     --primary-foreground: #ffffff;
 
-    --secondary: #111827;
+    --secondary: #111726;
     --secondary-foreground: #f8fafc;
 
-    --muted: #131b2e;
+    --muted: #0f172a;
     --muted-foreground: #94a3b8;
 
-    --accent: #ef4444;
+    --accent: #ef4444; /* Vivid Crimson Red */
     --accent-foreground: #ffffff;
 
     --destructive: #ef4444;
@@ -41,7 +41,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-[#05060a] text-foreground antialiased;
   }
 }
 
@@ -51,8 +51,8 @@ html {
 
 /* Modern Cyber Scrollbar */
 ::-webkit-scrollbar {
-  width: 7px;
-  height: 7px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -70,5 +70,32 @@ html {
 
 ::selection {
   background-color: rgba(59, 130, 246, 0.35);
-  color: #60a5fa;
+  color: #67e8f9;
+}
+
+/* Custom Cyber Glow Utilities */
+@layer utilities {
+  .glow-blue {
+    box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+  }
+  .glow-red {
+    box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.4);
+  }
+  .glow-dual {
+    box-shadow: -8px -8px 25px -5px rgba(59, 130, 246, 0.25), 8px 8px 25px -5px rgba(239, 68, 68, 0.25);
+  }
+  .glass-card {
+    background: rgba(9, 13, 22, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .glass-card-hover {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .glass-card-hover:hover {
+    border-color: rgba(59, 130, 246, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(59, 130, 246, 0.2);
+  }
 }

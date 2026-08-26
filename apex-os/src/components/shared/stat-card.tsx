@@ -71,17 +71,18 @@ export function StatCard({
       className="h-full"
     >
       <Card className={cn(
-        'relative overflow-hidden h-full min-h-[135px] flex flex-col justify-between p-5 rounded-2xl',
-        'bg-[#111118]/80 backdrop-blur-xl border border-white/10 hover:border-indigo-500/40 transition-all duration-300 shadow-xl group',
+        'relative overflow-hidden h-full min-h-[135px] flex flex-col justify-between p-5 rounded-3xl',
+        'bg-[#090d16]/85 backdrop-blur-xl border border-white/10 hover:border-blue-500/40 transition-all duration-300 shadow-xl group',
+        'hover:shadow-2xl hover:shadow-blue-900/20',
         className
       )}>
         {/* Subtle background glow */}
-        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 group-hover:opacity-100 transition-opacity pointer-events-none", gradient)} />
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-40 group-hover:opacity-100 transition-opacity pointer-events-none", gradient)} />
         
         <div className="relative z-10 flex items-start justify-between gap-2">
           <div className="space-y-1.5 flex-1 min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400 truncate">{title}</p>
-            <p className={cn('text-2xl md:text-3xl font-extrabold tracking-tight text-white', color)}>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-400 truncate font-mono">{title}</p>
+            <p className={cn('text-2xl md:text-3xl font-black tracking-tight text-white font-mono', color)}>
               <AnimatedNumber value={value} format={format} prefix={prefix} suffix={suffix} />
             </p>
           </div>
