@@ -41,6 +41,15 @@ export const useAddTimetableBlock = useAddBlock;
 export const useUpdateTimetableBlock = useUpdateBlock;
 export const useDeleteTimetableBlock = useDeleteBlock;
 
+export function usePopulateMasterTimetable() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: (blocks: any[]) => api.bulkAddTimetableBlocks(user?.id!, blocks),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetableBlocks'] }),
+  });
+}
+
 // --- Daily Planner ---
 export function useDailyPlanner(date: string) {
   const { user } = useAuth();

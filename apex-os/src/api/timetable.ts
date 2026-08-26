@@ -38,6 +38,14 @@ export async function deleteTimetableBlock(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function bulkAddTimetableBlocks(ownerId: string, blocks: Omit<TimetableBlockInsert, 'owner_id'>[]): Promise<TimetableBlock[]> {
+  await supabase.from('timetable_blocks').delete().eq('owner_id', ownerId);
+  const items = blocks.map(b => ({ ...b, owner_id: ownerId }));
+  const { data, error } = await supabase.from('timetable_blocks').insert(items).select();
+  if (error) throw error;
+  return data || [];
+}
+
 // Daily Planner Entries
 export async function getDailyPlannerEntries(ownerId: string, date: string): Promise<DailyPlannerEntry[]> {
   const { data, error } = await supabase
