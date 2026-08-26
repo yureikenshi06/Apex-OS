@@ -23,6 +23,10 @@ export async function getTransactions(ownerId: string, filters?: { month?: strin
       const startDate = new Date(filters.year, filters.month - 1, 1).toISOString().split('T')[0];
       const endDate = new Date(filters.year, filters.month, 0).toISOString().split('T')[0];
       query = query.gte('date', startDate).lte('date', endDate);
+    } else if (filters.year !== undefined) {
+      const startDate = `${filters.year}-01-01`;
+      const endDate = `${filters.year}-12-31`;
+      query = query.gte('date', startDate).lte('date', endDate);
     }
   }
 
