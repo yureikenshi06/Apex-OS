@@ -85,6 +85,18 @@ export function useDeletePlannerEntry() {
   });
 }
 
+export function useClearDailyPlanner() {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  return useMutation({
+    mutationFn: (date: string) => api.clearDailyPlannerEntries(user?.id!, date),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyExecutionScore'] });
+    },
+  });
+}
+
 export function useGenerateFromTemplate() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -93,8 +105,19 @@ export function useGenerateFromTemplate() {
       if (!user?.id) return;
       const jsDay = new Date(date).getDay();
       const targetDay = (jsDay + 6) % 7; // Map JS getDay() (0=Sun, 1=Mon, ..., 6=Sat) to 0=Mon, ..., 6=Sun
-      const blocks = await api.getTimetableBlocks(user.id);
-      const dayBlocks = blocks.filter(b => b.day_of_week === targetDay);
+      
+      // Clear existing entries for today first so there are no accidental leftovers
+      await api.clearDailyPlannerEntries(user.id, date);
+
+      const dbBlocks = await api.getTimetableBlocks(user.id);
+      let dayBlocks = dbBlocks.filter(b => b.day_of_week === targetDay);
+      
+      // Fallback to MASTER_TIMETABLE_SEED if database blocks are not populated
+      if (dayBlocks.length === 0) {
+        const seedBlocks = (await import('./master-timetable-seed')).MASTER_TIMETABLE_SEED;
+        dayBlocks = seedBlocks.filter(s => s.day_of_week === targetDay) as any[];
+      }
+
       for (const block of dayBlocks) {
         await api.addDailyPlannerEntry({
           owner_id: user.id,
@@ -115,7 +138,10 @@ export function useGenerateFromTemplate() {
         });
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] });
+      queryClient.invalidateQueries({ queryKey: ['dailyExecutionScore'] });
+    },
   });
 }
 

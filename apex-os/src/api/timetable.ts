@@ -88,6 +88,11 @@ export async function deleteDailyPlannerEntry(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function clearDailyPlannerEntries(ownerId: string, date: string): Promise<void> {
+  const { error } = await supabase.from('daily_planner_entries').delete().eq('owner_id', ownerId).eq('date', date);
+  if (error) throw error;
+}
+
 // Habit Tracker
 export async function getHabitTrackerDaily(ownerId: string, date: string): Promise<HabitTrackerDaily[]> {
   const { data, error } = await supabase
