@@ -149,7 +149,7 @@ export function TimetableBlockModal({
           <DialogHeader className="pb-2 border-b border-white/10">
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-blue-400" />
-              {initialBlock ? 'Edit Timetable Block' : 'Add Timetable Block'}
+              {initialBlock ? 'Edit Activity' : 'Add Activity'}
             </DialogTitle>
           </DialogHeader>
 
@@ -194,47 +194,35 @@ export function TimetableBlockModal({
               </div>
             </div>
 
-            {/* Start Time & End Time + Quick Duration Presets */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Time Slot</Label>
-                <div className="flex items-center gap-1">
-                  {[30, 45, 60, 90, 120].map(mins => (
-                    <button
-                      key={mins}
-                      type="button"
-                      onClick={() => handleApplyDuration(mins)}
-                      className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 border border-white/5"
-                    >
-                      +{mins}m
-                    </button>
-                  ))}
+            {/* Optional Sequence / Time Slot (tucked away) */}
+            <details className="group rounded-xl border border-white/5 bg-[#111827]/40 p-2.5">
+              <summary className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider cursor-pointer select-none flex items-center justify-between">
+                <span>Ordering / Time (Optional)</span>
+                <span className="text-[10px] text-zinc-500 font-normal">tap to edit</span>
+              </summary>
+              <div className="mt-2.5 space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
+                    <span className="text-[11px] text-zinc-400 font-bold">Start:</span>
+                    <Input
+                      type="time"
+                      value={startTime}
+                      onChange={(e) => setStartTime(e.target.value)}
+                      className="bg-transparent border-0 text-white p-0 h-7 text-xs font-mono focus-visible:ring-0"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
+                    <span className="text-[11px] text-zinc-400 font-bold">End:</span>
+                    <Input
+                      type="time"
+                      value={endTime}
+                      onChange={(e) => setEndTime(e.target.value)}
+                      className="bg-transparent border-0 text-white p-0 h-7 text-xs font-mono focus-visible:ring-0"
+                    />
+                  </div>
                 </div>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
-                  <span className="text-[11px] text-zinc-400 font-bold">Start:</span>
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="bg-transparent border-0 text-white p-0 h-7 text-xs font-mono focus-visible:ring-0"
-                    required
-                  />
-                </div>
-                <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
-                  <span className="text-[11px] text-zinc-400 font-bold">End:</span>
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="bg-transparent border-0 text-white p-0 h-7 text-xs font-mono focus-visible:ring-0"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
+            </details>
 
             {/* Category Selector */}
             <div className="space-y-1.5">

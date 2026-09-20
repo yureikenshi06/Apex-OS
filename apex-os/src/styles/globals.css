@@ -73,6 +73,61 @@ html {
   color: #67e8f9;
 }
 
+/* ============================================================
+   AMBIENT BACKGROUND ANIMATIONS
+   Pure CSS keyframes — GPU composited via will-change/translateZ.
+   Much lighter than Framer Motion infinite loops on mobile.
+   ============================================================ */
+
+@keyframes apex-drift-blue {
+  0%   { transform: translateZ(0) translate(0px, 0px); }
+  33%  { transform: translateZ(0) translate(30px, -28px); }
+  66%  { transform: translateZ(0) translate(-20px, 18px); }
+  100% { transform: translateZ(0) translate(0px, 0px); }
+}
+
+@keyframes apex-drift-red {
+  0%   { transform: translateZ(0) translate(0px, 0px); }
+  33%  { transform: translateZ(0) translate(-25px, 32px); }
+  66%  { transform: translateZ(0) translate(20px, -18px); }
+  100% { transform: translateZ(0) translate(0px, 0px); }
+}
+
+@keyframes apex-pulse-core {
+  0%, 100% { opacity: 0.12; }
+  50%       { opacity: 0.22; }
+}
+
+.apex-orb-blue {
+  animation: apex-drift-blue 20s ease-in-out infinite;
+}
+
+.apex-orb-red {
+  animation: apex-drift-red 25s ease-in-out infinite;
+}
+
+.apex-orb-pulse {
+  animation: apex-pulse-core 16s ease-in-out infinite;
+}
+
+/* Freeze all background animations on mobile/tablet to prevent GPU overload */
+@media (max-width: 768px) {
+  .apex-orb-blue,
+  .apex-orb-red,
+  .apex-orb-pulse {
+    animation: none;
+  }
+}
+
+/* Respect user's system-level reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .apex-orb-blue,
+  .apex-orb-red,
+  .apex-orb-pulse {
+    animation: none !important;
+  }
+}
+
 /* Custom Cyber Glow Utilities */
 @layer utilities {
   .glow-blue {
@@ -84,12 +139,25 @@ html {
   .glow-dual {
     box-shadow: -8px -8px 25px -5px rgba(59, 130, 246, 0.25), 8px 8px 25px -5px rgba(239, 68, 68, 0.25);
   }
+
+  /* Desktop: full glass effect */
   .glass-card {
     background: rgba(9, 13, 22, 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.08);
   }
+
+  /* Mobile: drop backdrop-filter entirely — use opaque bg instead.
+     Stacking multiple blur layers is the #1 GPU killer on phones. */
+  @media (max-width: 768px) {
+    .glass-card {
+      background: rgba(9, 13, 22, 0.96);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+  }
+
   .glass-card-hover {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }

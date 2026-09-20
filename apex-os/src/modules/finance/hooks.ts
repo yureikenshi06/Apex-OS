@@ -514,3 +514,360 @@ export const useFinanceStats = (month?: number, year?: number) => {
     year,
   });
 };
+
+// --- Spending Intelligence / Visual Analytics ---
+export const useSpendingInsights = (filter?: FinanceAnalysisFilter) => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['spending-insights', user?.id, filter],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const now = new Date();
+      const currentYear = filter?.year || now.getFullYear();
+      const currentMonth = filter?.month || (now.getMonth() + 1);
+      const mode = filter?.mode || 'monthly';
+
+      let startBound = '';
+      let endBound = '';
+      let timeframeLabel = '';
+
+      if (mode === 'daily') {
+        const d = filter?.date || now.toISOString().split('T')[0];
+        startBound = d;
+        endBound = d;
+        timeframeLabel = new Date(d + 'T00:00:00').toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' });
+      } else if (mode === 'weekly') {
+        const target = filter?.date ? new Date(filter.date + 'T00:00:00') : now;
+        const day = target.getDay();
+        const diffToMon = target.getDate() - day + (day === 0 ? -6 : 1);
+        const mon = new Date(target);
+        mon.setDate(diffToMon);
+        const sun = new Date(mon);
+        sun.setDate(mon.getDate() + 6);
+        startBound = mon.toISOString().split('T')[0];
+        endBound = sun.toISOString().split('T')[0];
+        timeframeLabel = `${mon.toLocaleDateString('default', { month: 'short', day: 'numeric' })} – ${sun.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+      } else if (mode === 'monthly') {
+        const s = new Date(currentYear, currentMonth - 1, 1);
+        const e = new Date(currentYear, currentMonth, 0);
+        startBound = s.toISOString().split('T')[0];
+        endBound = e.toISOString().split('T')[0];
+        const mName = new Date(2000, currentMonth - 1, 1).toLocaleString('default', { month: 'long' });
+        timeframeLabel = `${mName} ${currentYear}`;
+      } else if (mode === 'yearly') {
+        startBound = `${currentYear}-01-01`;
+        endBound = `${currentYear}-12-31`;
+        timeframeLabel = `Year ${currentYear}`;
+      } else if (mode === 'custom') {
+        startBound = filter?.startDate || `${currentYear}-01-01`;
+        endBound = filter?.endDate || now.toISOString().split('T')[0];
+        timeframeLabel = `${startBound} to ${endBound}`;
+      }
+
+      const allTx = await financeApi.getTransactions(user.id);
+      const allExpenses = allTx.filter(t => t.transaction_type === 'Expense' && t.date);
+
+      if (allExpenses.length === 0) {
+        return { hasData: false, timeframeLabel, timeframeMode: mode };
+      }
+
+      // Filter expenses strictly within the selected range
+      const rangeExpenses = allExpenses.filter(t => t.date! >= startBound && t.date! <= endBound);
+
+      if (rangeExpenses.length === 0) {
+        return {
+          hasData: false,
+          timeframeLabel,
+          timeframeMode: mode,
+          noTransactionsInPeriod: true,
+        };
+      }
+
+      // ── 1. Timeline / Impulse Spike Detection ──────────────────────────────
+      const isYearly = mode === 'yearly';
+      const daySpan = Math.round((new Date(endBound + 'T00:00:00').getTime() - new Date(startBound + 'T00:00:00').getTime()) / 86400000) + 1;
+      const isLongCustom = mode === 'custom' && daySpan > 35;
+
+      let dailySpikeData: Array<{ label: string; amount: number; isSpike: boolean; fullDate?: string }> = [];
+      let avgDailySpend = 0;
+      let spikeThreshold = 0;
+      let spikeDays = 0;
+      let totalImpulseSpend = 0;
+      let timelineUnit = 'day';
+
+      if (isYearly || isLongCustom) {
+        timelineUnit = 'month';
+        const monthMap: Record<string, number> = {};
+        rangeExpenses.forEach(t => {
+          const mKey = t.date!.slice(0, 7);
+          monthMap[mKey] = (monthMap[mKey] || 0) + Number(t.amount || 0);
+        });
+
+        // Determine list of months
+        const startY = Number(startBound.slice(0, 4));
+        const startM = Number(startBound.slice(5, 7));
+        const endY = Number(endBound.slice(0, 4));
+        const endM = Number(endBound.slice(5, 7));
+
+        const mList: string[] = [];
+        let y = startY;
+        let m = startM;
+        while (y < endY || (y === endY && m <= endM)) {
+          mList.push(`${y}-${String(m).padStart(2, '0')}`);
+          m++;
+          if (m > 12) {
+            m = 1;
+            y++;
+          }
+        }
+
+        const amounts = mList.map(k => Math.round(monthMap[k] || 0));
+        const nonZero = amounts.filter(a => a > 0);
+        avgDailySpend = nonZero.length > 0 ? Math.round(amounts.reduce((a, b) => a + b, 0) / nonZero.length) : 0;
+        spikeThreshold = Math.round(avgDailySpend * 1.5);
+
+        dailySpikeData = mList.map((k, idx) => {
+          const amt = amounts[idx];
+          const isSpike = amt >= spikeThreshold && amt > 0;
+          if (isSpike) {
+            spikeDays++;
+            totalImpulseSpend += (amt - avgDailySpend);
+          }
+          const [yr, mo] = k.split('-').map(Number);
+          const mName = new Date(yr, mo - 1, 1).toLocaleString('default', { month: 'short' });
+          return {
+            label: isYearly ? mName : `${mName} '${String(yr).slice(2)}`,
+            amount: amt,
+            isSpike,
+            fullDate: `${mName} ${yr}`,
+          };
+        });
+      } else {
+        timelineUnit = 'day';
+        const dailyMap: Record<string, number> = {};
+        rangeExpenses.forEach(t => {
+          dailyMap[t.date!] = (dailyMap[t.date!] || 0) + Number(t.amount || 0);
+        });
+
+        const dList: string[] = [];
+        const curDate = new Date(startBound + 'T00:00:00');
+        const endDateObj = new Date(endBound + 'T00:00:00');
+
+        // If single day, show surrounding 7 days centered on selected date
+        if (mode === 'daily') {
+          curDate.setDate(curDate.getDate() - 3);
+          endDateObj.setDate(endDateObj.getDate() + 3);
+        }
+
+        while (curDate <= endDateObj) {
+          dList.push(curDate.toISOString().split('T')[0]);
+          curDate.setDate(curDate.getDate() + 1);
+        }
+
+        const amounts = dList.map(d => Math.round(dailyMap[d] || 0));
+        const nonZero = amounts.filter(a => a > 0);
+        avgDailySpend = nonZero.length > 0 ? Math.round(amounts.reduce((a, b) => a + b, 0) / nonZero.length) : 0;
+        spikeThreshold = Math.round(avgDailySpend * 1.6);
+
+        dailySpikeData = dList.map((dStr, idx) => {
+          const amt = amounts[idx];
+          const isSpike = amt >= spikeThreshold && amt > 0;
+          if (isSpike) {
+            spikeDays++;
+            totalImpulseSpend += (amt - avgDailySpend);
+          }
+          const [y, m, d] = dStr.split('-').map(Number);
+          const dateObj = new Date(y, m - 1, d);
+          const label = mode === 'weekly'
+            ? dateObj.toLocaleDateString('default', { weekday: 'short' })
+            : mode === 'daily' && dStr === startBound
+            ? `★ ${d}`
+            : String(d);
+
+          return {
+            label,
+            amount: amt,
+            isSpike,
+            fullDate: dateObj.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' }),
+          };
+        });
+      }
+
+      // ── 2. Day-of-Week Spending Pattern ────────────────────────────────────
+      const dowSource = rangeExpenses.length >= 5 ? rangeExpenses : allExpenses;
+      const dowMap: Record<number, { total: number; count: number }> = {
+        0: { total: 0, count: 0 }, 1: { total: 0, count: 0 }, 2: { total: 0, count: 0 },
+        3: { total: 0, count: 0 }, 4: { total: 0, count: 0 }, 5: { total: 0, count: 0 },
+        6: { total: 0, count: 0 },
+      };
+      dowSource.forEach(t => {
+        const [y, m, d] = t.date!.split('-').map(Number);
+        const dow = new Date(y, m - 1, d).getDay();
+        dowMap[dow].total += Number(t.amount || 0);
+        dowMap[dow].count++;
+      });
+      const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const dayOfWeekData = DAY_NAMES.map((name, i) => ({
+        day: name,
+        avgSpend: dowMap[i].count > 0 ? Math.round(dowMap[i].total / dowMap[i].count) : 0,
+        totalSpend: Math.round(dowMap[i].total),
+        txCount: dowMap[i].count,
+      }));
+      const maxDowSpend = Math.max(...dayOfWeekData.map(d => d.avgSpend), 1);
+      const peakDayObj = dayOfWeekData.reduce((a, b) => a.avgSpend > b.avgSpend ? a : b);
+      const peakDay = peakDayObj.avgSpend > 0 ? peakDayObj.day : 'None';
+
+      // ── 3. Category Trends & Velocity (aligned to timeframe) ───────────────
+      let anchorDate = now;
+      if (mode === 'monthly') {
+        anchorDate = new Date(currentYear, currentMonth - 1, 1);
+      } else if (mode === 'yearly') {
+        anchorDate = new Date(currentYear, 11, 31);
+      } else if (mode === 'custom' && filter?.endDate) {
+        anchorDate = new Date(filter.endDate + 'T00:00:00');
+      } else if (filter?.date) {
+        anchorDate = new Date(filter.date + 'T00:00:00');
+      }
+
+      const numTrendMonths = mode === 'yearly' ? 12 : 6;
+      const trendMonths: string[] = [];
+      for (let i = numTrendMonths - 1; i >= 0; i--) {
+        const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - i, 1);
+        trendMonths.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
+      }
+
+      const catTotals: Record<string, number> = {};
+      rangeExpenses.forEach(t => {
+        const cat = t.category || 'Other';
+        catTotals[cat] = (catTotals[cat] || 0) + Number(t.amount || 0);
+      });
+      const topCats = Object.entries(catTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([name]) => name);
+
+      const monthCatMap: Record<string, Record<string, number>> = {};
+      trendMonths.forEach(mo => {
+        monthCatMap[mo] = {};
+        topCats.forEach(cat => { monthCatMap[mo][cat] = 0; });
+      });
+      allExpenses.forEach(t => {
+        const [y, mo] = t.date!.split('-').map(Number);
+        const key = new Date(y, mo - 1, 1).toLocaleString('default', { month: 'short', year: '2-digit' });
+        const cat = t.category || 'Other';
+        if (monthCatMap[key] !== undefined && topCats.includes(cat)) {
+          monthCatMap[key][cat] += Number(t.amount || 0);
+        }
+      });
+
+      const categoryTrends = trendMonths.map(mo => ({
+        month: mo,
+        ...Object.fromEntries(topCats.map(cat => [cat, Math.round(monthCatMap[mo]?.[cat] || 0)])),
+      }));
+
+      const categoryGrowth = topCats.map(cat => {
+        const latestMo = trendMonths[trendMonths.length - 1];
+        const prevMo = trendMonths[trendMonths.length - 2];
+        const currentVal = monthCatMap[latestMo]?.[cat] || 0;
+        const prevVal = prevMo ? (monthCatMap[prevMo]?.[cat] || 0) : 0;
+        const diff = currentVal - prevVal;
+        const pct = prevVal > 0 ? Math.round((diff / prevVal) * 100) : currentVal > 0 ? 100 : 0;
+        return {
+          category: cat,
+          current: Math.round(currentVal),
+          previous: Math.round(prevVal),
+          diff: Math.round(diff),
+          pct,
+          trending: diff > 0 ? ('up' as const) : diff < 0 ? ('down' as const) : ('flat' as const),
+        };
+      });
+
+      // ── 4. Needs vs Wants in Selected Range ────────────────────────────────
+      const NEEDS_KW = ['food', 'grocery', 'groceries', 'medical', 'health', 'medicine', 'doctor',
+        'utility', 'utilities', 'electricity', 'water', 'rent', 'housing', 'transport',
+        'commute', 'bus', 'metro', 'personal care', 'hygiene', 'education', 'tuition', 'fuel'];
+      const needsCatSet = new Set<string>();
+      const wantsCatSet = new Set<string>();
+      rangeExpenses.forEach(t => {
+        const cat = (t.category || '').toLowerCase();
+        if (NEEDS_KW.some(kw => cat.includes(kw))) needsCatSet.add(t.category || 'Other');
+        else wantsCatSet.add(t.category || 'Other');
+      });
+      const needsTotal = Math.round(rangeExpenses
+        .filter(t => needsCatSet.has(t.category || 'Other'))
+        .reduce((s, t) => s + Number(t.amount || 0), 0));
+      const wantsTotal = Math.round(rangeExpenses
+        .filter(t => wantsCatSet.has(t.category || 'Other'))
+        .reduce((s, t) => s + Number(t.amount || 0), 0));
+
+      // ── 5. Cumulative spend vs ideal linear pace ───────────────────────────
+      const totalPeriodSpend = dailySpikeData.reduce((s, d) => s + d.amount, 0);
+      const idealPerUnit = totalPeriodSpend / Math.max(1, dailySpikeData.length);
+      let cumSum = 0;
+      const cumulativeData = dailySpikeData.map((d, i) => {
+        cumSum += d.amount;
+        return {
+          day: d.label,
+          actual: Math.round(cumSum),
+          ideal: Math.round(idealPerUnit * (i + 1)),
+        };
+      });
+
+      // ── 6. Top impulse transactions & category breakdown in Period ─────────
+      const avgTxAmount = rangeExpenses.length > 0
+        ? rangeExpenses.reduce((s, t) => s + Number(t.amount || 0), 0) / rangeExpenses.length : 0;
+      const impulseTransactions = rangeExpenses
+        .filter(t => !needsCatSet.has(t.category || 'Other') && Number(t.amount || 0) > avgTxAmount * 1.25)
+        .sort((a, b) => Number(b.amount || 0) - Number(a.amount || 0))
+        .slice(0, 6);
+
+      const impulseCategoryMap: Record<string, { total: number; count: number }> = {};
+      impulseTransactions.forEach(t => {
+        const cat = t.category || 'Other';
+        if (!impulseCategoryMap[cat]) {
+          impulseCategoryMap[cat] = { total: 0, count: 0 };
+        }
+        impulseCategoryMap[cat].total += Number(t.amount || 0);
+        impulseCategoryMap[cat].count += 1;
+      });
+      const impulseTotalFromTx = impulseTransactions.reduce((s, t) => s + Number(t.amount || 0), 0);
+      const impulseByCategory = Object.entries(impulseCategoryMap)
+        .map(([name, data]) => ({
+          name,
+          total: Math.round(data.total),
+          count: data.count,
+          pct: impulseTotalFromTx > 0 ? Math.round((data.total / impulseTotalFromTx) * 100) : 0,
+        }))
+        .sort((a, b) => b.total - a.total);
+
+      return {
+        hasData: true,
+        timeframeLabel,
+        timeframeMode: mode,
+        timelineUnit,
+        dayOfWeekData,
+        maxDowSpend,
+        peakDay,
+        categoryTrends,
+        categoryGrowth,
+        topCats,
+        dailySpikeData,
+        avgDailySpend: Math.round(avgDailySpend),
+        spikeThreshold: Math.round(spikeThreshold),
+        spikeDays,
+        totalImpulseSpend: Math.round(totalImpulseSpend),
+        needsTotal,
+        wantsTotal,
+        needsCats: Array.from(needsCatSet),
+        wantsCats: Array.from(wantsCatSet),
+        cumulativeData,
+        impulseTransactions,
+        impulseByCategory,
+      };
+    },
+    enabled: !!user?.id,
+    staleTime: 5 * 60 * 1000,
+  });
+};

@@ -1,29 +1,32 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTimetableBlocks, usePopulateMasterTimetable, useDeleteTimetableBlock } from './hooks';
+import { useTimetableBlocks, usePopulateMasterTimetable } from './hooks';
 import { TimetableBlockModal } from './timetable-block-modal';
 import { TimetableTagManagerModal } from './timetable-tag-manager-modal';
 import { useTimetableTags } from './timetable-tag-store';
 import { MASTER_TIMETABLE_SEED } from './master-timetable-seed';
 import { 
-  Plus, Calendar as CalendarIcon, Clock, Sparkles, 
-  Settings, Tag, Layers, RotateCcw, CheckCircle2, 
-  BookOpen, Dumbbell, Briefcase, GraduationCap, 
-  Coffee, Moon, Filter, Eye, ChevronRight 
+  Plus, Calendar as CalendarIcon, CheckCircle2, Circle, 
+  Settings, Tag, RotateCcw, Sparkles, 
+  ChevronDown, ChevronRight, Filter,
+  Eye, Trophy, Zap, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { TimetableBlock } from '@/api/types';
 
 const DAYS = [
-  { id: 0, name: 'Monday', short: 'Mon' },
-  { id: 1, name: 'Tuesday', short: 'Tue' },
+  { id: 0, name: 'Monday',    short: 'Mon' },
+  { id: 1, name: 'Tuesday',   short: 'Tue' },
   { id: 2, name: 'Wednesday', short: 'Wed' },
-  { id: 3, name: 'Thursday', short: 'Thu' },
-  { id: 4, name: 'Friday', short: 'Fri' },
-  { id: 5, name: 'Saturday', short: 'Sat' },
-  { id: 6, name: 'Sunday', short: 'Sun' },
+  { id: 3, name: 'Thursday',  short: 'Thu' },
+  { id: 4, name: 'Friday',    short: 'Fri' },
+  { id: 5, name: 'Saturday',  short: 'Sat' },
+  { id: 6, name: 'Sunday',    short: 'Sun' },
 ];
+
+// Map JS getDay() (0=Sun) → our day id (0=Mon)
+const jsToApex = (jsDay: number) => (jsDay + 6) % 7;
 
 const CATEGORY_COLORS: Record<string, string> = {
   CFA: '#6366f1',
@@ -35,18 +38,115 @@ const CATEGORY_COLORS: Record<string, string> = {
   Class: '#3b82f6',
   Meal: '#64748b',
   Travel: '#475569',
-  'Personal Care': '#64748b',
+  'Personal Care': '#94a3b8',
 };
 
-// Time slots from 05:00 to 23:00
-const TIME_SLOTS = [
-  '05:00', '05:30', '06:00', '06:30', '07:00', '07:30',
-  '08:00', '08:30', '09:00', '09:30', '10:00', '10:30',
-  '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
-  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-  '17:00', '17:30', '18:00', '18:30', '19:00', '19:30',
-  '20:00', '20:30', '21:00', '21:30', '22:00', '22:30', '23:00'
-];
+// localStorage helpers — keyed per block per date
+const checkKey = (blockId: string, date: string) => `apex_check_${blockId}_${date}`;
+
+function getChecked(blockId: string, date: string): boolean {
+  try { return localStorage.getItem(checkKey(blockId, date)) === '1'; } catch { return false; }
+}
+function setChecked(blockId: string, date: string, val: boolean) {
+  try {
+    if (val) localStorage.setItem(checkKey(blockId, date), '1');
+    else localStorage.removeItem(checkKey(blockId, date));
+  } catch {}
+}
+
+// Progress ring SVG component
+function ProgressRing({ pct, size = 64, stroke = 5 }: { pct: number; size?: number; stroke?: number }) {
+  const r = (size - stroke * 2) / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#3b82f6' : pct > 0 ? '#f59e0b' : '#374151';
+  return (
+    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+      <circle cx={size / 2} cy={size / 2} r={r} stroke="#1e293b" strokeWidth={stroke} fill="none" />
+      <circle
+        cx={size / 2} cy={size / 2} r={r}
+        stroke={color} strokeWidth={stroke} fill="none"
+        strokeDasharray={circ} strokeDashoffset={offset}
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+      />
+    </svg>
+  );
+}
+
+// ─── Checklist Item Component ─────────────────────────────────────────────────
+function ChecklistItem({
+  block,
+  date,
+  onEdit,
+  dimmed,
+  highlighted,
+}: {
+  block: TimetableBlock;
+  date: string;
+  onEdit: (block: TimetableBlock) => void;
+  dimmed?: boolean;
+  highlighted?: boolean;
+}) {
+  const [done, setDone] = useState(() => getChecked(block.id, date));
+
+  const toggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const next = !done;
+    setDone(next);
+    setChecked(block.id, date, next);
+  };
+
+  const color = block.color || CATEGORY_COLORS[block.category || ''] || '#6366f1';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 4 }}
+      animate={{ opacity: dimmed ? 0.25 : 1 }}
+      className={`group flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
+        done
+          ? 'bg-emerald-500/5 border-emerald-500/20'
+          : 'bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]'
+      } ${highlighted ? 'ring-2 ring-blue-400/60 shadow-lg shadow-blue-500/10' : ''}`}
+      onClick={() => onEdit(block)}
+    >
+      {/* Check toggle */}
+      <button
+        onClick={toggle}
+        className="shrink-0 transition-transform active:scale-90"
+        aria-label={done ? 'Mark incomplete' : 'Mark complete'}
+      >
+        {done ? (
+          <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+        ) : (
+          <Circle className="w-6 h-6 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+        )}
+      </button>
+
+      {/* Color accent dot */}
+      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+
+      {/* Activity info */}
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-semibold leading-tight ${done ? 'line-through text-zinc-500' : 'text-white'}`}>
+          {block.activity}
+        </p>
+      </div>
+
+      {/* Category badge */}
+      <span
+        className="text-[10px] font-semibold px-2 py-0.5 rounded-lg shrink-0"
+        style={{ backgroundColor: `${color}25`, color: color }}
+      >
+        {block.category}
+      </span>
+
+      {/* Edit hint */}
+      <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" />
+    </motion.div>
+  );
+}
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function TimetablePage() {
   const { data: dbBlocks = [], isLoading } = useTimetableBlocks();
@@ -57,13 +157,28 @@ export default function TimetablePage() {
   const [tagModalOpen, setTagModalOpen] = useState(false);
   const [selectedBlock, setSelectedBlock] = useState<TimetableBlock | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
-  const [selectedHour, setSelectedHour] = useState(9);
-  
-  const [viewMode, setViewMode] = useState<'week' | 'day'>('week');
-  const [activeDayTab, setActiveDayTab] = useState(0);
+  const [activeDayTab, setActiveDayTab] = useState(() => jsToApex(new Date().getDay()));
   const [highlightedTag, setHighlightedTag] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'today' | 'week'>('today');
 
-  // Use database blocks if present; otherwise use the Master Seed routine as initial editable fallback
+  // Today's date string
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  // Derive date string for the active day tab (offset from today's week Monday)
+  const activeDayDate = useMemo(() => {
+    const now = new Date();
+    const jsDay = now.getDay();
+    const mondayOffset = (jsDay + 6) % 7; // days since Monday
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - mondayOffset);
+    const target = new Date(monday);
+    target.setDate(monday.getDate() + activeDayTab);
+    return target.toISOString().split('T')[0];
+  }, [activeDayTab]);
+
+  const todayApexDay = jsToApex(new Date().getDay());
+
+  // Blocks — DB or seed fallback
   const blocks: TimetableBlock[] = useMemo(() => {
     if (dbBlocks.length > 0) return dbBlocks;
     return MASTER_TIMETABLE_SEED.map((s, idx) => ({
@@ -78,42 +193,12 @@ export default function TimetablePage() {
     }));
   }, [dbBlocks]);
 
-  // Auto-seed into DB if database is empty on first load
-  const handlePopulateMaster = async () => {
-    if (confirm('Load/Reset your timetable to the Master Routine extracted from your Excel/PDF? This will populate all 7 days with your exact morning routine, CFA, classes, gym, placement, and reading schedule.')) {
-      const payload = MASTER_TIMETABLE_SEED.map(s => ({
-        day_of_week: s.day_of_week,
-        start_time: s.start_time,
-        end_time: s.end_time,
-        activity: s.activity,
-        category: s.category,
-        color: s.color,
-      }));
-      await populateMutation.mutateAsync(payload);
-    }
-  };
-
-  const handleSlotClick = (dayId: number, timeStr: string) => {
-    const hour = parseInt(timeStr.split(':')[0], 10);
-    setSelectedBlock(null);
-    setSelectedDay(dayId);
-    setSelectedHour(hour);
-    setModalOpen(true);
-  };
-
-  const handleBlockClick = (e: React.MouseEvent, block: TimetableBlock) => {
-    e.stopPropagation();
-    setSelectedBlock(block);
-    setModalOpen(true);
-  };
-
-  // Helper to determine if a block matches the highlighted tag
-  const isBlockMatchingTag = (block: TimetableBlock, tagText: string | null) => {
+  // Tag matching
+  const isBlockMatchingTag = useCallback((block: TimetableBlock, tagText: string | null) => {
     if (!tagText) return true;
     const act = (block.activity || '').toLowerCase();
     const cat = (block.category || '').toLowerCase();
     const tagLower = tagText.toLowerCase();
-
     if (tagLower === 'deep work') return act.includes('deep work') || act.includes('concept study') || act.includes('mock');
     if (tagLower === 'cfa study') return cat === 'cfa' || act.includes('cfa');
     if (tagLower === 'placement prep') return cat === 'placement' || act.includes('placement');
@@ -128,62 +213,100 @@ export default function TimetablePage() {
     if (tagLower === 'recovery') return act.includes('recovery') || act.includes('free') || act.includes('rest') || act.includes('break');
     if (tagLower === 'sleep') return act.includes('sleep');
     if (tagLower === 'buffer') return act.includes('buffer') || act.includes('break');
-
     return act.includes(tagLower) || cat.includes(tagLower);
+  }, []);
+
+  const handleBlockClick = (block: TimetableBlock) => {
+    setSelectedBlock(block);
+    setModalOpen(true);
   };
 
-  // Highlighted tag metrics
-  const highlightedMetrics = useMemo(() => {
-    if (!highlightedTag) return null;
-    const matchingBlocks = blocks.filter(b => isBlockMatchingTag(b, highlightedTag));
-    const totalMins = matchingBlocks.reduce((sum, b) => {
-      if (!b.start_time || !b.end_time) return sum + 60;
-      const [sh, sm] = b.start_time.split(':').map(Number);
-      const [eh, em] = b.end_time.split(':').map(Number);
-      return sum + Math.max(0, (eh * 60 + em) - (sh * 60 + sm));
-    }, 0);
-    const daySet = new Set(matchingBlocks.map(b => DAYS[b.day_of_week]?.short || 'Day'));
-    return {
-      count: matchingBlocks.length,
-      hours: (totalMins / 60).toFixed(1),
-      days: Array.from(daySet).join(', '),
-    };
-  }, [highlightedTag, blocks]);
+  const handleAddBlock = (dayId?: number) => {
+    setSelectedBlock(null);
+    setSelectedDay(dayId ?? activeDayTab);
+    setModalOpen(true);
+  };
 
-  // Overall metrics
-  const totalScheduledHours = useMemo(() => {
-    return blocks.reduce((acc, b) => {
-      if (!b.start_time || !b.end_time) return acc;
-      const [sh, sm] = b.start_time.split(':').map(Number);
-      const [eh, em] = b.end_time.split(':').map(Number);
-      const dur = (eh * 60 + em) - (sh * 60 + sm);
-      return acc + (dur > 0 ? dur / 60 : 1);
-    }, 0);
-  }, [blocks]);
+  const handlePopulateMaster = async () => {
+    if (confirm('Load/Reset your timetable to the Master Routine? This will populate all 7 days with your exact schedule.')) {
+      const payload = MASTER_TIMETABLE_SEED.map(s => ({
+        day_of_week: s.day_of_week,
+        start_time: s.start_time,
+        end_time: s.end_time,
+        activity: s.activity,
+        category: s.category,
+        color: s.color,
+      }));
+      await populateMutation.mutateAsync(payload);
+    }
+  };
 
-  const cfaHours = useMemo(() => {
-    return blocks.filter(b => b.category === 'CFA').reduce((acc, b) => {
-      if (!b.start_time || !b.end_time) return acc;
-      const [sh, sm] = b.start_time.split(':').map(Number);
-      const [eh, em] = b.end_time.split(':').map(Number);
-      const dur = (eh * 60 + em) - (sh * 60 + sm);
-      return acc + (dur > 0 ? dur / 60 : 1);
-    }, 0);
-  }, [blocks]);
+  // Today's checklist data
+  const todayBlocks = useMemo(() =>
+    blocks
+      .filter(b => b.day_of_week === activeDayTab)
+      .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || '')),
+    [blocks, activeDayTab]
+  );
+
+  // Live completion count — re-computes when localStorage changes via a tick
+  const [tick, setTick] = useState(0);
+  const refreshTick = useCallback(() => setTick(t => t + 1), []);
+
+  const completedToday = useMemo(() => {
+    return todayBlocks.filter(b => getChecked(b.id, activeDayDate)).length;
+  }, [todayBlocks, activeDayDate, tick]);
+
+  const totalToday = todayBlocks.length;
+  const completionPct = totalToday > 0 ? Math.round((completedToday / totalToday) * 100) : 0;
+
+  // Weekly completion board data — per block per day
+  const weeklyData = useMemo(() => {
+    return DAYS.map(day => {
+      const dayBlocks = blocks.filter(b => b.day_of_week === day.id)
+        .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
+      // compute date for that day in current week
+      const now = new Date();
+      const jsDay = now.getDay();
+      const mondayOffset = (jsDay + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - mondayOffset);
+      const target = new Date(monday);
+      target.setDate(monday.getDate() + day.id);
+      const dateStr = target.toISOString().split('T')[0];
+      const done = dayBlocks.filter(b => getChecked(b.id, dateStr)).length;
+      return { ...day, dayBlocks, dateStr, done, total: dayBlocks.length, pct: dayBlocks.length > 0 ? Math.round((done / dayBlocks.length) * 100) : 0 };
+    });
+  }, [blocks, tick]);
+
+  // Category groups for Today's view
+  const todayGrouped = useMemo(() => {
+    const filtered = highlightedTag
+      ? todayBlocks.filter(b => isBlockMatchingTag(b, highlightedTag))
+      : todayBlocks;
+    const map: Record<string, TimetableBlock[]> = {};
+    filtered.forEach(b => {
+      const cat = b.category || 'Other';
+      if (!map[cat]) map[cat] = [];
+      map[cat].push(b);
+    });
+    return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [todayBlocks, highlightedTag, isBlockMatchingTag]);
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto text-foreground font-sans">
-      {/* Header Banner */}
+    <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto text-foreground font-sans">
+
+      {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-black text-white tracking-tight">Master Timetable</h1>
+            <h1 className="text-3xl font-black text-white tracking-tight">Routine Checklist</h1>
             <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
-              Ideal Recurring Routine
+              Event-Driven
             </Badge>
           </div>
           <p className="text-xs text-zinc-400 mt-1">
-            Populated with your uploaded master routine. Click any cell or block to edit time, activity, or category.
+            Mark your activities as done — no time pressure, just completion tracking.
           </p>
         </div>
 
@@ -206,16 +329,11 @@ export default function TimetablePage() {
             disabled={populateMutation.isPending}
             className="bg-[#111827] border-white/10 hover:border-emerald-500/40 text-zinc-300 hover:text-emerald-300 rounded-xl text-xs h-9 px-3 gap-1.5"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-emerald-400" /> Reset to Master Schedule
+            <RotateCcw className="w-3.5 h-3.5 text-emerald-400" /> Reset Schedule
           </Button>
 
           <Button 
-            onClick={() => {
-              setSelectedBlock(null);
-              setSelectedDay(0);
-              setSelectedHour(9);
-              setModalOpen(true);
-            }}
+            onClick={() => handleAddBlock()}
             className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-bold h-9 text-xs px-4"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" /> Add Block
@@ -223,29 +341,93 @@ export default function TimetablePage() {
         </div>
       </div>
 
-      {/* Interactive Tag Bar & Highlighting System */}
-      <div className="bg-[#0b0f19]/90 border border-blue-500/25 rounded-3xl p-4 shadow-2xl backdrop-blur-xl space-y-3">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-white flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-blue-400" /> Tag Placement Inspector
-            </span>
-            <span className="text-[11px] text-zinc-400">
-              (Click any tag to illuminate where it is scheduled in your week)
-            </span>
-          </div>
+      {/* ── Day Tab Selector ── */}
+      <div className="flex overflow-x-auto gap-1.5 p-1.5 bg-[#0b0f19]/90 rounded-2xl border border-white/10 no-scrollbar">
+        {DAYS.map((d) => {
+          const count = blocks.filter(b => b.day_of_week === d.id).length;
+          const isToday = d.id === todayApexDay;
+          const isActive = d.id === activeDayTab;
+          return (
+            <button
+              key={d.id}
+              onClick={() => setActiveDayTab(d.id)}
+              className={`flex-1 min-w-[52px] py-2.5 px-2 rounded-xl text-xs font-bold transition-all shrink-0 flex flex-col items-center gap-0.5 ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <span>{d.short}</span>
+              {isToday && <span className="text-[8px] font-black uppercase tracking-widest opacity-80">today</span>}
+              <span className="text-[10px] font-mono opacity-70">{count}</span>
+            </button>
+          );
+        })}
+      </div>
 
+      {/* ── Progress Summary for Active Day ── */}
+      <div className="flex items-center gap-5 p-5 bg-[#0b0f19]/90 border border-white/10 rounded-3xl shadow-xl">
+        {/* Progress ring */}
+        <div className="relative shrink-0" onClick={refreshTick}>
+          <ProgressRing pct={completionPct} size={72} stroke={6} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-sm font-black text-white">{completionPct}%</span>
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-base font-black text-white">{DAYS[activeDayTab]?.name}</span>
+            {completionPct === 100 && totalToday > 0 && (
+              <span className="flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full">
+                <Trophy className="w-3 h-3" /> All done!
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-zinc-400">
+            <strong className="text-white">{completedToday}</strong> of{' '}
+            <strong className="text-white">{totalToday}</strong> activities completed
+            {completedToday < totalToday && totalToday > 0 && (
+              <span className="text-zinc-500"> — {totalToday - completedToday} remaining</span>
+            )}
+          </p>
+        </div>
+
+        {/* View mode toggle */}
+        <div className="flex items-center p-1 bg-[#111827] rounded-xl border border-white/10 shrink-0">
+          <button
+            onClick={() => setViewMode('today')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'today' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Day
+          </button>
+          <button
+            onClick={() => setViewMode('week')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              viewMode === 'week' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
+            }`}
+          >
+            Week
+          </button>
+        </div>
+      </div>
+
+      {/* ── Tag Filter Bar ── */}
+      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-3.5 shadow-xl">
+        <div className="flex items-center gap-2 mb-2.5">
+          <Eye className="w-3.5 h-3.5 text-blue-400" />
+          <span className="text-xs font-bold text-zinc-300">Filter by tag</span>
           {highlightedTag && (
             <button
               onClick={() => setHighlightedTag(null)}
-              className="text-xs text-blue-400 hover:text-blue-300 font-bold underline text-left"
+              className="ml-auto text-xs text-blue-400 hover:text-blue-300 font-bold underline"
             >
-              Clear Highlight Filter
+              Clear
             </button>
           )}
         </div>
-
-        {/* Tag Pills */}
         <div className="flex flex-wrap gap-1.5">
           <button
             onClick={() => setHighlightedTag(null)}
@@ -255,300 +437,205 @@ export default function TimetablePage() {
                 : 'bg-[#111827] border-white/10 text-zinc-400 hover:text-white'
             }`}
           >
-            All Blocks ({blocks.length})
+            All ({todayBlocks.length})
           </button>
-
           {tags.map((t) => {
             const isSelected = highlightedTag === t.name;
-            const matchCount = blocks.filter(b => isBlockMatchingTag(b, t.name)).length;
-
+            const matchCount = todayBlocks.filter(b => isBlockMatchingTag(b, t.name)).length;
+            if (matchCount === 0) return null;
             return (
               <button
                 key={t.id}
                 onClick={() => setHighlightedTag(isSelected ? null : t.name)}
                 className={`px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                   isSelected
-                    ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-600/40 ring-2 ring-white/30 scale-105'
+                    ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-600/40 scale-105'
                     : 'bg-[#111827] border-white/5 text-zinc-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: t.color }} />
-                <span>{t.name}</span>
+                {t.name}
                 <span className="text-[10px] opacity-70 font-mono">({matchCount})</span>
               </button>
             );
           })}
         </div>
-
-        {/* Highlight Summary Info Pill */}
-        {highlightedMetrics && (
-          <div className="p-3 rounded-2xl bg-blue-950/40 border border-blue-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-            <span className="font-semibold text-blue-200 flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-blue-400" />
-              Showing <strong>{highlightedMetrics.count} blocks</strong> for tag <strong className="text-white">"{highlightedTag}"</strong>
-            </span>
-            <div className="flex items-center gap-3 font-mono text-zinc-300">
-              <span><strong>{highlightedMetrics.hours} hrs/week</strong></span>
-              <span>•</span>
-              <span className="text-blue-300">Days: {highlightedMetrics.days || 'None'}</span>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* View Mode Switcher (Week Matrix vs Day Timeline) */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center p-1 bg-[#111827] rounded-2xl border border-white/10">
-          <button
-            onClick={() => setViewMode('week')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              viewMode === 'week' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
-            }`}
+      {/* ══════════════════════════════════════════════════════ */}
+      {/* VIEW: TODAY'S CHECKLIST                              */}
+      {/* ══════════════════════════════════════════════════════ */}
+      <AnimatePresence mode="wait">
+        {viewMode === 'today' ? (
+          <motion.div
+            key="today-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-5"
           >
-            Weekly Grid Matrix
-          </button>
-          <button
-            onClick={() => setViewMode('day')}
-            className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              viewMode === 'day' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
-            }`}
+            {todayGrouped.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center bg-[#0b0f19]/60 border border-white/5 rounded-3xl">
+                <CalendarIcon className="w-10 h-10 text-zinc-700 mb-3" />
+                <p className="text-sm font-bold text-zinc-400">No activities scheduled for {DAYS[activeDayTab]?.name}</p>
+                <p className="text-xs text-zinc-600 mt-1 mb-4">Add blocks to start tracking completion</p>
+                <Button
+                  size="sm"
+                  onClick={() => handleAddBlock(activeDayTab)}
+                  className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Add Activity
+                </Button>
+              </div>
+            ) : (
+              todayGrouped.map(([category, catBlocks]) => {
+                const color = CATEGORY_COLORS[category] || '#6366f1';
+                const catDone = catBlocks.filter(b => getChecked(b.id, activeDayDate)).length;
+                return (
+                  <div key={category} className="space-y-2">
+                    {/* Category header */}
+                    <div className="flex items-center gap-2.5 px-1">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <span className="text-xs font-black uppercase tracking-wider text-zinc-300">{category}</span>
+                      <span className="text-[10px] text-zinc-600 font-mono">{catDone}/{catBlocks.length}</span>
+                      <div className="flex-1 h-px bg-white/5" />
+                    </div>
+
+                    {/* Blocks */}
+                    <div className="space-y-1.5" onClick={refreshTick}>
+                      {catBlocks.map(block => (
+                        <ChecklistItem
+                          key={block.id}
+                          block={block}
+                          date={activeDayDate}
+                          onEdit={handleBlockClick}
+                          dimmed={highlightedTag !== null && !isBlockMatchingTag(block, highlightedTag)}
+                          highlighted={!!highlightedTag && isBlockMatchingTag(block, highlightedTag)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+
+            {/* Add block CTA at bottom */}
+            <button
+              onClick={() => handleAddBlock(activeDayTab)}
+              className="w-full py-3 rounded-2xl border border-dashed border-white/8 hover:border-blue-500/40 text-zinc-600 hover:text-blue-400 text-xs font-semibold transition-all flex items-center justify-center gap-2"
+            >
+              <Plus className="w-3.5 h-3.5" /> Add activity to {DAYS[activeDayTab]?.name}
+            </button>
+          </motion.div>
+        ) : (
+          /* ════════════════════════════════════════════════════ */
+          /* VIEW: WEEKLY COMPLETION BOARD                       */
+          /* ════════════════════════════════════════════════════ */
+          <motion.div
+            key="week-view"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-3"
+            onClick={refreshTick}
           >
-            Day Timeline View
-          </button>
-        </div>
-
-        {/* Summary Stat Chips */}
-        <div className="hidden md:flex items-center gap-3 text-xs text-zinc-400 font-mono">
-          <span>Total: <strong className="text-white">{blocks.length} blocks</strong></span>
-          <span>•</span>
-          <span>Week Load: <strong className="text-blue-400">{totalScheduledHours.toFixed(1)}h</strong></span>
-          <span>•</span>
-          <span>CFA Study: <strong className="text-emerald-400">{cfaHours.toFixed(1)}h</strong></span>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 1. WEEKLY MATRIX GRID VIEW                                                */}
-      {/* ========================================================================= */}
-      {viewMode === 'week' ? (
-        <div className="bg-[#0b0f19]/90 backdrop-blur-2xl border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <div className="min-w-[1100px]">
-              {/* Header Row - Days of Week */}
-              <div className="grid grid-cols-[80px_repeat(7,1fr)] border-b border-white/10 bg-[#0e1424]">
-                <div className="p-3.5 text-center text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 mr-1 text-blue-400" /> Time
-                </div>
-                {DAYS.map((day) => {
-                  const dayBlockCount = blocks.filter(b => b.day_of_week === day.id).length;
-                  return (
-                    <div key={day.id} className="p-3 text-center border-l border-white/10">
-                      <span className="text-xs font-bold uppercase tracking-wider text-white block">{day.name}</span>
-                      <span className="text-[10px] text-zinc-400 font-mono font-normal">{dayBlockCount} items</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Day Columns Matrix */}
-              <div className="grid grid-cols-[80px_repeat(7,1fr)] min-h-[700px] divide-x divide-white/5">
-                {/* Time Indicator Rail */}
-                <div className="bg-[#0b0f19]/60 p-2 flex flex-col justify-between py-4 text-center font-mono text-[11px] text-zinc-500 select-none">
-                  {['05:00', '07:00', '09:00', '11:00', '13:00', '15:00', '17:00', '19:00', '21:00', '23:00'].map(t => (
-                    <div key={t} className="py-2.5">{t}</div>
-                  ))}
-                </div>
-
-                {/* 7 Day Columns */}
-                {DAYS.map((day) => {
-                  const dayBlocks = blocks
-                    .filter(b => b.day_of_week === day.id)
-                    .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''));
-
-                  return (
-                    <div 
-                      key={day.id} 
-                      className="p-2 space-y-1.5 hover:bg-white/[0.01] transition-colors relative flex flex-col"
-                    >
-                      {dayBlocks.map((block) => {
-                        const isHighlighted = isBlockMatchingTag(block, highlightedTag);
-                        const isDimmed = highlightedTag !== null && !isHighlighted;
-
-                        return (
-                          <motion.div
-                            key={block.id}
-                            initial={{ opacity: 0, scale: 0.96 }}
-                            animate={{ 
-                              opacity: isDimmed ? 0.2 : 1, 
-                              scale: isHighlighted && highlightedTag ? 1.02 : 1 
-                            }}
-                            onClick={(e) => handleBlockClick(e, block)}
-                            className={`p-2.5 rounded-2xl border transition-all cursor-pointer group shadow-sm text-left relative overflow-hidden ${
-                              isHighlighted && highlightedTag 
-                                ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-500/20 z-10' 
-                                : ''
-                            }`}
-                            style={{
-                              backgroundColor: `${block.color || '#6366f1'}15`,
-                              borderColor: `${block.color || '#6366f1'}40`,
-                            }}
-                          >
-                            {/* Color Accent Indicator Bar */}
-                            <div 
-                              className="absolute left-0 top-0 bottom-0 w-1 rounded-l" 
-                              style={{ backgroundColor: block.color || '#6366f1' }} 
-                            />
-
-                            <div className="pl-1">
-                              <div className="flex items-center justify-between text-[10px] font-mono text-zinc-300 mb-0.5">
-                                <span className="font-bold">
-                                  {block.start_time?.slice(0, 5)} - {block.end_time?.slice(0, 5)}
-                                </span>
-                              </div>
-
-                              <div className="text-xs font-bold text-white leading-tight truncate group-hover:text-blue-300 transition-colors" title={block.activity}>
-                                {block.activity}
-                              </div>
-
-                              <div className="flex items-center gap-1 mt-1">
-                                <span 
-                                  className="text-[9px] px-1.5 py-0.2 rounded font-semibold text-zinc-300"
-                                  style={{ backgroundColor: `${block.color || '#6366f1'}30` }}
-                                >
-                                  {block.category}
-                                </span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
-
-                      {/* Add Slot Quick Button at bottom of each day */}
-                      <button
-                        onClick={() => handleSlotClick(day.id, '09:00')}
-                        className="w-full py-2 rounded-xl border border-dashed border-white/5 hover:border-blue-500/40 text-zinc-600 hover:text-blue-400 text-xs font-medium transition-all flex items-center justify-center gap-1 mt-auto"
-                      >
-                        <Plus className="w-3 h-3" /> Add Block
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        /* ========================================================================= */
-        /* 2. DAY TIMELINE VIEW                                                      */
-        /* ========================================================================= */
-        <div className="space-y-4">
-          {/* Day Tabs */}
-          <div className="flex overflow-x-auto gap-2 p-1 bg-[#111827] rounded-2xl border border-white/10">
-            {DAYS.map((d) => {
-              const count = blocks.filter(b => b.day_of_week === d.id).length;
+            {weeklyData.map(day => {
+              const isToday = day.id === todayApexDay;
+              const isActive = day.id === activeDayTab;
               return (
-                <button
-                  key={d.id}
-                  onClick={() => setActiveDayTab(d.id)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-2 ${
-                    activeDayTab === d.id
-                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                      : 'text-zinc-400 hover:text-white'
+                <div
+                  key={day.id}
+                  className={`bg-[#0b0f19]/80 border rounded-2xl overflow-hidden transition-all ${
+                    isToday ? 'border-blue-500/40' : 'border-white/8'
                   }`}
                 >
-                  <span>{d.name}</span>
-                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-white/15 font-mono">{count}</span>
-                </button>
+                  {/* Day header */}
+                  <button
+                    className="w-full flex items-center gap-4 p-4 text-left"
+                    onClick={() => { setActiveDayTab(day.id); setViewMode('today'); }}
+                  >
+                    <div className="relative shrink-0">
+                      <ProgressRing pct={day.pct} size={44} stroke={4} />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-[10px] font-black text-white">{day.pct}%</span>
+                      </div>
+                    </div>
+
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-white">{day.name}</span>
+                        {isToday && <Badge className="bg-blue-600 text-white text-[9px] px-1.5 py-0 font-black">TODAY</Badge>}
+                        {day.pct === 100 && day.total > 0 && <Trophy className="w-3.5 h-3.5 text-emerald-400" />}
+                      </div>
+                      <p className="text-xs text-zinc-500 font-mono">
+                        {day.done}/{day.total} done
+                        {day.total > day.done && day.pct > 0 && ` · ${day.total - day.done} left`}
+                      </p>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="hidden sm:block w-32 shrink-0">
+                      <div className="w-full bg-white/5 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-700"
+                          style={{
+                            width: `${day.pct}%`,
+                            backgroundColor: day.pct >= 80 ? '#10b981' : day.pct >= 50 ? '#3b82f6' : '#f59e0b',
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0" />
+                  </button>
+
+                  {/* Quick checklist preview (first 5 items) */}
+                  {day.dayBlocks.length > 0 && (
+                    <div className="px-4 pb-4 space-y-1.5">
+                      {day.dayBlocks.slice(0, 5).map(block => {
+                        const isDone = getChecked(block.id, day.dateStr);
+                        const color = block.color || CATEGORY_COLORS[block.category || ''] || '#6366f1';
+                        return (
+                          <div
+                            key={block.id}
+                            className={`flex items-center gap-2.5 py-1.5 px-3 rounded-xl text-xs transition-all ${
+                              isDone ? 'bg-emerald-500/5' : 'bg-white/[0.02]'
+                            }`}
+                          >
+                            {isDone
+                              ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                              : <Circle className="w-3.5 h-3.5 text-zinc-600 shrink-0" />}
+                            <span className={`flex-1 truncate ${isDone ? 'line-through text-zinc-600' : 'text-zinc-300'}`}>
+                              {block.activity}
+                            </span>
+                            <span className="text-[10px] font-mono" style={{ color }}>{block.category}</span>
+                          </div>
+                        );
+                      })}
+                      {day.dayBlocks.length > 5 && (
+                        <p className="text-[11px] text-zinc-600 px-3">
+                          +{day.dayBlocks.length - 5} more — tap to open
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
               );
             })}
-          </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          {/* Chronological List of Blocks for Active Day */}
-          <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <CalendarIcon className="w-4 h-4 text-blue-400" />
-                Schedule for {DAYS[activeDayTab]?.name}
-              </h3>
-              <Button
-                size="sm"
-                onClick={() => handleSlotClick(activeDayTab, '09:00')}
-                className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs h-8 px-3 font-bold"
-              >
-                <Plus className="w-3.5 h-3.5 mr-1" /> Add Block for {DAYS[activeDayTab]?.name}
-              </Button>
-            </div>
-
-            <div className="space-y-2.5">
-              {blocks
-                .filter(b => b.day_of_week === activeDayTab)
-                .sort((a, b) => (a.start_time || '').localeCompare(b.start_time || ''))
-                .map((block) => {
-                  const isHighlighted = isBlockMatchingTag(block, highlightedTag);
-                  const isDimmed = highlightedTag !== null && !isHighlighted;
-
-                  return (
-                    <motion.div
-                      key={block.id}
-                      initial={{ opacity: 0, y: 6 }}
-                      animate={{ opacity: isDimmed ? 0.25 : 1 }}
-                      onClick={(e) => handleBlockClick(e, block)}
-                      className={`p-4 rounded-2xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-3 group ${
-                        isHighlighted && highlightedTag ? 'ring-2 ring-blue-400' : ''
-                      }`}
-                      style={{
-                        backgroundColor: `${block.color || '#6366f1'}15`,
-                        borderColor: `${block.color || '#6366f1'}40`,
-                      }}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div 
-                          className="w-20 text-center py-2 px-2.5 rounded-xl font-mono text-xs font-bold text-white shrink-0"
-                          style={{ backgroundColor: `${block.color || '#6366f1'}40` }}
-                        >
-                          {block.start_time?.slice(0, 5)} - {block.end_time?.slice(0, 5)}
-                        </div>
-
-                        <div>
-                          <h4 className="text-sm font-bold text-white group-hover:text-blue-300 transition-colors">
-                            {block.activity}
-                          </h4>
-                          <span className="text-xs text-zinc-400 mt-0.5 block">
-                            Category: <strong className="text-zinc-200">{block.category}</strong>
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 self-end sm:self-center">
-                        <span 
-                          className="text-xs font-semibold px-2.5 py-1 rounded-xl"
-                          style={{ 
-                            backgroundColor: `${block.color || '#6366f1'}30`,
-                            color: block.color || '#fff' 
-                          }}
-                        >
-                          {block.category}
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
-                      </div>
-                    </motion.div>
-                  );
-                })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Add / Edit Block Modal */}
+      {/* ── Modals ── */}
       <TimetableBlockModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         initialBlock={selectedBlock}
         defaultDay={selectedDay}
-        defaultHour={selectedHour}
+        defaultHour={9}
       />
-
-      {/* Tag Manager Modal */}
       <TimetableTagManagerModal
         isOpen={tagModalOpen}
         onClose={() => setTagModalOpen(false)}
