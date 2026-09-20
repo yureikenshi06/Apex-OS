@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './auth-provider';
-import { Loader2 } from 'lucide-react';
+import { Logo } from '@/components/shared/logo';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -9,8 +9,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-[#0a0a0f]">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      <div className="grid h-dvh w-screen place-items-center bg-void" role="status" aria-label="Loading">
+        <div className="animate-fade flex flex-col items-center gap-4">
+          <Logo size={44} className="animate-pulse" />
+          <span className="text-xs font-semibold text-fg-subtle">Loading Apex OS…</span>
+        </div>
       </div>
     );
   }

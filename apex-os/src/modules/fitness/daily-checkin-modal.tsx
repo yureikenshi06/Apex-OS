@@ -156,8 +156,8 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-[#0b0f19] border-emerald-500/30 text-white rounded-3xl shadow-2xl p-6">
-        <DialogHeader className="pb-2 border-b border-white/10">
+      <DialogContent className="sm:max-w-md bg-surface-1 border-emerald-500/30 text-white rounded-[20px] p-6">
+        <DialogHeader className="pb-2 border-b border-line">
           <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-emerald-400" />
             {initialData ? 'Edit Daily Metrics' : 'Log Daily Metrics'}
@@ -172,7 +172,7 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs font-mono"
+              className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs font-mono"
               required
             />
           </div>
@@ -192,7 +192,7 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
                 placeholder="e.g. 81.5"
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm pl-3 pr-10 font-mono"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm pl-3 pr-10 font-mono"
               />
               <span className="absolute right-3 top-2 text-xs text-zinc-500 font-mono">kg</span>
             </div>
@@ -212,45 +212,45 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
                 value={steps}
                 onChange={(e) => setSteps(e.target.value)}
                 placeholder="e.g. 8500"
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm pl-3 pr-14 font-mono"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm pl-3 pr-14 font-mono"
               />
               <span className="absolute right-3 top-2 text-xs text-zinc-500 font-mono">steps</span>
             </div>
           </div>
 
           {/* Sleep & Quality */}
-          <div className="space-y-2 p-3 bg-[#111827]/70 rounded-2xl border border-white/5">
+          <div className="space-y-2 p-3 bg-surface-2/70 rounded-2xl border border-line/70">
             <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
               <Moon className="w-3.5 h-3.5 text-blue-400" /> Sleep Duration & Quality
             </Label>
 
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <span className="text-[10px] text-zinc-400 block mb-0.5">Total Sleep (hrs)</span>
+                <span className="text-[11px] text-zinc-400 block mb-0.5">Total Sleep (hrs)</span>
                 <Input
                   type="number"
                   step="0.5"
                   value={sleepHrs}
                   onChange={(e) => setSleepHrs(e.target.value)}
-                  className="bg-[#0b0f19] border-white/10 text-white rounded-lg h-8 text-xs font-mono"
+                  className="bg-surface-1 border-line text-white rounded-lg h-8 text-xs font-mono"
                 />
               </div>
               <div>
-                <span className="text-[10px] text-zinc-400 block mb-0.5">Bedtime</span>
+                <span className="text-[11px] text-zinc-400 block mb-0.5">Bedtime</span>
                 <Input
                   type="time"
                   value={bedtime}
                   onChange={(e) => setBedtime(e.target.value)}
-                  className="bg-[#0b0f19] border-white/10 text-white rounded-lg h-8 text-xs font-mono p-1"
+                  className="bg-surface-1 border-line text-white rounded-lg h-8 text-xs font-mono p-1"
                 />
               </div>
               <div>
-                <span className="text-[10px] text-zinc-400 block mb-0.5">Wake Time</span>
+                <span className="text-[11px] text-zinc-400 block mb-0.5">Wake Time</span>
                 <Input
                   type="time"
                   value={wakeTime}
                   onChange={(e) => setWakeTime(e.target.value)}
-                  className="bg-[#0b0f19] border-white/10 text-white rounded-lg h-8 text-xs font-mono p-1"
+                  className="bg-surface-1 border-line text-white rounded-lg h-8 text-xs font-mono p-1"
                 />
               </div>
             </div>
@@ -270,7 +270,7 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
                       className={`w-4 h-4 ${
                         star <= sleepQuality
                           ? 'text-amber-400 fill-amber-400'
-                          : 'text-zinc-600'
+                          : 'text-zinc-500'
                       }`}
                     />
                   </button>
@@ -280,7 +280,7 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
           </div>
 
           {/* Modal Footer */}
-          <DialogFooter className="pt-3 border-t border-white/10 flex justify-between">
+          <DialogFooter className="pt-3 border-t border-line flex justify-between">
             <Button
               type="button"
               variant="ghost"
@@ -291,7 +291,7 @@ export function DailyCheckinModal({ isOpen, onClose, initialData }: DailyCheckin
             </Button>
             <Button
               type="submit"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-9 px-6 rounded-xl shadow-lg shadow-emerald-600/30"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs h-9 px-6 rounded-xl"
             >
               {initialData ? 'Update Entry' : 'Save Metrics'}
             </Button>

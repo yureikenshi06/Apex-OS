@@ -28,6 +28,7 @@ export const usePopulateTrainerWorkoutPlan = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: async () => {
       if (!user?.id) return;
       const items: any[] = [];
@@ -57,6 +58,7 @@ export const useAddPlanItem = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (data: WorkoutPlanInsert) => fitnessApi.addWorkoutPlanItem({ ...data, owner_id: user?.id! }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workoutPlan'] }),
   });
@@ -65,6 +67,7 @@ export const useAddPlanItem = () => {
 export const useUpdatePlanItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: ({ id, data }: { id: string; data: Partial<WorkoutPlanInsert> }) =>
       fitnessApi.updateWorkoutPlanItem(id, data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workoutPlan'] }),
@@ -74,6 +77,7 @@ export const useUpdatePlanItem = () => {
 export const useDeletePlanItem = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (id: string) => fitnessApi.deleteWorkoutPlanItem(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['workoutPlan'] }),
   });
@@ -93,6 +97,7 @@ export const useAddWorkoutLog = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (data: WorkoutLogInsert) => fitnessApi.addWorkoutLog({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workoutLogs'] });
@@ -104,6 +109,7 @@ export const useAddWorkoutLog = () => {
 export const useUpdateWorkoutLog = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: ({ id, data }: { id: string; data: Partial<WorkoutLogInsert> }) =>
       fitnessApi.updateWorkoutLog(id, data),
     onSuccess: () => {
@@ -116,6 +122,7 @@ export const useUpdateWorkoutLog = () => {
 export const useDeleteWorkoutLog = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (id: string) => fitnessApi.deleteWorkoutLog(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workoutLogs'] });
@@ -138,6 +145,7 @@ export const useAddMeasurement = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (data: BodyMeasurementInsert) => fitnessApi.addBodyMeasurement({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bodyMeasurements'] });
@@ -149,6 +157,7 @@ export const useAddMeasurement = () => {
 export const useDeleteMeasurement = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (id: string) => fitnessApi.deleteBodyMeasurement(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bodyMeasurements'] });
@@ -160,6 +169,7 @@ export const useDeleteMeasurement = () => {
 export const useUpdateMeasurement = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: ({ id, data }: { id: string; data: Partial<BodyMeasurementInsert> }) =>
       fitnessApi.updateBodyMeasurement(id, data),
     onSuccess: () => {
@@ -183,6 +193,7 @@ export const useAddCardio = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (data: CardioStepsLogInsert) => fitnessApi.addCardioStepsLog({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cardioSteps'] });
@@ -194,6 +205,7 @@ export const useAddCardio = () => {
 export const useUpdateCardio = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: ({ id, data }: { id: string; data: Partial<CardioStepsLogInsert> }) =>
       fitnessApi.updateCardioStepsLog(id, data),
     onSuccess: () => {
@@ -206,6 +218,7 @@ export const useUpdateCardio = () => {
 export const useDeleteCardio = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (id: string) => fitnessApi.deleteCardioStepsLog(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cardioSteps'] });
@@ -228,6 +241,7 @@ export const useAddSleep = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (data: SleepLogInsert) => fitnessApi.addSleepLog({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sleepLog'] });
@@ -239,6 +253,7 @@ export const useAddSleep = () => {
 export const useUpdateSleep = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: ({ id, data }: { id: string; data: Partial<SleepLogInsert> }) =>
       fitnessApi.updateSleepLog(id, data),
     onSuccess: () => {
@@ -251,6 +266,7 @@ export const useUpdateSleep = () => {
 export const useDeleteSleep = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: (id: string) => fitnessApi.deleteSleepLog(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sleepLog'] });
@@ -338,6 +354,7 @@ export const useResetAllFitnessData = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'fitness' },
     mutationFn: () => fitnessApi.resetAllFitnessData(user?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bodyMeasurements'] });

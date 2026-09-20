@@ -14,7 +14,8 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip as RechartsTooltip, ResponsiveContainer, ReferenceLine 
 } from 'recharts';
-import { StatCard } from '@/components/shared/stat-card';
+import { StatCard, StatGrid } from '@/components/shared/stat-card';
+import { useStreaks } from '@/modules/home/insights';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -31,6 +32,7 @@ export default function FitnessPage() {
   const navigate = useNavigate();
 
   const { data: stats } = useFitnessStats();
+  const streaks = useStreaks();
   const { data: measurements = [] } = useBodyMeasurements();
   const { data: cardioLogs = [] } = useCardioSteps();
 
@@ -93,11 +95,11 @@ export default function FitnessPage() {
   const progressPct = stats?.progressPct || 0;
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Fitness Command Center</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Fitness Command Center</h1>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
@@ -107,7 +109,7 @@ export default function FitnessPage() {
             size="sm"
             onClick={handleResetAllData}
             disabled={resetAllMutation.isPending}
-            className="bg-[#111827] border-white/10 hover:border-rose-500/40 text-zinc-400 hover:text-rose-400 rounded-xl text-xs h-9 px-3 gap-1.5"
+            className="bg-surface-2 border-line hover:border-rose-500/40 text-zinc-400 hover:text-rose-400 rounded-xl text-xs h-9 px-3 gap-1.5"
             title="Reset/wipe all fitness data"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reset Data
@@ -115,7 +117,7 @@ export default function FitnessPage() {
 
           <Button 
             onClick={() => setCheckinModalOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-600/30 gap-1.5 font-bold h-9 text-xs px-4"
+            className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl gap-1.5 font-bold h-9 text-xs px-4"
           >
             <Activity className="w-4 h-4" /> Log Daily Metrics
           </Button>
@@ -126,7 +128,7 @@ export default function FitnessPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link 
           to="/fitness/workout"
-          className="p-5 rounded-3xl bg-[#0b0f19]/90 border border-white/10 hover:border-orange-500/50 transition-all flex items-center justify-between group shadow-xl"
+          className="p-5 rounded-[20px] bg-surface-1 border border-line hover:border-orange-500/50 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
@@ -146,7 +148,7 @@ export default function FitnessPage() {
 
         <Link 
           to="/fitness/body"
-          className="p-5 rounded-3xl bg-[#0b0f19]/90 border border-white/10 hover:border-emerald-500/50 transition-all flex items-center justify-between group shadow-xl"
+          className="p-5 rounded-[20px] bg-surface-1 border border-line hover:border-emerald-500/50 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
@@ -166,7 +168,7 @@ export default function FitnessPage() {
       </div>
 
       {/* 4 Stat Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch">
+      <StatGrid>
         <StatCard 
           title="Current Weight" 
           value={currentWeight} 
@@ -179,7 +181,7 @@ export default function FitnessPage() {
         />
         <StatCard 
           title="Workout Streak" 
-          value={stats?.workoutStreak || 12} 
+          value={streaks.workout.count} 
           format="number"
           suffix=" Days"
           color="text-amber-400"
@@ -205,10 +207,10 @@ export default function FitnessPage() {
           changeLabel={`Quality: ★ ${stats?.sleepQuality || 4}/5`} 
           icon={Moon} 
         />
-      </div>
+      </StatGrid>
 
       {/* Recomposition Goal Progress Card */}
-      <Card className="bg-gradient-to-r from-[#071913] via-[#09221b] to-[#0b0f19] border border-emerald-500/30 rounded-3xl p-6 shadow-2xl">
+      <Card className="bg-gradient-to-r from-[#071913] via-[#09221b] to-surface-1 border border-emerald-500/30 rounded-[20px] p-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider">
@@ -240,8 +242,8 @@ export default function FitnessPage() {
       </Card>
 
       {/* TODAY'S PRESCRIBED WORKOUT ROUTINE */}
-      <Card className="bg-[#0b0f19]/90 border border-orange-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+      <Card className="bg-surface-1 border border-orange-500/30 rounded-[20px] p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line">
           <div>
             <div className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-orange-400" />
@@ -269,7 +271,7 @@ export default function FitnessPage() {
         </div>
 
         {todayTrainerDay.exercises.length === 0 ? (
-          <div className="p-6 rounded-2xl bg-[#111827]/40 text-center text-xs text-zinc-400 space-y-1">
+          <div className="p-6 rounded-2xl bg-surface-2/40 text-center text-xs text-zinc-400 space-y-1">
             <span className="text-sm font-bold text-white block">Sunday Rest Day</span>
             <span>Optional 20–30 min walk and mobility.</span>
           </div>
@@ -287,7 +289,7 @@ export default function FitnessPage() {
                     className={`p-3.5 rounded-2xl border transition-all flex items-center justify-between gap-3 cursor-pointer group select-none ${
                       isDone
                         ? 'bg-emerald-950/20 border-emerald-500/40 text-zinc-400' 
-                        : 'bg-[#111827]/70 border-white/5 hover:border-orange-500/40'
+                        : 'bg-surface-2/70 border-line/70 hover:border-orange-500/40'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -300,7 +302,7 @@ export default function FitnessPage() {
                         className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors border ${
                           isDone 
                             ? 'bg-emerald-500 border-emerald-400 text-white' 
-                            : 'border-zinc-700 bg-[#0b0f19] hover:border-orange-500'
+                            : 'border-zinc-700 bg-surface-1 hover:border-orange-500'
                         }`}
                       >
                         {isDone && <Check className="w-4 h-4 stroke-[3]" />}
@@ -313,13 +315,13 @@ export default function FitnessPage() {
                           {idx + 1}. {ex.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <Badge variant="outline" className="text-[9px] border-white/10 text-zinc-400 bg-white/5 py-0">
+                          <Badge variant="outline" className="text-[11px] border-line text-zinc-400 bg-white/5 py-0">
                             {ex.muscle_group}
                           </Badge>
-                          <span className="text-[10px] text-zinc-400 font-mono">
+                          <span className="text-[11px] text-zinc-400 font-mono">
                             {ex.sets} sets × {ex.reps}
                           </span>
-                          <span className="text-[9px] text-zinc-500 font-mono">
+                          <span className="text-[11px] text-zinc-500 font-mono">
                             (Rest {ex.rest_sec}s)
                           </span>
                         </div>
@@ -357,7 +359,7 @@ export default function FitnessPage() {
 
       {/* Dual Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-5 shadow-2xl space-y-4">
+        <Card className="bg-surface-1 border border-line rounded-[20px] p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Scale className="w-4 h-4 text-orange-400" />
@@ -375,21 +377,21 @@ export default function FitnessPage() {
                     <stop offset="95%" stopColor="#ef4444" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.3} />
-                <XAxis dataKey="date" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1A2030" opacity={0.3} />
+                <XAxis dataKey="date" stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#090d18', borderColor: '#1e293b', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.8)' }}
+                  contentStyle={{ backgroundColor: '#12161F', borderColor: '#1A2030', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.8)' }}
                   formatter={(val: any) => [`${val} kg`, 'Body Weight']}
                 />
-                <ReferenceLine y={75} stroke="#3b82f6" strokeDasharray="3 3" />
+                <ReferenceLine y={75} stroke="#3B6EF6" strokeDasharray="3 3" />
                 <Area type="monotone" dataKey="weight" stroke="#ef4444" strokeWidth={2.5} fillOpacity={1} fill="url(#weightMainGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        <Card className="bg-[#0b0f19]/90 border border-blue-500/20 rounded-3xl p-5 shadow-2xl space-y-4">
+        <Card className="bg-surface-1 border border-blue-500/20 rounded-[20px] p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Activity className="w-4 h-4 text-blue-400" />
@@ -401,15 +403,15 @@ export default function FitnessPage() {
           <div className="h-[250px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stepsTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.3} />
-                <XAxis dataKey="date" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1A2030" opacity={0.3} />
+                <XAxis dataKey="date" stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#090d18', borderColor: '#1e293b', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.8)' }}
+                  contentStyle={{ backgroundColor: '#12161F', borderColor: '#1A2030', borderRadius: '16px', color: '#fff', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.8)' }}
                   formatter={(val: any) => [`${Number(val).toLocaleString()} steps`, 'Steps']}
                 />
                 <ReferenceLine y={8000} stroke="#ef4444" strokeDasharray="3 3" />
-                <Bar dataKey="steps" fill="#3b82f6" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="steps" fill="#3B6EF6" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

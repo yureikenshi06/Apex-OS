@@ -90,38 +90,38 @@ export default function NetWorthPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <Button onClick={() => navigate('/finance')} variant="ghost" size="sm" className="p-1.5 h-8 text-zinc-400 hover:text-white rounded-lg">
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-3xl font-black text-white tracking-tight">Net Worth Tracker</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Net Worth Tracker</h1>
         </div>
-        <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-bold">
+        <Button onClick={handleOpenAdd} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl gap-1.5 font-bold">
           <Plus className="w-4 h-4" /> Add Monthly Snapshot
         </Button>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-[#0b0f19]/80 border border-emerald-500/20 rounded-2xl p-5 shadow-xl">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Assets</span>
+        <div className="bg-surface-1 border border-emerald-500/20 rounded-2xl p-5">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Total Assets</span>
           <p className="text-2xl font-black text-emerald-400 font-mono mt-1">₹{totalAssets.toLocaleString()}</p>
         </div>
-        <div className="bg-[#0b0f19]/80 border border-rose-500/20 rounded-2xl p-5 shadow-xl">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Total Liabilities</span>
+        <div className="bg-surface-1 border border-rose-500/20 rounded-2xl p-5">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Total Liabilities</span>
           <p className="text-2xl font-black text-rose-400 font-mono mt-1">₹{totalLiabilities.toLocaleString()}</p>
         </div>
-        <div className="bg-[#0b0f19]/80 border border-blue-500/20 rounded-2xl p-5 shadow-xl">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Net Worth</span>
+        <div className="bg-surface-1 border border-blue-500/20 rounded-2xl p-5">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Net Worth</span>
           <p className={`text-2xl font-black font-mono mt-1 ${currentNW >= 0 ? 'text-blue-400' : 'text-rose-400'}`}>₹{currentNW.toLocaleString()}</p>
         </div>
       </div>
 
       {/* Chart */}
-      <div className="bg-[#0b0f19]/80 border border-blue-500/20 backdrop-blur-xl rounded-3xl shadow-2xl p-6">
+      <div className="bg-surface-1 border border-blue-500/20 rounded-[20px] p-6">
         <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-blue-400" /> Net Worth Trajectory
         </h2>
@@ -135,18 +135,18 @@ export default function NetWorthPage() {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="netWorthGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#3B6EF6" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="#3B6EF6" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.4} />
-                <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val/1000}k`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#1A2030" opacity={0.4} />
+                <XAxis dataKey="date" stroke="#8A93A6" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#8A93A6" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(val) => `₹${val/1000}k`} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0e131f', borderColor: '#1e293b', borderRadius: '12px', color: '#fff' }} 
+                  contentStyle={{ backgroundColor: '#12161F', borderColor: '#1A2030', borderRadius: '12px', color: '#fff' }} 
                   formatter={(val: any) => [`₹${Number(val).toLocaleString()}`, '']}
                 />
-                <Area type="monotone" dataKey="netWorth" name="Net Worth" stroke="#3b82f6" strokeWidth={2.5} fillOpacity={1} fill="url(#netWorthGrad)" />
+                <Area type="monotone" dataKey="netWorth" name="Net Worth" stroke="#3B6EF6" strokeWidth={2.5} fillOpacity={1} fill="url(#netWorthGrad)" />
               </AreaChart>
             </ResponsiveContainer>
           )}
@@ -154,10 +154,10 @@ export default function NetWorthPage() {
       </div>
 
       {/* Monthly Entries Table */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+      <div className="bg-surface-1 border border-line rounded-[20px] overflow-hidden">
         <div className="max-h-[400px] overflow-auto">
           <table className="w-full text-left border-collapse min-w-[700px]">
-            <thead className="sticky top-0 z-10 bg-[#0e1424] text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-white/10">
+            <thead className="sticky top-0 z-10 bg-surface-1 text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-line">
               <tr>
                 <th className="p-3.5">Month</th>
                 <th className="p-3.5 text-right">Bank</th>
@@ -169,7 +169,7 @@ export default function NetWorthPage() {
                 <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
+            <tbody className="divide-y divide-line text-sm">
               {isLoading ? (
                 <tr><td colSpan={8} className="p-12 text-center text-zinc-500 animate-pulse">Loading...</td></tr>
               ) : entries.length === 0 ? (
@@ -196,7 +196,7 @@ export default function NetWorthPage() {
                       <td className="p-3.5 text-right text-rose-400 font-bold font-mono">₹{liabilities.toLocaleString()}</td>
                       <td className={`p-3.5 text-right font-black font-mono ${nw >= 0 ? 'text-blue-400' : 'text-rose-400'}`}>₹{nw.toLocaleString()}</td>
                       <td className="p-3.5 text-right">
-                        <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-1.5 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                           <button onClick={() => handleOpenEdit(e)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-zinc-400 hover:text-blue-400">
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -216,7 +216,7 @@ export default function NetWorthPage() {
 
       {/* Add/Edit Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl">
+        <DialogContent className="sm:max-w-lg bg-surface-1 border-blue-500/30 text-white rounded-[20px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <Wallet className="w-5 h-5 text-blue-400" />
@@ -227,7 +227,7 @@ export default function NetWorthPage() {
           <form onSubmit={handleSave} className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Month</Label>
-              <Input type="date" value={monthDate} onChange={(e) => setMonthDate(e.target.value)} className="bg-[#111827] border-white/10 text-white rounded-xl" />
+              <Input type="date" value={monthDate} onChange={(e) => setMonthDate(e.target.value)} className="bg-surface-2 border-line text-white rounded-xl" />
             </div>
 
             <div className="space-y-2">
@@ -235,19 +235,19 @@ export default function NetWorthPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Bank Balance</Label>
-                  <Input type="number" step="1" value={bank} onChange={(e) => setBank(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={bank} onChange={(e) => setBank(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Cash</Label>
-                  <Input type="number" step="1" value={cash} onChange={(e) => setCash(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={cash} onChange={(e) => setCash(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Investments</Label>
-                  <Input type="number" step="1" value={investments} onChange={(e) => setInvestments(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={investments} onChange={(e) => setInvestments(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Other Assets</Label>
-                  <Input type="number" step="1" value={otherAssets} onChange={(e) => setOtherAssets(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={otherAssets} onChange={(e) => setOtherAssets(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
               </div>
             </div>
@@ -257,22 +257,22 @@ export default function NetWorthPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Credit Card</Label>
-                  <Input type="number" step="1" value={creditCard} onChange={(e) => setCreditCard(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={creditCard} onChange={(e) => setCreditCard(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Loans</Label>
-                  <Input type="number" step="1" value={loans} onChange={(e) => setLoans(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={loans} onChange={(e) => setLoans(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-[11px] text-zinc-400">Other</Label>
-                  <Input type="number" step="1" value={otherLiabilities} onChange={(e) => setOtherLiabilities(e.target.value)} placeholder="0" className="bg-[#111827] border-white/10 text-white rounded-xl" />
+                  <Input type="number" step="1" value={otherLiabilities} onChange={(e) => setOtherLiabilities(e.target.value)} placeholder="0" className="bg-surface-2 border-line text-white rounded-xl" />
                 </div>
               </div>
             </div>
 
-            <DialogFooter className="pt-3 border-t border-white/10 flex justify-end gap-2">
+            <DialogFooter className="pt-3 border-t border-line flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-white rounded-xl">Cancel</Button>
-              <Button type="submit" disabled={addEntry.isPending || updateEntry.isPending} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold px-6 shadow-lg shadow-blue-600/30">
+              <Button type="submit" disabled={addEntry.isPending || updateEntry.isPending} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold px-6">
                 {editItem ? 'Save' : 'Add Snapshot'}
               </Button>
             </DialogFooter>

@@ -12,19 +12,19 @@ interface TimetableTagManagerModalProps {
 }
 
 const COLOR_SWATCHES = [
-  '#6366f1', '#3b82f6', '#8b5cf6', '#06b6d4', 
-  '#10b981', '#f59e0b', '#ec4899', '#f43f5e', 
-  '#64748b', '#475569', '#14b8a6', '#84cc16'
+  '#3B6EF6', '#3B6EF6', '#8b5cf6', '#06b6d4', 
+  '#22C55E', '#F5A524', '#ec4899', '#f43f5e', 
+  '#6F7C99', '#56627D', '#14b8a6', '#84cc16'
 ];
 
 export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManagerModalProps) {
   const { tags, addTag, editTag, deleteTag, resetTagsToDefaults } = useTimetableTags();
   
   const [newTagName, setNewTagName] = useState('');
-  const [newTagColor, setNewTagColor] = useState('#6366f1');
+  const [newTagColor, setNewTagColor] = useState('#3B6EF6');
   const [editingTagId, setEditingTagId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  const [editColor, setEditColor] = useState('#6366f1');
+  const [editColor, setEditColor] = useState('#3B6EF6');
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +48,8 @@ export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManage
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-        <DialogHeader className="pb-2 border-b border-white/10">
+      <DialogContent className="sm:max-w-md bg-surface-1 border-blue-500/30 text-white rounded-[20px] overflow-hidden max-h-[85vh] flex flex-col">
+        <DialogHeader className="pb-2 border-b border-line">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <Tag className="w-5 h-5 text-blue-400" />
@@ -73,14 +73,14 @@ export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManage
 
         <div className="space-y-4 py-2 flex-1 overflow-y-auto pr-1">
           {/* Add New Tag Form */}
-          <form onSubmit={handleAdd} className="space-y-2 p-3 bg-[#111827] rounded-2xl border border-white/10">
+          <form onSubmit={handleAdd} className="space-y-2 p-3 bg-surface-2 rounded-2xl border border-line">
             <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Add New Tag</Label>
             <div className="flex gap-2">
               <Input
                 value={newTagName}
                 onChange={(e) => setNewTagName(e.target.value)}
                 placeholder="e.g. Deep Work, Revision..."
-                className="bg-[#1f293d] border-white/10 text-white rounded-xl h-8 text-xs flex-1 placeholder:text-zinc-500"
+                className="bg-surface-3 border-line text-white rounded-xl h-8 text-xs flex-1 placeholder:text-zinc-500"
               />
               <div className="flex items-center gap-1">
                 {COLOR_SWATCHES.slice(0, 5).map(c => (
@@ -107,14 +107,14 @@ export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManage
             {tags.map((t) => (
               <div
                 key={t.id}
-                className="flex items-center justify-between p-2.5 rounded-xl bg-[#111827]/70 border border-white/5 hover:border-white/15 transition-all text-xs group"
+                className="flex items-center justify-between p-2.5 rounded-xl bg-surface-2/70 border border-line/70 hover:border-white/15 transition-all text-xs group"
               >
                 {editingTagId === t.id ? (
                   <div className="flex items-center gap-2 flex-1 mr-2">
                     <Input
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="h-7 text-xs bg-[#1f293d] border-blue-500/50 rounded-lg text-white"
+                      className="h-7 text-xs bg-surface-3 border-blue-500/50 rounded-lg text-white"
                       autoFocus
                     />
                     <div className="flex items-center gap-1">
@@ -146,10 +146,10 @@ export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManage
                 ) : (
                   <>
                     <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full shadow-sm" style={{ backgroundColor: t.color }} />
+                      <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: t.color }} />
                       <span className="font-semibold text-white">{t.name}</span>
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={() => handleStartEdit(t)}
@@ -174,7 +174,7 @@ export function TimetableTagManagerModal({ isOpen, onClose }: TimetableTagManage
           </div>
         </div>
 
-        <DialogFooter className="pt-3 border-t border-white/10 flex justify-end">
+        <DialogFooter className="pt-3 border-t border-line flex justify-end">
           <Button
             type="button"
             onClick={onClose}

@@ -87,8 +87,8 @@ export default function CategoryManagerModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-2xl bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col">
-        <DialogHeader className="pb-2 border-b border-white/10">
+      <DialogContent className="sm:max-w-2xl bg-surface-1 border-blue-500/30 text-white rounded-[20px] overflow-hidden max-h-[85vh] flex flex-col">
+        <DialogHeader className="pb-2 border-b border-line">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <Layers className="w-5 h-5 text-blue-400" />
@@ -112,7 +112,7 @@ export default function CategoryManagerModal({
 
         <div className="space-y-4 py-2 flex-1 overflow-y-auto pr-1">
           {/* Type Tabs */}
-          <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-white/10">
+          <div className="flex gap-2 p-1 bg-white/5 rounded-xl border border-line">
             {(['Expense', 'Income', 'Transfer'] as const).map((t) => (
               <button
                 key={t}
@@ -121,10 +121,10 @@ export default function CategoryManagerModal({
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
                   activeType === t
                     ? t === 'Expense'
-                      ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30'
+                      ? 'bg-rose-600 text-white'
                       : t === 'Income'
-                      ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
-                      : 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-blue-600 text-white'
                     : 'text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -136,7 +136,7 @@ export default function CategoryManagerModal({
           {/* Two-Column Layout: Left Category Selector, Right Subcategories Manager */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             {/* Left: Category List */}
-            <div className="md:col-span-5 space-y-2 bg-[#111827]/60 border border-white/5 p-3 rounded-2xl">
+            <div className="md:col-span-5 space-y-2 bg-surface-2/60 border border-line/70 p-3 rounded-2xl">
               <div className="flex items-center justify-between px-1">
                 <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
                   {activeType} Categories ({currentCategories.length})
@@ -156,7 +156,7 @@ export default function CategoryManagerModal({
                     value={newCatName}
                     onChange={(e) => setNewCatName(e.target.value)}
                     placeholder="Category name..."
-                    className="h-7 text-xs bg-[#1f293d] border-blue-500/40 rounded-lg text-white"
+                    className="h-7 text-xs bg-surface-3 border-blue-500/40 rounded-lg text-white"
                     autoFocus
                   />
                   <Button type="submit" size="sm" className="h-7 px-2 bg-blue-600 text-white rounded-lg text-xs">
@@ -185,12 +185,12 @@ export default function CategoryManagerModal({
                     }}
                     className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all ${
                       selectedCategory === cat
-                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-sm'
+                        ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40'
                         : 'text-zinc-300 hover:bg-white/5 border border-transparent'
                     }`}
                   >
                     <span className="truncate">{cat}</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-zinc-400 font-mono">
+                    <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-white/10 text-zinc-400 font-mono">
                       {(categories[activeType][cat] || []).length}
                     </span>
                   </button>
@@ -199,9 +199,9 @@ export default function CategoryManagerModal({
             </div>
 
             {/* Right: Subcategories Manager */}
-            <div className="md:col-span-7 space-y-3 bg-[#111827]/60 border border-white/5 p-3 rounded-2xl flex flex-col justify-between">
+            <div className="md:col-span-7 space-y-3 bg-surface-2/60 border border-line/70 p-3 rounded-2xl flex flex-col justify-between">
               <div>
-                <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                <div className="flex items-center justify-between pb-2 border-b border-line/70">
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
                     <Tag className="w-3.5 h-3.5 text-blue-400" />
                     Subcategories for <strong className="text-blue-400">{selectedCategory}</strong>
@@ -217,12 +217,12 @@ export default function CategoryManagerModal({
                     value={newSubcatName}
                     onChange={(e) => setNewSubcatName(e.target.value)}
                     placeholder={`Add subcategory for ${selectedCategory}...`}
-                    className="h-8 text-xs bg-[#1f293d] border-white/10 rounded-xl text-white placeholder:text-zinc-500"
+                    className="h-8 text-xs bg-surface-3 border-line rounded-xl text-white placeholder:text-zinc-500"
                   />
                   <Button
                     type="submit"
                     size="sm"
-                    className="h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold px-3 shrink-0 shadow-md shadow-blue-600/30"
+                    className="h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold px-3 shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5 mr-1" /> Add
                   </Button>
@@ -238,14 +238,14 @@ export default function CategoryManagerModal({
                     subcategories.map((subcat) => (
                       <div
                         key={subcat}
-                        className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all text-xs group"
+                        className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-line/70 hover:border-white/15 transition-all text-xs group"
                       >
                         {editingSubcat === subcat ? (
                           <div className="flex items-center gap-1.5 flex-1 mr-2">
                             <Input
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              className="h-7 text-xs bg-[#1f293d] border-blue-500/50 rounded-lg text-white"
+                              className="h-7 text-xs bg-surface-3 border-blue-500/50 rounded-lg text-white"
                               autoFocus
                             />
                             <button
@@ -266,7 +266,7 @@ export default function CategoryManagerModal({
                         ) : (
                           <>
                             <span className="text-zinc-200 font-medium">{subcat}</span>
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                               <button
                                 type="button"
                                 onClick={() => handleStartEdit(subcat)}
@@ -295,7 +295,7 @@ export default function CategoryManagerModal({
           </div>
         </div>
 
-        <DialogFooter className="pt-3 border-t border-white/10 flex justify-end">
+        <DialogFooter className="pt-3 border-t border-line flex justify-end">
           <Button
             type="button"
             onClick={onClose}

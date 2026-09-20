@@ -2,12 +2,12 @@ import React from 'react';
 
 export default function GroceryPage() {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-[#fafafa] p-6 space-y-6">
+    <div className="text-fg space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Grocery & Budget</h1>
-        <button className="bg-[#6366f1] text-white px-4 py-2 rounded-lg font-medium">Add Purchase</button>
+        <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Grocery & Budget</h1>
+        <button className="bg-primary text-white px-4 py-2 rounded-lg font-medium">Add Purchase</button>
       </div>
-      <div className="bg-[#111118] p-6 rounded-2xl border border-gray-800 overflow-x-auto">
+      <div className="bg-surface-2 p-6 rounded-2xl border border-gray-800 overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-gray-800 text-gray-400 text-sm">

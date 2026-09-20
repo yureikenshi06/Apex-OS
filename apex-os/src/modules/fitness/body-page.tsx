@@ -86,7 +86,7 @@ export default function BodyPage() {
   const progressPct = stats?.progressPct || 0;
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground font-sans">
       {/* Top Back Navigation Bar */}
       <div className="flex items-center justify-between">
         <Button
@@ -103,19 +103,19 @@ export default function BodyPage() {
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight">Body Metrics & Recovery Hub</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Body Metrics & Recovery Hub</h1>
         </div>
 
         <Button
           onClick={() => setCheckinModalOpen(true)}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-lg shadow-emerald-600/30 gap-1.5 font-bold h-9 text-xs px-4"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl gap-1.5 font-bold h-9 text-xs px-4"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" /> Log Daily Check-in
         </Button>
       </div>
 
       {/* Target Weight Goal Progress Card */}
-      <Card className="bg-gradient-to-r from-[#071913] via-[#09221b] to-[#0b0f19] border border-emerald-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+      <Card className="bg-gradient-to-r from-[#071913] via-[#09221b] to-surface-1 border border-emerald-500/30 rounded-[20px] p-6 relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider">
@@ -149,7 +149,7 @@ export default function BodyPage() {
       {/* Weight & Steps Dual Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weight Trajectory Area Chart */}
-        <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-5 shadow-2xl backdrop-blur-xl space-y-4">
+        <Card className="bg-surface-1 border border-line rounded-[20px] p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Scale className="w-4 h-4 text-orange-400" />
@@ -167,14 +167,14 @@ export default function BodyPage() {
                     <stop offset="95%" stopColor="#f97316" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
-                <XAxis dataKey="date" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#232838" opacity={0.3} />
+                <XAxis dataKey="date" stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} domain={['dataMin - 1', 'dataMax + 1']} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#0C0F16', borderColor: '#232838', borderRadius: '12px', color: '#fff' }}
                   formatter={(val: any) => [`${val} kg`, 'Body Weight']}
                 />
-                <ReferenceLine y={75} stroke="#10b981" strokeDasharray="3 3" label={{ value: 'Target 75kg', fill: '#10b981', fontSize: 10 }} />
+                <ReferenceLine y={75} stroke="#22C55E" strokeDasharray="3 3" label={{ value: 'Target 75kg', fill: '#22C55E', fontSize: 10 }} />
                 <Area type="monotone" dataKey="weight" stroke="#f97316" strokeWidth={2.5} fillOpacity={1} fill="url(#weightAreaGrad)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -182,7 +182,7 @@ export default function BodyPage() {
         </Card>
 
         {/* Steps Activity Bar Chart */}
-        <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-5 shadow-2xl backdrop-blur-xl space-y-4">
+        <Card className="bg-surface-1 border border-line rounded-[20px] p-5 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
@@ -194,15 +194,15 @@ export default function BodyPage() {
           <div className="h-[260px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stepsData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
-                <XAxis dataKey="date" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#232838" opacity={0.3} />
+                <XAxis dataKey="date" stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#0C0F16', borderColor: '#232838', borderRadius: '12px', color: '#fff' }}
                   formatter={(val: any) => [`${Number(val).toLocaleString()} steps`, 'Steps Logged']}
                 />
-                <ReferenceLine y={8000} stroke="#3b82f6" strokeDasharray="3 3" label={{ value: 'Goal 8k', fill: '#3b82f6', fontSize: 10 }} />
-                <Bar dataKey="steps" fill="#10b981" radius={[8, 8, 0, 0]} />
+                <ReferenceLine y={8000} stroke="#3B6EF6" strokeDasharray="3 3" label={{ value: 'Goal 8k', fill: '#3B6EF6', fontSize: 10 }} />
+                <Bar dataKey="steps" fill="#22C55E" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -210,8 +210,8 @@ export default function BodyPage() {
       </div>
 
       {/* Sleep & Quality Recovery Section */}
-      <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+      <Card className="bg-surface-1 border border-line rounded-[20px] p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-line">
           <h3 className="text-base font-bold text-white flex items-center gap-2">
             <Moon className="w-4 h-4 text-blue-400" />
             Sleep Duration & Recovery Quality
@@ -223,20 +223,20 @@ export default function BodyPage() {
           <div className="lg:col-span-2 h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sleepData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" opacity={0.3} />
-                <XAxis dataKey="date" stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#71717a" fontSize={11} tickLine={false} axisLine={false} domain={[0, 10]} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#232838" opacity={0.3} />
+                <XAxis dataKey="date" stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#6F7C99" fontSize={11} tickLine={false} axisLine={false} domain={[0, 10]} />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#0C0F16', borderColor: '#232838', borderRadius: '12px', color: '#fff' }}
                   formatter={(val: any) => [`${val} hours`, 'Sleep Duration']}
                 />
-                <ReferenceLine y={7.5} stroke="#f59e0b" strokeDasharray="3 3" />
-                <Bar dataKey="hours" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                <ReferenceLine y={7.5} stroke="#F5A524" strokeDasharray="3 3" />
+                <Bar dataKey="hours" fill="#3B6EF6" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
-          <div className="space-y-3 bg-[#111827]/60 p-4 rounded-2xl border border-white/5">
+          <div className="space-y-3 bg-surface-2/60 p-4 rounded-2xl border border-line/70">
             <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider block">Recovery Insights</span>
             <div className="space-y-2 text-xs text-zinc-300">
               <div className="flex justify-between">

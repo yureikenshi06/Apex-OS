@@ -57,7 +57,7 @@ export default function CFARevisionPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-6xl mx-auto text-foreground font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -70,7 +70,7 @@ export default function CFARevisionPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <h1 className="text-3xl font-black text-white tracking-tight">CFA Revision Plan</h1>
+            <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">CFA Revision Plan</h1>
             <Badge variant="secondary" className="bg-red-900/50 text-red-200 border-red-700/50 font-bold px-2.5">
               February 2027
             </Badge>
@@ -79,7 +79,7 @@ export default function CFARevisionPage() {
 
         <Button 
           onClick={() => setModalOpen(true)}
-          className="bg-red-600 hover:bg-red-500 text-white rounded-xl shadow-lg shadow-red-600/30 gap-1.5 font-semibold"
+          className="bg-red-600 hover:bg-red-500 text-white rounded-xl gap-1.5 font-semibold"
         >
           <Plus className="w-4 h-4" /> Add Revision Task
         </Button>
@@ -90,8 +90,8 @@ export default function CFARevisionPage() {
         {isLoading ? (
           <div className="p-12 text-center text-zinc-500 font-medium animate-pulse">Loading revision plan...</div>
         ) : rounds.length === 0 ? (
-          <div className="bg-[#0b0f19]/90 border border-blue-500/20 rounded-3xl p-12 text-center space-y-4 shadow-2xl backdrop-blur-xl">
-            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto shadow-inner">
+          <div className="bg-surface-1 border border-blue-500/20 rounded-[20px] p-12 text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center mx-auto">
               <RefreshCw className="w-7 h-7" />
             </div>
             <h3 className="text-xl font-black text-white">No CFA Revision Tasks Yet</h3>
@@ -113,10 +113,10 @@ export default function CFARevisionPage() {
                 key={rName}
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#0b0f19]/90 border border-blue-500/20 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-xl"
+                className="bg-surface-1 border border-blue-500/20 rounded-[20px] overflow-hidden"
               >
                 {/* Round Header */}
-                <div className="p-5 border-b border-white/10 bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-5 border-b border-line bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="text-base font-black text-white flex items-center gap-2">
                       <Target className="w-4 h-4 text-red-400" />
@@ -127,14 +127,14 @@ export default function CFARevisionPage() {
                     <span className="text-xs font-mono text-zinc-400">
                       {completedCount} / {items.length} done ({pct}%)
                     </span>
-                    <div className="w-28 h-2 bg-zinc-800 rounded-full overflow-hidden border border-white/5">
+                    <div className="w-28 h-2 bg-zinc-800 rounded-full overflow-hidden border border-line/70">
                       <div className="h-full bg-gradient-to-r from-red-500 to-blue-500" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 </div>
 
                 {/* Items List */}
-                <div className="divide-y divide-white/5">
+                <div className="divide-y divide-line">
                   {items.map((item) => {
                     const isDone = item.status === 'Completed';
                     return (
@@ -144,7 +144,7 @@ export default function CFARevisionPage() {
                             type="checkbox"
                             checked={isDone}
                             onChange={(e) => updateMutation.mutate({ id: item.id, updates: { status: e.target.checked ? 'Completed' : 'In Progress' } })}
-                            className="w-4 h-4 rounded border-zinc-700 text-red-600 focus:ring-red-500/50 bg-[#111827] cursor-pointer mt-0.5 sm:mt-0"
+                            className="w-4 h-4 rounded border-zinc-700 text-red-600 focus:ring-red-500/50 bg-surface-2 cursor-pointer mt-0.5 sm:mt-0"
                           />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export default function CFARevisionPage() {
                                 {item.activity}
                               </span>
                               {item.module && (
-                                <Badge variant="outline" className="text-[10px] bg-blue-500/10 border-blue-500/30 text-blue-300">
+                                <Badge variant="outline" className="text-[11px] bg-blue-500/10 border-blue-500/30 text-blue-300">
                                   {item.module}
                                 </Badge>
                               )}
@@ -167,14 +167,14 @@ export default function CFARevisionPage() {
 
                         <div className="flex items-center gap-2 shrink-0 ml-7 sm:ml-0">
                           {item.planned_hours && (
-                            <span className="text-xs font-mono text-zinc-400 bg-white/5 px-2 py-1 rounded-lg border border-white/5">
+                            <span className="text-xs font-mono text-zinc-400 bg-white/5 px-2 py-1 rounded-lg border border-line/70">
                               {item.planned_hours} hrs
                             </span>
                           )}
                           <select
                             value={item.status || 'Not Started'}
                             onChange={(e) => updateMutation.mutate({ id: item.id, updates: { status: e.target.value } })}
-                            className="bg-[#111827] border border-white/10 text-zinc-200 text-xs rounded-lg px-2.5 py-1 focus:border-red-500 outline-none"
+                            className="bg-surface-2 border border-line text-zinc-200 text-xs rounded-lg px-2.5 py-1 focus:border-red-500 outline-none"
                           >
                             <option value="Not Started">Not Started</option>
                             <option value="In Progress">In Progress ⏳</option>
@@ -199,7 +199,7 @@ export default function CFARevisionPage() {
 
       {/* Add Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md bg-[#0b0f19] border-red-500/30 text-white rounded-3xl shadow-2xl">
+        <DialogContent className="sm:max-w-md bg-surface-1 border-red-500/30 text-white rounded-[20px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <RefreshCw className="w-5 h-5 text-red-400" />
@@ -211,10 +211,10 @@ export default function CFARevisionPage() {
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase">Revision Sprint / Round</Label>
               <Select value={round} onValueChange={setRound}>
-                <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111827] border-white/10 text-white">
+                <SelectContent className="bg-surface-2 border-line text-white">
                   {REVISION_ROUNDS.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -223,10 +223,10 @@ export default function CFARevisionPage() {
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase">Curriculum Module</Label>
               <Select value={moduleName} onValueChange={setModuleName}>
-                <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111827] border-white/10 text-white">
+                <SelectContent className="bg-surface-2 border-line text-white">
                   {CFA_MODULE_CONFIG.map(m => (
                     <SelectItem key={m.fullName} value={m.fullName}>
                       {m.fullName}
@@ -243,7 +243,7 @@ export default function CFARevisionPage() {
                 onChange={(e) => setActivity(e.target.value)}
                 placeholder="e.g. Solve 80 FSA item sets on Inventory & Long-lived assets"
                 required
-                className="bg-[#111827] border-white/10 text-white rounded-xl"
+                className="bg-surface-2 border-line text-white rounded-xl"
               />
             </div>
 
@@ -254,15 +254,15 @@ export default function CFARevisionPage() {
                 step="0.5"
                 value={hours}
                 onChange={(e) => setHours(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl"
+                className="bg-surface-2 border-line text-white rounded-xl"
               />
             </div>
 
-            <DialogFooter className="pt-3 border-t border-white/10 flex justify-end gap-2">
+            <DialogFooter className="pt-3 border-t border-line flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-white rounded-xl">
                 Cancel
               </Button>
-              <Button type="submit" disabled={addMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold px-5 shadow-lg shadow-red-600/30">
+              <Button type="submit" disabled={addMutation.isPending} className="bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold px-5">
                 {addMutation.isPending ? 'Saving...' : 'Add Revision Task'}
               </Button>
             </DialogFooter>

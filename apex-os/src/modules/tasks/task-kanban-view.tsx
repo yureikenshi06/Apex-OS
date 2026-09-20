@@ -101,10 +101,10 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
             
             {/* Column Drop Container */}
             <div 
-              className={`flex flex-col gap-3 min-h-[350px] p-3 rounded-3xl border-2 transition-all backdrop-blur-xl ${
+              className={`flex flex-col gap-3 min-h-[350px] p-3 rounded-[20px] border-2 transition-all ${
                 isDraggingOver 
-                  ? 'bg-blue-600/10 border-blue-500 border-solid shadow-xl shadow-blue-500/10' 
-                  : 'bg-[#0b0f19]/80 border-white/5 border-dashed hover:border-white/10'
+                  ? 'bg-blue-600/10 border-blue-500 border-solid' 
+                  : 'bg-surface-1 border-line/70 border-dashed hover:border-line'
               }`}
             >
               <AnimatePresence>
@@ -124,10 +124,10 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
                       onDragStart={(e) => handleDragStart(e as any, task.id)}
                       onDragEnd={handleDragEnd}
                       onClick={() => onEditTask(task)}
-                      className={`p-4 bg-[#111827] rounded-2xl border transition-all cursor-grab active:cursor-grabbing hover:border-blue-500/50 shadow-md group relative overflow-hidden ${
+                      className={`p-4 bg-surface-2 rounded-2xl border transition-all cursor-grab active:cursor-grabbing hover:border-blue-500/50 group relative overflow-hidden ${
                         isDone 
                           ? 'border-emerald-500/20 bg-emerald-950/10' 
-                          : 'border-white/10'
+                          : 'border-line'
                       }`}
                     >
                       {/* Drag Handle Indicator */}
@@ -148,10 +148,10 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
                       
                       {/* Badges Row */}
                       <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                        <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4.5 bg-white/5 text-zinc-300 border-white/10">
+                        <Badge variant="outline" className="text-[11px] px-1.5 py-0 h-4.5 bg-white/5 text-zinc-300 border-line">
                           {task.category || 'General'}
                         </Badge>
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                        <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded ${
                           task.priority === 'High' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' :
                           task.priority === 'Medium' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
                           'bg-blue-500/20 text-blue-300 border border-blue-500/30'
@@ -161,7 +161,7 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
                       </div>
 
                       {/* Footer info & Actions */}
-                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-white/5 text-[11px]">
+                      <div className="flex items-center justify-between mt-3 pt-2.5 border-t border-line/70 text-[11px]">
                         <div className="flex items-center gap-1.5">
                           {task.deadline ? (
                             <span className={`flex items-center gap-1 font-mono ${isOverdue ? 'text-rose-400 font-bold' : 'text-zinc-500'}`}>
@@ -170,7 +170,7 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
                               {format(parseISO(task.deadline), 'MMM d')}
                             </span>
                           ) : (
-                            <span className="text-zinc-600 text-[10px]">No due date</span>
+                            <span className="text-zinc-500 text-[11px]">No due date</span>
                           )}
                         </div>
                         
@@ -219,14 +219,14 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
                           {/* Edit & Delete */}
                           <button
                             onClick={(e) => { e.stopPropagation(); onEditTask(task); }}
-                            className="p-1 rounded-md hover:bg-blue-500/20 text-zinc-400 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="p-1 rounded-md hover:bg-blue-500/20 text-zinc-400 hover:text-blue-400 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity"
                             title="Edit"
                           >
                             <Edit2 className="w-3 h-3" />
                           </button>
                           <button
                             onClick={(e) => handleDelete(e, task.id, task.title)}
-                            className="p-1 rounded-md hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="p-1 rounded-md hover:bg-rose-500/20 text-zinc-400 hover:text-rose-400 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity"
                             title="Delete"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -239,7 +239,7 @@ export function TaskKanbanView({ tasks, onUpdateStatus, onEditTask }: TaskKanban
               </AnimatePresence>
 
               {columnTasks.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-xs text-zinc-600 border border-dashed border-white/5 rounded-2xl m-2">
+                <div className="flex flex-col items-center justify-center py-16 text-xs text-zinc-500 border border-dashed border-line/70 rounded-2xl m-2">
                   <span>Drop tasks here</span>
                 </div>
               )}

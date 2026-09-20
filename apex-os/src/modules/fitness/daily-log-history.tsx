@@ -74,12 +74,12 @@ export function DailyLogHistory() {
   };
 
   return (
-    <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+    <Card className="bg-surface-1 border border-line rounded-[20px] p-6 space-y-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line">
         <div className="flex items-center gap-2.5">
           <Calendar className="w-5 h-5 text-emerald-400" />
           <h3 className="text-base font-bold text-white">Daily Metrics History & Log Editor</h3>
-          <Badge variant="outline" className="text-xs text-zinc-400 border-white/10 font-mono">
+          <Badge variant="outline" className="text-xs text-zinc-400 border-line font-mono">
             {entries.length} Logs
           </Badge>
         </div>
@@ -90,14 +90,14 @@ export function DailyLogHistory() {
             setEditingEntry(null);
             setModalOpen(true);
           }}
-          className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold h-8 px-3.5 gap-1.5 shadow-lg shadow-emerald-600/30"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold h-8 px-3.5 gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" /> Log Entry
         </Button>
       </div>
 
       {entries.length === 0 ? (
-        <div className="p-8 rounded-2xl bg-[#111827]/40 text-center space-y-2 border border-white/5">
+        <div className="p-8 rounded-2xl bg-surface-2/40 text-center space-y-2 border border-line/70">
           <p className="text-sm text-zinc-400">No daily metric entries logged yet.</p>
           <Button
             size="sm"
@@ -115,7 +115,7 @@ export function DailyLogHistory() {
           {entries.map(entry => (
             <div
               key={entry.date}
-              className="p-3.5 rounded-2xl bg-[#111827]/70 border border-white/5 hover:border-emerald-500/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 group"
+              className="p-3.5 rounded-2xl bg-surface-2/70 border border-line/70 hover:border-emerald-500/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-3 group"
             >
               {/* Date & Core Metrics Pill */}
               <div className="flex flex-wrap items-center gap-4">
@@ -127,7 +127,7 @@ export function DailyLogHistory() {
                 </div>
 
                 {/* Body Weight */}
-                <div className="flex items-center gap-1.5 bg-[#0b0f19] px-2.5 py-1 rounded-xl border border-white/5 text-xs font-mono">
+                <div className="flex items-center gap-1.5 bg-surface-1 px-2.5 py-1 rounded-xl border border-line/70 text-xs font-mono">
                   <Scale className="w-3.5 h-3.5 text-orange-400" />
                   <span className="text-zinc-400">Weight:</span>
                   <strong className="text-white">
@@ -136,7 +136,7 @@ export function DailyLogHistory() {
                 </div>
 
                 {/* Steps */}
-                <div className="flex items-center gap-1.5 bg-[#0b0f19] px-2.5 py-1 rounded-xl border border-white/5 text-xs font-mono">
+                <div className="flex items-center gap-1.5 bg-surface-1 px-2.5 py-1 rounded-xl border border-line/70 text-xs font-mono">
                   <Activity className="w-3.5 h-3.5 text-emerald-400" />
                   <span className="text-zinc-400">Steps:</span>
                   <strong className="text-white">
@@ -145,7 +145,7 @@ export function DailyLogHistory() {
                 </div>
 
                 {/* Sleep */}
-                <div className="flex items-center gap-1.5 bg-[#0b0f19] px-2.5 py-1 rounded-xl border border-white/5 text-xs font-mono">
+                <div className="flex items-center gap-1.5 bg-surface-1 px-2.5 py-1 rounded-xl border border-line/70 text-xs font-mono">
                   <Moon className="w-3.5 h-3.5 text-blue-400" />
                   <span className="text-zinc-400">Sleep:</span>
                   <strong className="text-white">

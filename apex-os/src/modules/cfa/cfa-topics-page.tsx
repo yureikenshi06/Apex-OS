@@ -144,7 +144,7 @@ export default function CFATopicsPage() {
   const highPriorityIncomplete = topics.filter(t => t.priority === 'High' && !t.completed).length;
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-[1600px] mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-[1600px] mx-auto text-foreground font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ export default function CFATopicsPage() {
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-3xl font-black text-white tracking-tight">CFA Topics & LOS Tracker</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">CFA Topics & LOS Tracker</h1>
           <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
             324 Topics
           </Badge>
@@ -165,7 +165,7 @@ export default function CFATopicsPage() {
         <div className="flex items-center gap-3">
           <Button 
             onClick={() => setAddModalOpen(true)}
-            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-semibold text-xs h-9 px-4"
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl gap-1.5 font-semibold text-xs h-9 px-4"
           >
             <Plus className="w-4 h-4" /> Add Topic
           </Button>
@@ -178,8 +178,8 @@ export default function CFATopicsPage() {
           onClick={() => handleModuleSelect('All Modules')}
           className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
             filterModule === 'All Modules'
-              ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-              : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-white/5'
+              ? 'bg-blue-600 text-white'
+              : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-line/70'
           }`}
         >
           All Modules (324)
@@ -192,8 +192,8 @@ export default function CFATopicsPage() {
               onClick={() => handleModuleSelect(m.fullName)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 border border-blue-400/40'
-                  : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-white/5'
+                  ? 'bg-blue-600 text-white border border-blue-400/40'
+                  : 'bg-white/5 text-zinc-400 hover:bg-white/10 hover:text-white border border-line/70'
               }`}
             >
               <span>{m.short}</span>
@@ -205,7 +205,7 @@ export default function CFATopicsPage() {
       {/* High-Impact Progress Analysis Dashboard */}
       <motion.div 
         layout 
-        className="bg-gradient-to-r from-[#0d1424] via-[#090d17] to-[#05060a] border border-blue-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl"
+        className="bg-gradient-to-r from-[#0d1424] via-[#090d17] to-void border border-blue-500/30 rounded-[20px] p-6"
       >
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           {/* Left: Progress Ring & Title */}
@@ -215,7 +215,7 @@ export default function CFATopicsPage() {
                 progress={modulePct} 
                 size={90} 
                 strokeWidth={8} 
-                color={modulePct >= 75 ? '#10b981' : modulePct >= 25 ? '#3b82f6' : '#ef4444'} 
+                color={modulePct >= 75 ? '#22C55E' : modulePct >= 25 ? '#3B6EF6' : '#ef4444'} 
                 label={`${modulePct}%`} 
               />
             </div>
@@ -231,17 +231,17 @@ export default function CFATopicsPage() {
 
               {/* Progress Stage Distribution Bar */}
               <div className="space-y-1.5 max-w-lg">
-                <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden flex border border-white/5 shadow-inner">
+                <div className="h-2.5 w-full bg-zinc-900 rounded-full overflow-hidden flex border border-line/70">
                   <div style={{ width: `${(masteredCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-emerald-500 h-full transition-all duration-500" title="Mastered" />
                   <div style={{ width: `${(revisedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-purple-500 h-full transition-all duration-500" title="Revised" />
                   <div style={{ width: `${(firstPassCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-blue-500 h-full transition-all duration-500" title="First Pass Done" />
                   <div style={{ width: `${(notStartedCount / (totalModuleTopics || 1)) * 100}%` }} className="bg-zinc-800 h-full transition-all duration-500" title="Not Started" />
                 </div>
                 <div className="flex flex-wrap items-center gap-3.5 text-xs font-semibold text-zinc-300">
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm" /> Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-sm" /> Revised: <strong className="text-purple-400">{revisedCount}</strong></span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm" /> First Pass: <strong className="text-blue-400">{firstPassCount}</strong></span>
-                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-zinc-700 shadow-sm" /> Pending: <strong className="text-zinc-400">{notStartedCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Mastered: <strong className="text-emerald-400">{masteredCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-purple-500" /> Revised: <strong className="text-purple-400">{revisedCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-500" /> First Pass: <strong className="text-blue-400">{firstPassCount}</strong></span>
+                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-zinc-700" /> Pending: <strong className="text-zinc-400">{notStartedCount}</strong></span>
                 </div>
               </div>
             </div>
@@ -249,32 +249,32 @@ export default function CFATopicsPage() {
 
           {/* Right: 4 Sleek Glass Metric Cards */}
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3 shrink-0">
-            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Completion</span>
+            <div className="bg-white/[0.04] border border-line hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Completion</span>
               <span className="text-xl font-black text-white font-mono mt-0.5 block">{modulePct}%</span>
-              <span className="text-[10px] text-emerald-400 font-medium block">{completedModuleTopics}/{totalModuleTopics} done</span>
+              <span className="text-[11px] text-emerald-400 font-medium block">{completedModuleTopics}/{totalModuleTopics} done</span>
             </div>
-            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Study Hours</span>
+            <div className="bg-white/[0.04] border border-line hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Study Hours</span>
               <span className="text-xl font-black text-blue-400 font-mono mt-0.5 block">{moduleHoursDone.toFixed(1)}h</span>
-              <span className="text-[10px] text-zinc-400 font-medium block">of {moduleHoursTotal.toFixed(1)}h planned</span>
+              <span className="text-[11px] text-zinc-400 font-medium block">of {moduleHoursTotal.toFixed(1)}h planned</span>
             </div>
-            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Type Split</span>
+            <div className="bg-white/[0.04] border border-line hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Type Split</span>
               <span className="text-xl font-black text-purple-400 font-mono mt-0.5 block">{studyCount} / {reviewCount}</span>
-              <span className="text-[10px] text-zinc-400 font-medium block">Study / Review</span>
+              <span className="text-[11px] text-zinc-400 font-medium block">Study / Review</span>
             </div>
-            <div className="bg-white/[0.04] border border-white/10 hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors shadow-lg">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">High Priority</span>
+            <div className="bg-white/[0.04] border border-line hover:border-blue-500/40 p-3.5 rounded-2xl min-w-[125px] transition-colors">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">High Priority</span>
               <span className="text-xl font-black text-rose-400 font-mono mt-0.5 block">{highPriorityIncomplete}</span>
-              <span className="text-[10px] text-rose-300/80 font-medium block">pending action</span>
+              <span className="text-[11px] text-rose-300/80 font-medium block">pending action</span>
             </div>
           </div>
         </div>
       </motion.div>
 
       {/* Interactive Filters Bar */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xl backdrop-blur-xl">
+      <div className="bg-surface-1 border border-line rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
           <div className="relative flex-1 min-w-[180px] max-w-xs">
             <Search className="w-4 h-4 text-blue-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -283,45 +283,45 @@ export default function CFATopicsPage() {
               placeholder="Search topics or LOS..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#111827] border-white/10 pl-9 text-xs rounded-xl focus-visible:ring-blue-500 text-white placeholder:text-zinc-500 h-8"
+              className="bg-surface-2 border-line pl-9 text-xs rounded-xl focus-visible:ring-blue-500 text-white placeholder:text-zinc-500 h-8"
             />
           </div>
 
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger className="w-[120px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[120px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               <SelectItem value="All">All Status</SelectItem>
               {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
             </SelectContent>
           </Select>
 
           <Select value={filterRevision} onValueChange={setFilterRevision}>
-            <SelectTrigger className="w-[135px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[135px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Revision" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               <SelectItem value="All">All Revision</SelectItem>
               {REVISION_STATUSES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
             </SelectContent>
           </Select>
 
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="w-[110px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[110px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Priority" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               <SelectItem value="All">All Priority</SelectItem>
               {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
             </SelectContent>
           </Select>
 
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[105px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[105px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               <SelectItem value="All">All Types</SelectItem>
               {ROW_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
@@ -334,10 +334,10 @@ export default function CFATopicsPage() {
       </div>
 
       {/* Main Table - Internal Viewport Scroll Container so horizontal/vertical scrollbars are ALWAYS visible in viewport */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-2xl">
+      <div className="bg-surface-1 border border-line rounded-[20px] overflow-hidden">
         <div className="max-h-[600px] overflow-auto relative">
           <table className="w-full text-left border-collapse min-w-[1000px]">
-            <thead className="sticky top-0 z-10 bg-[#0e1424] text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-white/10 shadow-sm">
+            <thead className="sticky top-0 z-10 bg-surface-1 text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-line">
               <tr>
                 <th className="p-3.5 w-12 text-center">Done</th>
                 <th className="p-3.5 w-24">Module</th>
@@ -350,7 +350,7 @@ export default function CFATopicsPage() {
                 <th className="p-3.5 w-28 text-center">Tasks</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
+            <tbody className="divide-y divide-line text-sm">
               <AnimatePresence>
                 {isLoading ? (
                   <tr><td colSpan={9} className="p-12 text-center text-zinc-500 font-medium animate-pulse">Loading CFA topics...</td></tr>
@@ -375,7 +375,7 @@ export default function CFATopicsPage() {
                           type="checkbox" 
                           checked={isDone}
                           onChange={(e) => handleCompletedToggle(topic.id, e.target.checked)}
-                          className="w-4 h-4 rounded border-zinc-700 text-blue-600 focus:ring-blue-500/50 bg-[#111827] cursor-pointer"
+                          className="w-4 h-4 rounded border-zinc-700 text-blue-600 focus:ring-blue-500/50 bg-surface-2 cursor-pointer"
                         />
                       </td>
 
@@ -383,7 +383,7 @@ export default function CFATopicsPage() {
                       <td className="p-3">
                         <Badge 
                           variant="outline" 
-                          className="text-[10px] font-bold px-2 py-0.5 border-blue-500/30 text-blue-300 bg-blue-500/10 whitespace-nowrap"
+                          className="text-[11px] font-bold px-2 py-0.5 border-blue-500/30 text-blue-300 bg-blue-500/10 whitespace-nowrap"
                         >
                           {modShort}
                         </Badge>
@@ -395,7 +395,7 @@ export default function CFATopicsPage() {
                           {topic.chapter_topic}
                         </span>
                         {topic.planned_hours && (
-                          <span className="block text-[10px] text-zinc-500 font-mono mt-0.5">
+                          <span className="block text-[11px] text-zinc-500 font-mono mt-0.5">
                             Est: {topic.planned_hours}h
                           </span>
                         )}
@@ -410,7 +410,7 @@ export default function CFATopicsPage() {
 
                       {/* Row Type */}
                       <td className="p-3 text-center">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
+                        <span className={`text-[11px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                           topic.row_type === 'STUDY' 
                             ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' 
                             : 'bg-purple-500/15 text-purple-400 border border-purple-500/20'
@@ -421,7 +421,7 @@ export default function CFATopicsPage() {
 
                       {/* Priority */}
                       <td className="p-3 text-center">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                        <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
                           topic.priority === 'High'
                             ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
                             : topic.priority === 'Low'
@@ -437,7 +437,7 @@ export default function CFATopicsPage() {
                         <select 
                           value={topic.status || 'Not Started'} 
                           onChange={(e) => handleStatusChange(topic.id, e.target.value)}
-                          className="bg-[#111827] border border-white/10 text-zinc-200 text-xs rounded-lg px-2 py-1 focus:border-blue-500 outline-none cursor-pointer"
+                          className="bg-surface-2 border border-line text-zinc-200 text-xs rounded-lg px-2 py-1 focus:border-blue-500 outline-none cursor-pointer"
                         >
                           <option value="Not Started">Not Started</option>
                           <option value="In Progress">In Progress ⏳</option>
@@ -457,10 +457,10 @@ export default function CFATopicsPage() {
                               ? 'bg-purple-950/40 text-purple-300 border-purple-500/40'
                               : topic.revision_status === 'First Pass Done'
                               ? 'bg-blue-950/40 text-blue-300 border-blue-500/40'
-                              : 'bg-[#111827] text-zinc-400 border-white/10'
+                              : 'bg-surface-2 text-zinc-400 border-line'
                           }`}
                         >
-                          {REVISION_STATUSES.map(r => <option key={r} value={r} className="bg-[#111827] text-white">{r}</option>)}
+                          {REVISION_STATUSES.map(r => <option key={r} value={r} className="bg-surface-2 text-white">{r}</option>)}
                         </select>
                       </td>
 
@@ -468,10 +468,10 @@ export default function CFATopicsPage() {
                       <td className="p-3 text-center">
                         <button 
                           onClick={() => toggleTaskLink(topic)}
-                          className={`text-xs px-2.5 py-1 rounded-xl font-semibold transition-all shadow-sm ${
+                          className={`text-xs px-2.5 py-1 rounded-xl font-semibold transition-all ${
                             topic.linked_task_id 
                             ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/40'
-                            : 'bg-white/5 border border-white/10 text-zinc-300 hover:bg-blue-600 hover:text-white hover:border-blue-500'
+                            : 'bg-white/5 border border-line text-zinc-300 hover:bg-blue-600 hover:text-white hover:border-blue-500'
                           }`}
                           title={topic.linked_task_id ? 'Linked in Task Manager (Click to unlink)' : 'Click to create a linked task in Task Manager'}
                         >
@@ -487,7 +487,7 @@ export default function CFATopicsPage() {
         </div>
 
         {/* Footer Summary */}
-        <div className="p-3.5 border-t border-white/10 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/[0.02]">
+        <div className="p-3.5 border-t border-line text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/[0.02]">
           <span>Showing <strong>{topics.length}</strong> CFA learning topics</span>
           <div className="flex items-center gap-4 font-mono text-zinc-300">
             <span>Total Planned: <strong className="text-white">{moduleHoursTotal.toFixed(1)} hrs</strong></span>
@@ -499,7 +499,7 @@ export default function CFATopicsPage() {
 
       {/* Add CFA Topic Modal */}
       <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl">
+        <DialogContent className="sm:max-w-lg bg-surface-1 border-blue-500/30 text-white rounded-[20px]">
           <DialogHeader>
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-blue-400" />
@@ -511,10 +511,10 @@ export default function CFATopicsPage() {
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase">CFA Curriculum Module</Label>
               <Select value={newModule} onValueChange={setNewModule}>
-                <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111827] border-white/10 text-white">
+                <SelectContent className="bg-surface-2 border-line text-white">
                   {CFA_MODULE_CONFIG.map(m => (
                     <SelectItem key={m.fullName} value={m.fullName}>
                       {m.fullName} ({m.weight})
@@ -531,7 +531,7 @@ export default function CFATopicsPage() {
                 onChange={(e) => setNewChapter(e.target.value)}
                 placeholder="e.g. Yield Curves and Term Structure"
                 required
-                className="bg-[#111827] border-white/10 text-white rounded-xl"
+                className="bg-surface-2 border-line text-white rounded-xl"
               />
             </div>
 
@@ -541,7 +541,7 @@ export default function CFATopicsPage() {
                 value={newSubtopic}
                 onChange={(e) => setNewSubtopic(e.target.value)}
                 placeholder="Describe spot rates, forward rates, and yield spread analysis..."
-                className="bg-[#111827] border-white/10 text-white rounded-xl"
+                className="bg-surface-2 border-line text-white rounded-xl"
               />
             </div>
 
@@ -553,17 +553,17 @@ export default function CFATopicsPage() {
                   step="0.5"
                   value={newHours}
                   onChange={(e) => setNewHours(e.target.value)}
-                  className="bg-[#111827] border-white/10 text-white rounded-xl"
+                  className="bg-surface-2 border-line text-white rounded-xl"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-300 font-bold uppercase">Priority</Label>
                 <Select value={newPriority} onValueChange={setNewPriority}>
-                  <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                  <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111827] border-white/10 text-white">
+                  <SelectContent className="bg-surface-2 border-line text-white">
                     {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
@@ -572,21 +572,21 @@ export default function CFATopicsPage() {
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-300 font-bold uppercase">Type</Label>
                 <Select value={newType} onValueChange={setNewType}>
-                  <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl">
+                  <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#111827] border-white/10 text-white">
+                  <SelectContent className="bg-surface-2 border-line text-white">
                     {ROW_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <DialogFooter className="pt-3 border-t border-white/10 flex justify-end gap-2">
+            <DialogFooter className="pt-3 border-t border-line flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => setAddModalOpen(false)} className="text-zinc-400 hover:text-white rounded-xl">
                 Cancel
               </Button>
-              <Button type="submit" disabled={addTopicMutation.isPending} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold px-5 shadow-lg shadow-blue-600/30">
+              <Button type="submit" disabled={addTopicMutation.isPending} className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold px-5">
                 {addTopicMutation.isPending ? 'Saving...' : 'Add Topic'}
               </Button>
             </DialogFooter>

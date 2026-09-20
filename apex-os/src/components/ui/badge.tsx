@@ -2,18 +2,19 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
+// Tinted chips (12–14% fill) — colour carries meaning, never decoration.
 const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
+  'inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[11px] font-bold leading-4 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
         default: 'border-transparent bg-primary text-primary-foreground',
-        secondary: 'border-transparent bg-secondary text-foreground',
-        destructive: 'border-transparent bg-destructive text-white',
-        outline: 'text-foreground border-border',
-        success: 'border-transparent bg-emerald-500/20 text-emerald-400',
-        warning: 'border-transparent bg-amber-500/20 text-amber-400',
-        info: 'border-transparent bg-blue-500/20 text-blue-400',
+        secondary: 'border-transparent bg-white/[0.06] text-fg-muted',
+        destructive: 'border-transparent bg-danger/[0.14] text-red-400',
+        outline: 'border-line-strong bg-transparent text-fg-muted',
+        success: 'border-transparent bg-success/[0.14] text-green-400',
+        warning: 'border-transparent bg-warning/[0.14] text-amber-400',
+        info: 'border-transparent bg-primary/[0.14] text-blue-400',
       },
     },
     defaultVariants: {

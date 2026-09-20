@@ -43,11 +43,11 @@ export default function AcademicPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto text-foreground">
+    <div className="space-y-6 max-w-6xl mx-auto text-foreground">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-white tracking-tight">Academic Tracker</h1>
+            <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Academic Tracker</h1>
             <Badge variant="secondary" className="bg-cyan-900/50 text-cyan-200 border-cyan-700/50 font-semibold px-2.5">
               IIT Bombay
             </Badge>
@@ -57,13 +57,13 @@ export default function AcademicPage() {
 
         <Button 
           onClick={() => setModalOpen(true)}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-600/30 gap-1.5 font-semibold"
+          className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl gap-1.5 font-semibold"
         >
           <Plus className="w-4 h-4" /> Add Academic Item
         </Button>
       </div>
 
-      <div className="bg-[#111118]/90 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-surface-2 border border-line rounded-2xl overflow-hidden">
         {isLoading ? (
           <div className="p-8 space-y-3">
             <div className="h-14 bg-white/5 animate-pulse rounded-xl" />
@@ -71,7 +71,7 @@ export default function AcademicPage() {
           </div>
         ) : academics.length === 0 ? (
           <div className="text-center py-16 px-4 space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mx-auto">
               <GraduationCap className="w-7 h-7" />
             </div>
             <h3 className="text-lg font-bold text-white">No academic items logged</h3>
@@ -85,7 +85,7 @@ export default function AcademicPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="bg-white/5 text-zinc-400 border-b border-white/10 text-xs uppercase font-bold tracking-wider">
+              <thead className="bg-white/5 text-zinc-400 border-b border-line text-xs uppercase font-bold tracking-wider">
                 <tr>
                   <th className="px-5 py-4">Course</th>
                   <th className="px-5 py-4">Deliverable / Topic</th>
@@ -95,7 +95,7 @@ export default function AcademicPage() {
                   <th className="px-5 py-4 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-line">
                 {academics.map((row: any) => (
                   <motion.tr key={row.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="px-5 py-4 font-bold text-white flex items-center gap-2">
@@ -104,7 +104,7 @@ export default function AcademicPage() {
                     </td>
                     <td className="px-5 py-4 text-zinc-200 font-medium">{row.item}</td>
                     <td className="px-5 py-4">
-                      <Badge variant="outline" className="text-[10px] bg-cyan-500/10 border-cyan-500/30 text-cyan-300">
+                      <Badge variant="outline" className="text-[11px] bg-cyan-500/10 border-cyan-500/30 text-cyan-300">
                         {row.priority || 'Medium'}
                       </Badge>
                     </td>
@@ -113,7 +113,7 @@ export default function AcademicPage() {
                       <select
                         value={row.status || 'In Progress'}
                         onChange={(e) => updateMutation.mutate({ id: row.id, updates: { status: e.target.value } })}
-                        className="bg-[#181824] border border-white/10 text-white text-xs rounded-lg px-2.5 py-1.5 outline-none cursor-pointer focus:border-indigo-500"
+                        className="bg-surface-2 border border-line text-white text-xs rounded-lg px-2.5 py-1.5 outline-none cursor-pointer focus:border-indigo-500"
                       >
                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
@@ -136,7 +136,7 @@ export default function AcademicPage() {
 
       {/* Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="sm:max-w-md bg-[#111118] border-white/10 text-white rounded-2xl shadow-2xl">
+        <DialogContent className="sm:max-w-md bg-surface-2 border-line text-white rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-white">Add Academic Item</DialogTitle>
           </DialogHeader>
@@ -150,7 +150,7 @@ export default function AcademicPage() {
                   onChange={(e) => setCourseCode(e.target.value)}
                   placeholder="e.g. CS101, IE603"
                   required
-                  className="bg-[#1a1a24] border-white/10 text-white rounded-xl"
+                  className="bg-surface-2 border-line text-white rounded-xl"
                 />
               </div>
               <div className="space-y-1.5">
@@ -159,7 +159,7 @@ export default function AcademicPage() {
                   value={courseName}
                   onChange={(e) => setCourseName(e.target.value)}
                   placeholder="e.g. Optimization Models"
-                  className="bg-[#1a1a24] border-white/10 text-white rounded-xl"
+                  className="bg-surface-2 border-line text-white rounded-xl"
                 />
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function AcademicPage() {
                 onChange={(e) => setItem(e.target.value)}
                 placeholder="e.g. Midterm Examination / Problem Set 4"
                 required
-                className="bg-[#1a1a24] border-white/10 text-white rounded-xl"
+                className="bg-surface-2 border-line text-white rounded-xl"
               />
             </div>
 
@@ -182,17 +182,17 @@ export default function AcademicPage() {
                   type="date"
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="bg-[#1a1a24] border-white/10 text-white rounded-xl"
+                  className="bg-surface-2 border-line text-white rounded-xl"
                 />
               </div>
 
               <div className="space-y-1.5">
                 <Label className="text-xs text-zinc-300 font-semibold uppercase">Priority</Label>
                 <Select value={priority} onValueChange={setPriority}>
-                  <SelectTrigger className="bg-[#1a1a24] border-white/10 text-white rounded-xl">
+                  <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#181824] border-white/10 text-white">
+                  <SelectContent className="bg-surface-2 border-line text-white">
                     <SelectItem value="High">High</SelectItem>
                     <SelectItem value="Medium">Medium</SelectItem>
                     <SelectItem value="Low">Low</SelectItem>
@@ -201,7 +201,7 @@ export default function AcademicPage() {
               </div>
             </div>
 
-            <DialogFooter className="pt-3 border-t border-white/10 flex justify-end gap-2">
+            <DialogFooter className="pt-3 border-t border-line flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={() => setModalOpen(false)} className="text-zinc-400 hover:text-white rounded-xl">
                 Cancel
               </Button>

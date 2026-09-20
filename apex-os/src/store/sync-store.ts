@@ -1,16 +1,20 @@
 import { create } from 'zustand';
 
-type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error';
+export type SyncStatus = 'synced' | 'syncing' | 'offline' | 'error';
 
 interface SyncState {
   isOnline: boolean;
   syncStatus: SyncStatus;
+  /** Writes made while offline that are waiting for a connection. */
   pendingChanges: number;
+  /** Per-module count of queued writes, keyed by mutation `meta.scope`. */
+  queuedScopes: Record<string, number>;
   lastSyncedAt: Date | null;
-  
+
   setOnline: (isOnline: boolean) => void;
   setSyncStatus: (status: SyncStatus) => void;
   setPendingChanges: (count: number) => void;
+  setQueuedScopes: (scopes: Record<string, number>) => void;
   setLastSynced: (date: Date) => void;
 }
 
@@ -24,11 +28,13 @@ export const useSyncStore = create<SyncState>((set) => {
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     syncStatus: 'synced',
     pendingChanges: 0,
+    queuedScopes: {},
     lastSyncedAt: null,
-    
+
     setOnline: (isOnline) => set({ isOnline }),
     setSyncStatus: (status) => set({ syncStatus: status }),
     setPendingChanges: (count) => set({ pendingChanges: count }),
+    setQueuedScopes: (queuedScopes) => set({ queuedScopes }),
     setLastSynced: (date) => set({ lastSyncedAt: date }),
   };
 });

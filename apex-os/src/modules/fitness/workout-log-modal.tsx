@@ -69,8 +69,8 @@ export function WorkoutLogModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md bg-[#0b0f19] border-orange-500/30 text-white rounded-3xl shadow-2xl p-6">
-        <DialogHeader className="pb-2 border-b border-white/10">
+      <DialogContent className="sm:max-w-md bg-surface-1 border-orange-500/30 text-white rounded-[20px] p-6">
+        <DialogHeader className="pb-2 border-b border-line">
           <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
             <Dumbbell className="w-5 h-5 text-orange-400" />
             Log Exercise Set
@@ -86,7 +86,7 @@ export function WorkoutLogModal({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs"
                 required
               />
             </div>
@@ -94,10 +94,10 @@ export function WorkoutLogModal({
             <div className="space-y-1">
               <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Muscle Group</Label>
               <Select value={muscleGroup} onValueChange={setMuscleGroup}>
-                <SelectTrigger className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs">
+                <SelectTrigger className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs">
                   <SelectValue placeholder="Target" />
                 </SelectTrigger>
-                <SelectContent className="bg-[#111827] border-white/10 text-white">
+                <SelectContent className="bg-surface-2 border-line text-white">
                   {MUSCLE_GROUPS.map((mg) => (
                     <SelectItem key={mg} value={mg}>{mg}</SelectItem>
                   ))}
@@ -113,7 +113,7 @@ export function WorkoutLogModal({
               value={exercise}
               onChange={(e) => setExercise(e.target.value)}
               placeholder="e.g. Barbell Bench Press, Squat..."
-              className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm"
+              className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm"
               required
               autoFocus
             />
@@ -127,7 +127,7 @@ export function WorkoutLogModal({
                 type="number"
                 value={sets}
                 onChange={(e) => setSets(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm font-mono text-center"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm font-mono text-center"
                 required
               />
             </div>
@@ -137,7 +137,7 @@ export function WorkoutLogModal({
                 type="number"
                 value={reps}
                 onChange={(e) => setReps(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm font-mono text-center"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm font-mono text-center"
                 required
               />
             </div>
@@ -148,14 +148,14 @@ export function WorkoutLogModal({
                 step="0.5"
                 value={weightKg}
                 onChange={(e) => setWeightKg(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-sm font-mono text-center"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-sm font-mono text-center"
                 required
               />
             </div>
           </div>
 
           {/* RPE & PR Checkbox */}
-          <div className="flex items-center justify-between p-3 bg-[#111827]/70 rounded-2xl border border-white/5">
+          <div className="flex items-center justify-between p-3 bg-surface-2/70 rounded-2xl border border-line/70">
             <div className="flex items-center gap-2">
               <Label className="text-xs text-zinc-300 font-bold">RPE (1-10):</Label>
               <Input
@@ -164,7 +164,7 @@ export function WorkoutLogModal({
                 max="10"
                 value={rpe}
                 onChange={(e) => setRpe(e.target.value)}
-                className="bg-[#0b0f19] border-white/10 text-white rounded-lg h-7 w-12 text-center text-xs font-mono"
+                className="bg-surface-1 border-line text-white rounded-lg h-7 w-12 text-center text-xs font-mono"
               />
             </div>
 
@@ -173,7 +173,7 @@ export function WorkoutLogModal({
                 type="checkbox"
                 checked={isPr}
                 onChange={(e) => setIsPr(e.target.checked)}
-                className="rounded border-amber-500 bg-[#0b0f19] text-amber-500 w-4 h-4"
+                className="rounded border-amber-500 bg-surface-1 text-amber-500 w-4 h-4"
               />
               <Flame className="w-3.5 h-3.5 text-amber-400" /> New PR (Personal Record)
             </label>
@@ -186,12 +186,12 @@ export function WorkoutLogModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. Clean pause reps at chest, increase 2.5kg next session"
-              className="bg-[#111827] border-white/10 text-white rounded-xl h-8 text-xs placeholder:text-zinc-500"
+              className="bg-surface-2 border-line text-white rounded-xl h-8 text-xs placeholder:text-zinc-500"
             />
           </div>
 
           {/* Modal Footer */}
-          <DialogFooter className="pt-3 border-t border-white/10 flex justify-between">
+          <DialogFooter className="pt-3 border-t border-line flex justify-between">
             <Button
               type="button"
               variant="ghost"
@@ -202,7 +202,7 @@ export function WorkoutLogModal({
             </Button>
             <Button
               type="submit"
-              className="bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs h-9 px-6 rounded-xl shadow-lg shadow-orange-600/30"
+              className="bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs h-9 px-6 rounded-xl"
             >
               Log Set
             </Button>

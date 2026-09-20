@@ -18,6 +18,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Dev-only visual preview (see src/dev/preview.ts) — dead code in production builds
+    if (import.meta.env.DEV && sessionStorage.getItem('apex_preview') === '1') {
+      import('@/dev/preview').then((m) => {
+        setUser(m.PREVIEW_USER);
+        setLoading(false);
+      });
+      return;
+    }
+
     let mounted = true;
 
     async function getInitialSession() {

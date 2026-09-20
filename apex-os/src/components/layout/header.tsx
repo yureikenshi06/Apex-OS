@@ -1,21 +1,32 @@
-import React from 'react';
 import { Search, Plus, LogOut } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { format } from 'date-fns';
 import { useAuth } from './auth-provider';
 import { useUIStore } from '@/store/ui-store';
+import { greetingFor, useDisplayName } from '@/modules/home/insights';
+import { StreakReminderButton } from '@/components/shared/streak-reminder-toggle';
+
+const TITLES: Record<string, string> = {
+  home: 'Home',
+  timetable: 'Timetable',
+  finance: 'Finance',
+  fitness: 'Fitness',
+  cfa: 'CFA',
+  tasks: 'Tasks',
+  settings: 'Settings',
+};
 
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  const { setCommandPaletteOpen, openQuickAdd } = useUIStore();
-  
-  const pathParts = location.pathname.split('/').filter(Boolean);
-  const firstPart = pathParts[0] || 'Home';
-  const title = firstPart.toLowerCase() === 'cfa' 
-    ? 'CFA' 
-    : firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
+  const { signOut } = useAuth();
+  const name = useDisplayName();
+  const setCommandPaletteOpen = useUIStore((s) => s.setCommandPaletteOpen);
+  const openQuickAddSheet = useUIStore((s) => s.openQuickAddSheet);
+
+  const first = location.pathname.split('/').filter(Boolean)[0] || 'home';
+  const title = TITLES[first] ?? first.charAt(0).toUpperCase() + first.slice(1);
+  const isHome = first === 'home';
 
   const handleSignOut = async () => {
     try {
@@ -27,44 +38,67 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-white/5 bg-[#05060a]/80 px-4 backdrop-blur-xl md:px-6">
-      <div className="flex items-center gap-3">
-        <h1 className="text-xl font-black text-white tracking-tight">{title}</h1>
-      </div>
-      
-      <div className="flex flex-1 items-center justify-center px-4 hidden md:flex">
-        <Button 
-          variant="outline" 
-          onClick={() => setCommandPaletteOpen(true)}
-          className="w-full max-w-md justify-between text-sm text-zinc-400 bg-white/5 border-white/10 hover:bg-white/10 hover:text-white rounded-xl shadow-inner transition-all hover:border-blue-500/40"
-        >
-          <span className="flex items-center">
-            <Search className="mr-2 h-4 w-4 text-blue-400" />
-            Type a command or search...
-          </span>
-          <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded bg-white/10 px-1.5 font-mono text-[10px] font-medium text-zinc-300">
-            ⌘K
-          </kbd>
-        </Button>
-      </div>
+    <header className="pt-safe sticky top-0 z-30 shrink-0 border-b border-line/70 bg-void/90 md:bg-void/80">
+      <div className="flex h-16 items-center justify-between gap-3 px-5 md:px-7">
+        {/* Phone: greeting on Home, page title elsewhere. Desktop: always the page title. */}
+        <div className="min-w-0">
+          {isHome && (
+            <div className="md:hidden">
+              <div className="font-mono text-[11px] font-semibold text-fg-subtle">{format(new Date(), 'EEE d MMM')}</div>
+              <h1 className="mt-px truncate text-[19px] font-extrabold leading-tight tracking-tight">
+                {greetingFor()}, {name}
+              </h1>
+            </div>
+          )}
+          <h1 className={isHome ? 'hidden text-base font-extrabold md:block' : 'truncate text-[19px] font-extrabold tracking-tight md:text-base'}>
+            {title}
+          </h1>
+        </div>
 
-      <div className="flex items-center gap-2.5">
-        <Button 
-          size="sm" 
-          onClick={() => openQuickAdd('task')}
-          className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-md shadow-blue-600/30 gap-1.5 font-bold px-3.5 transition-all"
-        >
-          <Plus className="h-4 w-4 stroke-[2.5]" />
-          <span className="hidden sm:inline">Quick Add</span>
-        </Button>
-
+        {/* Desktop search / command palette */}
         <button
-          onClick={handleSignOut}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
-          title="Sign Out"
+          type="button"
+          onClick={() => setCommandPaletteOpen(true)}
+          className="tap hidden h-[38px] max-w-[420px] flex-1 items-center gap-2 rounded-[11px] border border-line bg-surface-1 px-3.5 text-left text-[13px] text-fg-subtle transition-colors hover:border-line-strong md:flex"
+          aria-label="Search or jump to"
         >
-          <LogOut className="w-4 h-4" />
+          <Search className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span className="flex-1 truncate">Search, jump to, or type “log expense 340 dining”…</span>
+          <kbd className="rounded-[5px] bg-surface-2 px-1.5 py-0.5 font-mono text-[11px] text-fg-subtle">⌘K</kbd>
         </button>
+
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Phone: search opens the same command palette */}
+          <button
+            type="button"
+            onClick={() => setCommandPaletteOpen(true)}
+            aria-label="Search or run a command"
+            className="tap grid h-[38px] w-[38px] place-items-center rounded-xl border border-line-strong bg-surface-2 text-fg-muted md:hidden"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+
+          <StreakReminderButton className="hidden md:grid" />
+
+          <button
+            type="button"
+            onClick={openQuickAddSheet}
+            className="tap hidden h-9 items-center gap-1.5 rounded-[10px] bg-primary px-3.5 text-[13px] font-bold text-white transition-colors hover:bg-primary/90 md:inline-flex"
+          >
+            <Plus className="h-4 w-4" strokeWidth={2.5} aria-hidden />
+            Quick add
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            title="Sign out"
+            aria-label="Sign out"
+            className="tap hidden h-9 w-9 place-items-center rounded-[10px] border border-line-strong bg-surface-2 text-fg-muted transition-colors hover:text-red-400 md:grid"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </header>
   );

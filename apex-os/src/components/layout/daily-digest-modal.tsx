@@ -1,8 +1,10 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/hooks/use-auth';
-import { CheckCircle2, TrendingUp, Calendar, AlertCircle } from 'lucide-react';
+import { format, subDays } from 'date-fns';
+import { CheckCircle2, TrendingUp, TrendingDown, Calendar, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { StreakBadge } from '@/components/shared/streak-badge';
+import { useDailyScore, useHomeStats, useTodaySchedule } from '@/modules/home/hooks';
+import { greetingFor, useDisplayName, useStreaks } from '@/modules/home/insights';
 
 interface DailyDigestModalProps {
   isOpen: boolean;
@@ -10,104 +12,86 @@ interface DailyDigestModalProps {
 }
 
 export function DailyDigestModal({ isOpen, onClose }: DailyDigestModalProps) {
-  const { user } = useAuth();
-  
-  // Example dummy data
-  const score = 85;
-  const previousScore = 78;
-  const tasksDue = 5;
-  const overdueTasks = 2;
-  const plannedBlocks = 8;
-  const cfaHours = 8.5;
-  const cfaTarget = 12;
-  
+  const name = useDisplayName();
+  const { tasksDue } = useHomeStats();
+  const { schedule } = useTodaySchedule(format(new Date(), 'yyyy-MM-dd'));
+  const { data: yesterday } = useDailyScore(format(subDays(new Date(), 1), 'yyyy-MM-dd'));
+  const { data: twoDaysAgo } = useDailyScore(format(subDays(new Date(), 2), 'yyyy-MM-dd'));
+  const { workout, cfa, habits } = useStreaks();
+
+  const best = [
+    { label: 'workout streak', tone: 'red' as const, count: workout.count },
+    { label: 'CFA streak', tone: 'blue' as const, count: cfa.count },
+    { label: 'habit streak', tone: 'green' as const, count: habits.count },
+  ].sort((a, b) => b.count - a.count)[0];
+
+  const up = (yesterday ?? 0) >= (twoDaysAgo ?? 0);
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-            onClick={onClose}
-          />
-          <motion.div
-            initial={{ opacity: 0, y: '100%' }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg z-50 bg-[#0a0a0f] border border-white/10 rounded-t-2xl md:rounded-2xl p-6 shadow-2xl"
-          >
-            <div className="space-y-6">
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-white mb-2">Good morning, {user?.user_metadata?.first_name || 'Prakhar'}</h2>
-                <p className="text-white/60">Here's your daily briefing</p>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="gap-5 sm:max-w-md">
+        <div className="space-y-1 pr-6">
+          <DialogTitle className="text-2xl">
+            {greetingFor()}, {name}
+          </DialogTitle>
+          <DialogDescription>Here’s your daily briefing.</DialogDescription>
+        </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col items-center justify-center">
-                  <div className="text-sm text-white/60 mb-1">Yesterday's Score</div>
-                  <div className="text-3xl font-bold text-white flex items-center gap-2">
-                    {score}
-                    {score >= previousScore ? (
-                      <TrendingUp className="w-5 h-5 text-emerald-500" />
-                    ) : (
-                      <TrendingUp className="w-5 h-5 text-red-500 rotate-180" />
-                    )}
-                  </div>
-                </div>
-                
-                <div className="bg-white/5 p-4 rounded-xl border border-white/10 flex flex-col items-center justify-center space-y-2">
-                  <div className="text-sm text-white/60">Current Streak</div>
-                  <StreakBadge streak={12} />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">Today's Schedule</div>
-                    <div className="text-xs text-white/60">{plannedBlocks} blocks planned</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                  <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-400">
-                    <CheckCircle2 className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-white">Tasks Due Today</div>
-                    <div className="text-xs text-white/60">{tasksDue} tasks remaining</div>
-                  </div>
-                </div>
-
-                {overdueTasks > 0 && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                    <div className="p-2 rounded-lg bg-red-500/20 text-red-400">
-                      <AlertCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium text-red-400">Overdue Items</div>
-                      <div className="text-xs text-red-400/80">{overdueTasks} tasks need attention</div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button
-                onClick={onClose}
-                className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium transition-colors"
-              >
-                Let's go
-              </button>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col items-center justify-center gap-1 rounded-2xl border border-line bg-surface-2 p-4">
+            <div className="text-xs font-semibold text-fg-muted">Yesterday’s score</div>
+            <div className="flex items-center gap-2 font-mono text-3xl font-bold">
+              {yesterday ?? '—'}
+              {yesterday !== undefined &&
+                (up ? <TrendingUp className="h-5 w-5 text-green-400" /> : <TrendingDown className="h-5 w-5 text-red-400" />)}
             </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </div>
+          <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-line bg-surface-2 p-4">
+            <div className="text-xs font-semibold text-fg-muted">Best streak</div>
+            {best.count > 0 ? (
+              <StreakBadge streak={best.count} label={best.label} tone={best.tone} />
+            ) : (
+              <span className="text-sm font-semibold text-fg-subtle">Start one today</span>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-2.5">
+          <Row icon={Calendar} tint="bg-primary/[0.14] text-blue-400" title="Today’s schedule" detail={`${schedule.length} blocks planned`} />
+          <Row icon={CheckCircle2} tint="bg-success/[0.14] text-green-400" title="Tasks due today" detail={`${tasksDue.today} remaining`} />
+          {tasksDue.overdue > 0 && (
+            <Row
+              icon={AlertCircle}
+              tint="bg-danger/[0.14] text-red-400"
+              title="Overdue"
+              detail={`${tasksDue.overdue} task${tasksDue.overdue > 1 ? 's need' : ' needs'} attention`}
+              danger
+            />
+          )}
+        </div>
+
+        <Button onClick={onClose} size="lg" className="w-full">
+          Let’s go
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Row({
+  icon: Icon, tint, title, detail, danger,
+}: {
+  icon: typeof Calendar; tint: string; title: string; detail: string; danger?: boolean;
+}) {
+  return (
+    <div className={`flex items-center gap-3 rounded-2xl border p-3 ${danger ? 'border-danger/25 bg-danger/[0.08]' : 'border-line bg-surface-2'}`}>
+      <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-[10px] ${tint}`}>
+        <Icon className="h-[18px] w-[18px]" aria-hidden />
+      </div>
+      <div className="min-w-0">
+        <div className={`text-sm font-bold ${danger ? 'text-red-400' : ''}`}>{title}</div>
+        <div className="text-xs text-fg-muted">{detail}</div>
+      </div>
+    </div>
   );
 }

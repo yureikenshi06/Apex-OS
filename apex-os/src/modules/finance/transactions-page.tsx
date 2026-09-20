@@ -139,25 +139,25 @@ export default function TransactionsPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground font-sans">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <Button onClick={() => navigate('/finance')} variant="ghost" size="sm" className="p-1.5 h-8 text-zinc-400 hover:text-white rounded-lg">
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="text-3xl font-black text-white tracking-tight">Transactions Ledger</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Transactions Ledger</h1>
           <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
             {filteredTransactions.length} items
           </Badge>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => setCategoryModalOpen(true)}
-            className="bg-[#111827] border-white/10 hover:border-blue-500/40 text-zinc-300 hover:text-white rounded-xl text-xs h-9 px-3 gap-1.5"
+            className="bg-surface-2 border-line hover:border-blue-500/40 text-zinc-300 hover:text-white rounded-xl text-xs h-9 px-3 gap-1.5"
           >
             <Settings className="w-3.5 h-3.5 text-blue-400" /> Categories
           </Button>
@@ -165,13 +165,13 @@ export default function TransactionsPage() {
             variant="outline" 
             size="sm" 
             onClick={handleExportCSV}
-            className="bg-white/5 border-white/10 text-zinc-300 rounded-xl hover:bg-white/10 text-xs h-9"
+            className="bg-white/5 border-line text-zinc-300 rounded-xl hover:bg-white/10 text-xs h-9"
           >
             <Download className="w-4 h-4 mr-1.5" /> Export CSV
           </Button>
           <Button 
             size="sm" 
-            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 font-bold text-xs h-9 px-4" 
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs h-9 px-4" 
             onClick={() => { setSelectedTx(null); setIsModalOpen(true); }}
           >
             <Plus className="w-4 h-4 mr-1.5" /> Add Transaction
@@ -180,21 +180,21 @@ export default function TransactionsPage() {
       </div>
 
       {/* Summary Stat Bar for Filtered View */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-[#0b0f19]/90 border border-white/10 p-3.5 rounded-3xl shadow-xl backdrop-blur-xl">
-        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-white/5">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Filtered Count</span>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-surface-1 border border-line p-3.5 rounded-[20px]">
+        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-line/70">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Filtered Count</span>
           <span className="text-lg font-black text-white font-mono mt-0.5 block">{filteredTransactions.length}</span>
         </div>
-        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-white/5">
-          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">Total Inflow</span>
+        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-line/70">
+          <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">Total Inflow</span>
           <span className="text-lg font-black text-emerald-400 font-mono mt-0.5 block">+₹{totalInflow.toLocaleString()}</span>
         </div>
-        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-white/5">
-          <span className="text-[10px] font-bold text-rose-400 uppercase tracking-wider block">Total Outflow</span>
+        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-line/70">
+          <span className="text-[11px] font-bold text-rose-400 uppercase tracking-wider block">Total Outflow</span>
           <span className="text-lg font-black text-rose-400 font-mono mt-0.5 block">-₹{totalOutflow.toLocaleString()}</span>
         </div>
-        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-white/5">
-          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Net Balance</span>
+        <div className="p-2.5 rounded-2xl bg-white/[0.02] border border-line/70">
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">Net Balance</span>
           <span className={`text-lg font-black font-mono mt-0.5 block ${netBalance >= 0 ? 'text-blue-400' : 'text-rose-400'}`}>
             {netBalance >= 0 ? '+' : ''}₹{netBalance.toLocaleString()}
           </span>
@@ -202,7 +202,7 @@ export default function TransactionsPage() {
       </div>
 
       {/* Filter Controls: Search + Type + Timeframe (Daily/Weekly/Monthly/Yearly/Custom) */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xl backdrop-blur-xl">
+      <div className="bg-surface-1 border border-line rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
           {/* Search Input */}
           <div className="relative flex-1 min-w-[180px] max-w-xs">
@@ -211,26 +211,26 @@ export default function TransactionsPage() {
               placeholder="Search by description, merchant, category..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-[#111827] border-white/10 text-white rounded-xl h-8 text-xs placeholder:text-zinc-500 focus-visible:ring-blue-500"
+              className="pl-9 bg-surface-2 border-line text-white rounded-xl h-8 text-xs placeholder:text-zinc-500 focus-visible:ring-blue-500"
             />
           </div>
 
           {/* Type Filter */}
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-[110px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[110px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               {TX_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
             </SelectContent>
           </Select>
 
           {/* Timeframe Filter Dropdown */}
           <Select value={timeframe} onValueChange={(v) => setTimeframe(v as TimeframeFilter)}>
-            <SelectTrigger className="w-[140px] bg-[#111827] border-white/10 text-xs rounded-xl h-8 text-zinc-300">
+            <SelectTrigger className="w-[140px] bg-surface-2 border-line text-xs rounded-xl h-8 text-zinc-300">
               <SelectValue placeholder="Timeframe" />
             </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10 text-white text-xs">
+            <SelectContent className="bg-surface-2 border-line text-white text-xs">
               <SelectItem value="all">All Time</SelectItem>
               <SelectItem value="daily">Today / Daily</SelectItem>
               <SelectItem value="weekly">This Week</SelectItem>
@@ -247,14 +247,14 @@ export default function TransactionsPage() {
                 type="date" 
                 value={customStart} 
                 onChange={(e) => setCustomStart(e.target.value)} 
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-8 text-xs w-[130px]" 
+                className="bg-surface-2 border-line text-white rounded-xl h-8 text-xs w-[130px]" 
               />
               <span className="text-zinc-500 text-xs">to</span>
               <Input 
                 type="date" 
                 value={customEnd} 
                 onChange={(e) => setCustomEnd(e.target.value)} 
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-8 text-xs w-[130px]" 
+                className="bg-surface-2 border-line text-white rounded-xl h-8 text-xs w-[130px]" 
               />
             </div>
           )}
@@ -266,10 +266,10 @@ export default function TransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-2xl">
+      <div className="bg-surface-1 border border-line rounded-[20px] overflow-hidden">
         <div className="max-h-[600px] overflow-auto">
           <table className="w-full text-left border-collapse min-w-[950px]">
-            <thead className="sticky top-0 z-10 bg-[#0e1424] text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-white/10">
+            <thead className="sticky top-0 z-10 bg-surface-1 text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-line">
               <tr>
                 <th className="p-3.5 w-12 text-center">Type</th>
                 <th className="p-3.5 w-28">Date</th>
@@ -281,7 +281,7 @@ export default function TransactionsPage() {
                 <th className="p-3.5 text-right w-24">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5 text-sm">
+            <tbody className="divide-y divide-line text-sm">
               <AnimatePresence>
                 {isLoading ? (
                   <tr><td colSpan={8} className="p-12 text-center text-zinc-500 animate-pulse">Loading transactions...</td></tr>
@@ -311,13 +311,13 @@ export default function TransactionsPage() {
                         <td className="p-3.5 font-semibold text-white">
                           {tx.description}
                           {tx.merchant_payee && (
-                            <span className="block text-[10px] text-zinc-500 font-normal mt-0.5">
+                            <span className="block text-[11px] text-zinc-500 font-normal mt-0.5">
                               {tx.merchant_payee}
                             </span>
                           )}
                         </td>
                         <td className="p-3.5">
-                          <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-white/10 text-zinc-300 bg-white/5 font-semibold">
+                          <Badge variant="outline" className="text-[11px] px-2 py-0.5 border-line text-zinc-300 bg-white/5 font-semibold">
                             {tx.category}
                           </Badge>
                         </td>
@@ -327,7 +327,7 @@ export default function TransactionsPage() {
                         </td>
                         <td className="p-3.5 text-zinc-400 text-xs">{tx.payment_method || '—'}</td>
                         <td className="p-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-1 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity">
                             <button onClick={() => handleEdit(tx)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-zinc-400 hover:text-blue-400 transition-colors" title="Edit transaction">
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
@@ -345,7 +345,7 @@ export default function TransactionsPage() {
           </table>
         </div>
 
-        <div className="p-3.5 border-t border-white/10 text-xs text-zinc-400 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="p-3.5 border-t border-line text-xs text-zinc-400 bg-white/[0.02] flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>Showing <strong>{filteredTransactions.length}</strong> transactions</span>
           <div className="flex items-center gap-4 font-mono text-zinc-300">
             <span>Inflow: <strong className="text-emerald-400">+₹{totalInflow.toLocaleString()}</strong></span>

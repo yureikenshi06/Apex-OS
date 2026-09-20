@@ -113,8 +113,8 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="bg-[#0b0f19] text-white border-blue-500/30 sm:max-w-[550px] rounded-3xl shadow-2xl p-6">
-        <DialogHeader className="pb-2 border-b border-white/10">
+      <DialogContent className="bg-surface-1 text-white border-blue-500/30 sm:max-w-[550px] rounded-[20px] p-6">
+        <DialogHeader className="pb-2 border-b border-line">
           <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
             <CheckSquare className="w-5 h-5 text-blue-400" />
             {task ? 'Edit Task' : 'Create New Task'}
@@ -132,7 +132,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
               value={title} 
               onChange={e => setTitle(e.target.value)}
               placeholder="e.g. Solve FSA Reading 18 Practice Problems..."
-              className="bg-[#111827] border-white/10 text-white rounded-xl h-10 text-sm focus-visible:ring-blue-500"
+              className="bg-surface-2 border-line text-white rounded-xl h-10 text-sm focus-visible:ring-blue-500"
               autoFocus
             />
           </div>
@@ -150,7 +150,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
                     onClick={() => setCategory(cat.name)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                       isSelected
-                        ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30'
+                        ? 'bg-blue-600 text-white border-blue-400'
                         : `${cat.color} hover:bg-white/10`
                     }`}
                   >
@@ -166,14 +166,14 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
             {/* Priority Selector */}
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Priority</Label>
-              <div className="grid grid-cols-3 gap-1 bg-[#111827] p-1 rounded-xl border border-white/10">
+              <div className="grid grid-cols-3 gap-1 bg-surface-2 p-1 rounded-xl border border-line">
                 {PRIORITIES.map(p => (
                   <button
                     key={p.name}
                     type="button"
                     onClick={() => setPriority(p.name as any)}
                     className={`py-1.5 text-xs font-bold rounded-lg transition-all ${
-                      priority === p.name ? p.active + ' shadow-md' : 'text-zinc-400 hover:text-white'
+                      priority === p.name ? p.active + '' : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     {p.name}
@@ -185,14 +185,14 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
             {/* Status Selector */}
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Status</Label>
-              <div className="grid grid-cols-3 gap-1 bg-[#111827] p-1 rounded-xl border border-white/10">
+              <div className="grid grid-cols-3 gap-1 bg-surface-2 p-1 rounded-xl border border-line">
                 {STATUSES.map(s => (
                   <button
                     key={s.name}
                     type="button"
                     onClick={() => setStatus(s.name as any)}
                     className={`py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 ${
-                      status === s.name ? s.active + ' shadow-md' : 'text-zinc-400 hover:text-white'
+                      status === s.name ? s.active + '' : 'text-zinc-400 hover:text-white'
                     }`}
                   >
                     <span>{s.icon}</span>
@@ -211,7 +211,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
                 type="date" 
                 value={deadline} 
                 onChange={e => setDeadline(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs"
               />
             </div>
 
@@ -223,7 +223,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
                 min="0"
                 value={estimatedHours} 
                 onChange={e => setEstimatedHours(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs font-mono"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs font-mono"
               />
             </div>
 
@@ -235,7 +235,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
                 min="0"
                 value={actualHours} 
                 onChange={e => setActualHours(e.target.value)}
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs font-mono"
+                className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs font-mono"
               />
             </div>
           </div>
@@ -247,7 +247,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
               value={linkedArea} 
               onChange={e => setLinkedArea(e.target.value)}
               placeholder="e.g. CFA Level I Exam, TrueAlpha Equity Research, Semester Project..."
-              className="bg-[#111827] border-white/10 text-white rounded-xl h-9 text-xs"
+              className="bg-surface-2 border-line text-white rounded-xl h-9 text-xs"
             />
           </div>
 
@@ -258,12 +258,12 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
               value={notes} 
               onChange={e => setNotes(e.target.value)}
               placeholder="Add links, sub-tasks, or notes..."
-              className="bg-[#111827] border-white/10 text-white rounded-xl min-h-[75px] text-xs"
+              className="bg-surface-2 border-line text-white rounded-xl min-h-[75px] text-xs"
             />
           </div>
 
           {/* Dialog Actions */}
-          <DialogFooter className="pt-3 border-t border-white/10 flex flex-row items-center justify-between gap-2">
+          <DialogFooter className="pt-3 border-t border-line flex flex-row items-center justify-between gap-2">
             <div>
               {task && (
                 <Button 
@@ -290,7 +290,7 @@ export function TaskFormModal({ isOpen, onClose, task }: TaskFormModalProps) {
               <Button 
                 type="submit" 
                 disabled={addTaskMutation.isPending || updateTaskMutation.isPending}
-                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold h-9 px-6 rounded-xl shadow-lg shadow-blue-600/30"
+                className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold h-9 px-6 rounded-xl"
               >
                 {task ? 'Save Changes' : 'Create Task'}
               </Button>

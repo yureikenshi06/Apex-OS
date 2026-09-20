@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 
 const Tabs = TabsPrimitive.Root;
 
+// Segmented control. On phones the list scrolls sideways rather than wrapping.
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -11,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      'inline-flex h-10 items-center justify-center rounded-lg bg-secondary p-1 text-muted-foreground',
+      'no-scrollbar inline-flex h-11 max-w-full items-center justify-start gap-1 overflow-x-auto rounded-xl border border-line bg-surface-1 p-1 text-fg-muted md:h-10',
       className
     )}
     {...props}
@@ -26,7 +27,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      'inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm',
+      'tap inline-flex h-full shrink-0 items-center justify-center whitespace-nowrap rounded-[9px] border border-transparent px-3.5 text-[13px] font-semibold transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 data-[state=active]:border-line-strong data-[state=active]:bg-surface-2 data-[state=active]:font-bold data-[state=active]:text-foreground',
       className
     )}
     {...props}
@@ -41,7 +42,7 @@ const TabsContent = React.forwardRef<
   <TabsPrimitive.Content
     ref={ref}
     className={cn(
-      'mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+      'animate-enter mt-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
       className
     )}
     {...props}

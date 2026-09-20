@@ -29,16 +29,16 @@ const DAYS = [
 const jsToApex = (jsDay: number) => (jsDay + 6) % 7;
 
 const CATEGORY_COLORS: Record<string, string> = {
-  CFA: '#6366f1',
+  CFA: '#3B6EF6',
   Placement: '#8b5cf6',
   Academic: '#06b6d4',
-  Fitness: '#10b981',
-  Reading: '#f59e0b',
+  Fitness: '#22C55E',
+  Reading: '#F5A524',
   'Personal Brand': '#ec4899',
-  Class: '#3b82f6',
-  Meal: '#64748b',
-  Travel: '#475569',
-  'Personal Care': '#94a3b8',
+  Class: '#3B6EF6',
+  Meal: '#6F7C99',
+  Travel: '#56627D',
+  'Personal Care': '#8A93A6',
 };
 
 // localStorage helpers — keyed per block per date
@@ -59,10 +59,10 @@ function ProgressRing({ pct, size = 64, stroke = 5 }: { pct: number; size?: numb
   const r = (size - stroke * 2) / 2;
   const circ = 2 * Math.PI * r;
   const offset = circ - (pct / 100) * circ;
-  const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#3b82f6' : pct > 0 ? '#f59e0b' : '#374151';
+  const color = pct >= 80 ? '#22C55E' : pct >= 50 ? '#3B6EF6' : pct > 0 ? '#F5A524' : '#374151';
   return (
     <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size / 2} cy={size / 2} r={r} stroke="#1e293b" strokeWidth={stroke} fill="none" />
+      <circle cx={size / 2} cy={size / 2} r={r} stroke="#1A2030" strokeWidth={stroke} fill="none" />
       <circle
         cx={size / 2} cy={size / 2} r={r}
         stroke={color} strokeWidth={stroke} fill="none"
@@ -97,7 +97,7 @@ function ChecklistItem({
     setChecked(block.id, date, next);
   };
 
-  const color = block.color || CATEGORY_COLORS[block.category || ''] || '#6366f1';
+  const color = block.color || CATEGORY_COLORS[block.category || ''] || '#3B6EF6';
 
   return (
     <motion.div
@@ -106,8 +106,8 @@ function ChecklistItem({
       className={`group flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${
         done
           ? 'bg-emerald-500/5 border-emerald-500/20'
-          : 'bg-white/[0.02] border-white/5 hover:border-white/15 hover:bg-white/[0.04]'
-      } ${highlighted ? 'ring-2 ring-blue-400/60 shadow-lg shadow-blue-500/10' : ''}`}
+          : 'bg-white/[0.02] border-line/70 hover:border-white/15 hover:bg-white/[0.04]'
+      } ${highlighted ? 'ring-2 ring-blue-400/60' : ''}`}
       onClick={() => onEdit(block)}
     >
       {/* Check toggle */}
@@ -119,7 +119,7 @@ function ChecklistItem({
         {done ? (
           <CheckCircle2 className="w-6 h-6 text-emerald-400" />
         ) : (
-          <Circle className="w-6 h-6 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+          <Circle className="w-6 h-6 text-zinc-500 group-hover:text-zinc-400 transition-colors" />
         )}
       </button>
 
@@ -135,14 +135,14 @@ function ChecklistItem({
 
       {/* Category badge */}
       <span
-        className="text-[10px] font-semibold px-2 py-0.5 rounded-lg shrink-0"
+        className="text-[11px] font-semibold px-2 py-0.5 rounded-lg shrink-0"
         style={{ backgroundColor: `${color}25`, color: color }}
       >
         {block.category}
       </span>
 
       {/* Edit hint */}
-      <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors shrink-0" />
+      <ChevronRight className="w-3.5 h-3.5 text-zinc-500 group-hover:text-zinc-400 transition-colors shrink-0" />
     </motion.div>
   );
 }
@@ -294,13 +294,13 @@ export default function TimetablePage() {
   }, [todayBlocks, highlightedTag, isBlockMatchingTag]);
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-5xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-5xl mx-auto text-foreground font-sans">
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-black text-white tracking-tight">Routine Checklist</h1>
+            <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Routine Checklist</h1>
             <Badge variant="secondary" className="bg-blue-900/50 text-blue-200 border-blue-700/50 font-bold px-2.5">
               Event-Driven
             </Badge>
@@ -316,7 +316,7 @@ export default function TimetablePage() {
             variant="outline"
             size="sm"
             onClick={() => setTagModalOpen(true)}
-            className="bg-[#111827] border-white/10 hover:border-blue-500/40 text-zinc-300 hover:text-white rounded-xl text-xs h-9 px-3 gap-1.5"
+            className="bg-surface-2 border-line hover:border-blue-500/40 text-zinc-300 hover:text-white rounded-xl text-xs h-9 px-3 gap-1.5"
           >
             <Tag className="w-3.5 h-3.5 text-blue-400" /> Manage Tags
           </Button>
@@ -327,14 +327,14 @@ export default function TimetablePage() {
             size="sm"
             onClick={handlePopulateMaster}
             disabled={populateMutation.isPending}
-            className="bg-[#111827] border-white/10 hover:border-emerald-500/40 text-zinc-300 hover:text-emerald-300 rounded-xl text-xs h-9 px-3 gap-1.5"
+            className="bg-surface-2 border-line hover:border-emerald-500/40 text-zinc-300 hover:text-emerald-300 rounded-xl text-xs h-9 px-3 gap-1.5"
           >
             <RotateCcw className="w-3.5 h-3.5 text-emerald-400" /> Reset Schedule
           </Button>
 
           <Button 
             onClick={() => handleAddBlock()}
-            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-600/30 gap-1.5 font-bold h-9 text-xs px-4"
+            className="bg-blue-600 hover:bg-blue-500 text-white rounded-xl gap-1.5 font-bold h-9 text-xs px-4"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" /> Add Block
           </Button>
@@ -342,7 +342,7 @@ export default function TimetablePage() {
       </div>
 
       {/* ── Day Tab Selector ── */}
-      <div className="flex overflow-x-auto gap-1.5 p-1.5 bg-[#0b0f19]/90 rounded-2xl border border-white/10 no-scrollbar">
+      <div className="flex overflow-x-auto gap-1.5 p-1.5 bg-surface-1 rounded-2xl border border-line no-scrollbar">
         {DAYS.map((d) => {
           const count = blocks.filter(b => b.day_of_week === d.id).length;
           const isToday = d.id === todayApexDay;
@@ -353,20 +353,20 @@ export default function TimetablePage() {
               onClick={() => setActiveDayTab(d.id)}
               className={`flex-1 min-w-[52px] py-2.5 px-2 rounded-xl text-xs font-bold transition-all shrink-0 flex flex-col items-center gap-0.5 ${
                 isActive
-                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
+                  ? 'bg-blue-600 text-white'
                   : 'text-zinc-400 hover:text-white hover:bg-white/5'
               }`}
             >
               <span>{d.short}</span>
-              {isToday && <span className="text-[8px] font-black uppercase tracking-widest opacity-80">today</span>}
-              <span className="text-[10px] font-mono opacity-70">{count}</span>
+              {isToday && <span className="text-[11px] font-black uppercase tracking-widest opacity-80">today</span>}
+              <span className="text-[11px] font-mono opacity-70">{count}</span>
             </button>
           );
         })}
       </div>
 
       {/* ── Progress Summary for Active Day ── */}
-      <div className="flex items-center gap-5 p-5 bg-[#0b0f19]/90 border border-white/10 rounded-3xl shadow-xl">
+      <div className="flex items-center gap-5 p-5 bg-surface-1 border border-line rounded-[20px]">
         {/* Progress ring */}
         <div className="relative shrink-0" onClick={refreshTick}>
           <ProgressRing pct={completionPct} size={72} stroke={6} />
@@ -394,11 +394,11 @@ export default function TimetablePage() {
         </div>
 
         {/* View mode toggle */}
-        <div className="flex items-center p-1 bg-[#111827] rounded-xl border border-white/10 shrink-0">
+        <div className="flex items-center p-1 bg-surface-2 rounded-xl border border-line shrink-0">
           <button
             onClick={() => setViewMode('today')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === 'today' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
+              viewMode === 'today' ? 'bg-blue-600 text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Day
@@ -406,7 +406,7 @@ export default function TimetablePage() {
           <button
             onClick={() => setViewMode('week')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === 'week' ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30' : 'text-zinc-400 hover:text-white'
+              viewMode === 'week' ? 'bg-blue-600 text-white' : 'text-zinc-400 hover:text-white'
             }`}
           >
             Week
@@ -415,7 +415,7 @@ export default function TimetablePage() {
       </div>
 
       {/* ── Tag Filter Bar ── */}
-      <div className="bg-[#0b0f19]/90 border border-white/10 rounded-2xl p-3.5 shadow-xl">
+      <div className="bg-surface-1 border border-line rounded-2xl p-3.5">
         <div className="flex items-center gap-2 mb-2.5">
           <Eye className="w-3.5 h-3.5 text-blue-400" />
           <span className="text-xs font-bold text-zinc-300">Filter by tag</span>
@@ -433,8 +433,8 @@ export default function TimetablePage() {
             onClick={() => setHighlightedTag(null)}
             className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
               highlightedTag === null
-                ? 'bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30'
-                : 'bg-[#111827] border-white/10 text-zinc-400 hover:text-white'
+                ? 'bg-blue-600 text-white border-blue-400'
+                : 'bg-surface-2 border-line text-zinc-400 hover:text-white'
             }`}
           >
             All ({todayBlocks.length})
@@ -449,13 +449,13 @@ export default function TimetablePage() {
                 onClick={() => setHighlightedTag(isSelected ? null : t.name)}
                 className={`px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                   isSelected
-                    ? 'bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-600/40 scale-105'
-                    : 'bg-[#111827] border-white/5 text-zinc-300 hover:text-white hover:bg-white/5'
+                    ? 'bg-blue-600 text-white border-blue-400 scale-105'
+                    : 'bg-surface-2 border-line/70 text-zinc-300 hover:text-white hover:bg-white/5'
                 }`}
               >
                 <span className="w-2 h-2 rounded-full" style={{ backgroundColor: t.color }} />
                 {t.name}
-                <span className="text-[10px] opacity-70 font-mono">({matchCount})</span>
+                <span className="text-[11px] opacity-70 font-mono">({matchCount})</span>
               </button>
             );
           })}
@@ -476,10 +476,10 @@ export default function TimetablePage() {
             className="space-y-5"
           >
             {todayGrouped.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center bg-[#0b0f19]/60 border border-white/5 rounded-3xl">
+              <div className="flex flex-col items-center justify-center py-16 text-center bg-surface-1/60 border border-line/70 rounded-[20px]">
                 <CalendarIcon className="w-10 h-10 text-zinc-700 mb-3" />
                 <p className="text-sm font-bold text-zinc-400">No activities scheduled for {DAYS[activeDayTab]?.name}</p>
-                <p className="text-xs text-zinc-600 mt-1 mb-4">Add blocks to start tracking completion</p>
+                <p className="text-xs text-zinc-500 mt-1 mb-4">Add blocks to start tracking completion</p>
                 <Button
                   size="sm"
                   onClick={() => handleAddBlock(activeDayTab)}
@@ -490,7 +490,7 @@ export default function TimetablePage() {
               </div>
             ) : (
               todayGrouped.map(([category, catBlocks]) => {
-                const color = CATEGORY_COLORS[category] || '#6366f1';
+                const color = CATEGORY_COLORS[category] || '#3B6EF6';
                 const catDone = catBlocks.filter(b => getChecked(b.id, activeDayDate)).length;
                 return (
                   <div key={category} className="space-y-2">
@@ -498,7 +498,7 @@ export default function TimetablePage() {
                     <div className="flex items-center gap-2.5 px-1">
                       <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                       <span className="text-xs font-black uppercase tracking-wider text-zinc-300">{category}</span>
-                      <span className="text-[10px] text-zinc-600 font-mono">{catDone}/{catBlocks.length}</span>
+                      <span className="text-[11px] text-zinc-500 font-mono">{catDone}/{catBlocks.length}</span>
                       <div className="flex-1 h-px bg-white/5" />
                     </div>
 
@@ -523,7 +523,7 @@ export default function TimetablePage() {
             {/* Add block CTA at bottom */}
             <button
               onClick={() => handleAddBlock(activeDayTab)}
-              className="w-full py-3 rounded-2xl border border-dashed border-white/8 hover:border-blue-500/40 text-zinc-600 hover:text-blue-400 text-xs font-semibold transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-2xl border border-dashed border-white/8 hover:border-blue-500/40 text-zinc-500 hover:text-blue-400 text-xs font-semibold transition-all flex items-center justify-center gap-2"
             >
               <Plus className="w-3.5 h-3.5" /> Add activity to {DAYS[activeDayTab]?.name}
             </button>
@@ -547,7 +547,7 @@ export default function TimetablePage() {
               return (
                 <div
                   key={day.id}
-                  className={`bg-[#0b0f19]/80 border rounded-2xl overflow-hidden transition-all ${
+                  className={`bg-surface-1 border rounded-2xl overflow-hidden transition-all ${
                     isToday ? 'border-blue-500/40' : 'border-white/8'
                   }`}
                 >
@@ -559,14 +559,14 @@ export default function TimetablePage() {
                     <div className="relative shrink-0">
                       <ProgressRing pct={day.pct} size={44} stroke={4} />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-[10px] font-black text-white">{day.pct}%</span>
+                        <span className="text-[11px] font-black text-white">{day.pct}%</span>
                       </div>
                     </div>
 
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-black text-white">{day.name}</span>
-                        {isToday && <Badge className="bg-blue-600 text-white text-[9px] px-1.5 py-0 font-black">TODAY</Badge>}
+                        {isToday && <Badge className="bg-blue-600 text-white text-[11px] px-1.5 py-0 font-black">TODAY</Badge>}
                         {day.pct === 100 && day.total > 0 && <Trophy className="w-3.5 h-3.5 text-emerald-400" />}
                       </div>
                       <p className="text-xs text-zinc-500 font-mono">
@@ -582,13 +582,13 @@ export default function TimetablePage() {
                           className="h-1.5 rounded-full transition-all duration-700"
                           style={{
                             width: `${day.pct}%`,
-                            backgroundColor: day.pct >= 80 ? '#10b981' : day.pct >= 50 ? '#3b82f6' : '#f59e0b',
+                            backgroundColor: day.pct >= 80 ? '#22C55E' : day.pct >= 50 ? '#3B6EF6' : '#F5A524',
                           }}
                         />
                       </div>
                     </div>
 
-                    <ChevronRight className="w-4 h-4 text-zinc-600 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-zinc-500 shrink-0" />
                   </button>
 
                   {/* Quick checklist preview (first 5 items) */}
@@ -596,7 +596,7 @@ export default function TimetablePage() {
                     <div className="px-4 pb-4 space-y-1.5">
                       {day.dayBlocks.slice(0, 5).map(block => {
                         const isDone = getChecked(block.id, day.dateStr);
-                        const color = block.color || CATEGORY_COLORS[block.category || ''] || '#6366f1';
+                        const color = block.color || CATEGORY_COLORS[block.category || ''] || '#3B6EF6';
                         return (
                           <div
                             key={block.id}
@@ -606,16 +606,16 @@ export default function TimetablePage() {
                           >
                             {isDone
                               ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                              : <Circle className="w-3.5 h-3.5 text-zinc-600 shrink-0" />}
-                            <span className={`flex-1 truncate ${isDone ? 'line-through text-zinc-600' : 'text-zinc-300'}`}>
+                              : <Circle className="w-3.5 h-3.5 text-zinc-500 shrink-0" />}
+                            <span className={`flex-1 truncate ${isDone ? 'line-through text-zinc-500' : 'text-zinc-300'}`}>
                               {block.activity}
                             </span>
-                            <span className="text-[10px] font-mono" style={{ color }}>{block.category}</span>
+                            <span className="text-[11px] font-mono" style={{ color }}>{block.category}</span>
                           </div>
                         );
                       })}
                       {day.dayBlocks.length > 5 && (
-                        <p className="text-[11px] text-zinc-600 px-3">
+                        <p className="text-[11px] text-zinc-500 px-3">
                           +{day.dayBlocks.length - 5} more — tap to open
                         </p>
                       )}

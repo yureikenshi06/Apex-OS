@@ -7,20 +7,20 @@ export interface TimetableTag {
 }
 
 export const DEFAULT_TIMETABLE_TAGS: TimetableTag[] = [
-  { id: 'deep-work', name: 'Deep Work', color: '#6366f1' },
-  { id: 'cfa-study', name: 'CFA Study', color: '#3b82f6' },
+  { id: 'deep-work', name: 'Deep Work', color: '#3B6EF6' },
+  { id: 'cfa-study', name: 'CFA Study', color: '#3B6EF6' },
   { id: 'placement-prep', name: 'Placement Prep', color: '#8b5cf6' },
   { id: 'classes', name: 'Classes', color: '#06b6d4' },
-  { id: 'fitness', name: 'Fitness', color: '#10b981' },
-  { id: 'morning-routine', name: 'Morning Routine', color: '#f59e0b' },
-  { id: 'meals', name: 'Meals', color: '#64748b' },
+  { id: 'fitness', name: 'Fitness', color: '#22C55E' },
+  { id: 'morning-routine', name: 'Morning Routine', color: '#F5A524' },
+  { id: 'meals', name: 'Meals', color: '#6F7C99' },
   { id: 'personal-brand', name: 'Personal Brand', color: '#ec4899' },
   { id: 'academic', name: 'Academic', color: '#0284c7' },
   { id: 'habit', name: 'Habit', color: '#d97706' },
-  { id: 'travel', name: 'Travel', color: '#475569' },
+  { id: 'travel', name: 'Travel', color: '#56627D' },
   { id: 'recovery', name: 'Recovery', color: '#6b7280' },
-  { id: 'sleep', name: 'Sleep', color: '#1e293b' },
-  { id: 'buffer', name: 'Buffer', color: '#334155' },
+  { id: 'sleep', name: 'Sleep', color: '#1A2030' },
+  { id: 'buffer', name: 'Buffer', color: '#232838' },
 ];
 
 const STORAGE_KEY = 'apex_timetable_tags_v1';
@@ -60,7 +60,7 @@ export function useTimetableTags() {
     return () => window.removeEventListener('apex_timetable_tags_updated', handleUpdate);
   }, []);
 
-  const addTag = (name: string, color: string = '#6366f1') => {
+  const addTag = (name: string, color: string = '#3B6EF6') => {
     const trimmed = name.trim();
     if (!trimmed) return;
     const exists = tags.some(t => t.name.toLowerCase() === trimmed.toLowerCase());

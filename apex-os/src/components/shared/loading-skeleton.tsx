@@ -5,7 +5,7 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
 function Skeleton({ className, ...props }: SkeletonProps) {
   return (
     <div
-      className={cn('animate-pulse rounded-lg bg-secondary/80', className)}
+      className={cn('skeleton rounded-lg', className)}
       {...props}
     />
   );
@@ -14,7 +14,7 @@ function Skeleton({ className, ...props }: SkeletonProps) {
 // Pre-built skeleton compositions for common patterns
 function CardSkeleton() {
   return (
-    <div className="rounded-2xl border border-border/50 bg-card p-6 space-y-4">
+    <div className="rounded-[20px] border border-line bg-surface-1 p-6 space-y-4">
       <Skeleton className="h-4 w-1/3" />
       <Skeleton className="h-8 w-2/3" />
       <Skeleton className="h-2 w-full" />
@@ -29,7 +29,7 @@ function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
         <Skeleton
           key={i}
           className="h-4"
-          style={{ width: `${Math.random() * 40 + 60}px` }}
+          style={{ width: `${60 + ((i * 37) % 40)}px` }}
         />
       ))}
     </div>
@@ -38,8 +38,8 @@ function TableRowSkeleton({ columns = 5 }: { columns?: number }) {
 
 function TableSkeleton({ rows = 5, columns = 5 }: { rows?: number; columns?: number }) {
   return (
-    <div className="rounded-2xl border border-border/50 bg-card overflow-hidden">
-      <div className="flex items-center gap-4 px-4 py-3 border-b border-border/50">
+    <div className="rounded-[20px] border border-line bg-surface-1 overflow-hidden">
+      <div className="flex items-center gap-4 px-4 py-3 border-b border-line">
         {Array.from({ length: columns }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-20" />
         ))}
@@ -70,11 +70,11 @@ function DashboardSkeleton() {
       </div>
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-border/50 bg-card p-6 space-y-4">
+        <div className="rounded-[20px] border border-line bg-surface-1 p-6 space-y-4">
           <Skeleton className="h-4 w-1/3" />
           <Skeleton className="h-48 w-full" />
         </div>
-        <div className="rounded-2xl border border-border/50 bg-card p-6 space-y-4">
+        <div className="rounded-[20px] border border-line bg-surface-1 p-6 space-y-4">
           <Skeleton className="h-4 w-1/3" />
           <Skeleton className="h-48 w-full" />
         </div>

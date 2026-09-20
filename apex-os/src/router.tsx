@@ -1,42 +1,24 @@
-import { createBrowserRouter, Navigate } from 'react-router-dom';
+import type { ComponentType } from 'react';
+import { createBrowserRouter, Navigate, type RouteObject } from 'react-router-dom';
 import AppLayout from '@/components/layout/app-layout';
 import { ProtectedRoute } from '@/components/layout/protected-route';
-import LoginPage from '@/modules/auth/login-page';
-import HomePage from '@/modules/home/home-page';
-import TasksPage from '@/modules/tasks/tasks-page';
-import TimetablePage from '@/modules/timetable/timetable-page';
-import DailyPlannerPage from '@/modules/timetable/daily-planner-page';
-import HabitTrackerPage from '@/modules/timetable/habit-tracker-page';
-import PlacementPage from '@/modules/timetable/placement-page';
-import AcademicPage from '@/modules/timetable/academic-page';
-import PersonalBrandPage from '@/modules/timetable/personal-brand-page';
-import WeeklyReviewPage from '@/modules/timetable/weekly-review-page';
-import FinancePage from '@/modules/finance/finance-page';
-import TransactionsPage from '@/modules/finance/transactions-page';
-import BudgetsPage from '@/modules/finance/budgets-page';
-import RecurringPage from '@/modules/finance/recurring-page';
-import SplitsPage from '@/modules/finance/splits-page';
-import NetWorthPage from '@/modules/finance/net-worth-page';
-import FitnessPage from '@/modules/fitness/fitness-page';
-import WorkoutPage from '@/modules/fitness/workout-page';
-import WorkoutLogPage from '@/modules/fitness/workout-log-page';
-import FitnessHabitsPage from '@/modules/fitness/fitness-habits-page';
-import MealsPage from '@/modules/fitness/meals-page';
-import FoodLogPage from '@/modules/fitness/food-log-page';
-import GroceryPage from '@/modules/fitness/grocery-page';
-import SupplementsPage from '@/modules/fitness/supplements-page';
-import BodyPage from '@/modules/fitness/body-page';
-import CardioPage from '@/modules/fitness/cardio-page';
-import SleepPage from '@/modules/fitness/sleep-page';
-import CFAPage from '@/modules/cfa/cfa-page';
-import CFATopicsPage from '@/modules/cfa/cfa-topics-page';
-import CFARevisionPage from '@/modules/cfa/cfa-revision-page';
-import SettingsPage from '@/modules/settings/settings-page';
+import { PageLoader, RouteError } from '@/components/shared/page-states';
+
+/**
+ * Every screen is its own chunk, so the first paint only downloads the shell
+ * plus the page you asked for (the app used to ship as one ~1.7 MB bundle).
+ * React Router holds navigation until the chunk arrives — no flash of nothing.
+ */
+const page = (load: () => Promise<{ default: ComponentType }>): Pick<RouteObject, 'lazy'> => ({
+  lazy: async () => ({ Component: (await load()).default }),
+});
 
 export const router = createBrowserRouter([
   {
     path: '/login',
-    element: <LoginPage />,
+    ...page(() => import('@/modules/auth/login-page')),
+    hydrateFallbackElement: <PageLoader />,
+    errorElement: <RouteError />,
   },
   {
     path: '/',
@@ -45,37 +27,39 @@ export const router = createBrowserRouter([
         <AppLayout />
       </ProtectedRoute>
     ),
+    hydrateFallbackElement: <PageLoader />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <Navigate to="/home" replace /> },
-      { path: 'home', element: <HomePage /> },
-      { path: 'tasks', element: <TasksPage /> },
-      { path: 'timetable', element: <TimetablePage /> },
-      { path: 'timetable/daily', element: <DailyPlannerPage /> },
-      { path: 'timetable/habits', element: <HabitTrackerPage /> },
-      { path: 'timetable/placement', element: <PlacementPage /> },
-      { path: 'timetable/academic', element: <AcademicPage /> },
-      { path: 'timetable/brand', element: <PersonalBrandPage /> },
-      { path: 'timetable/review', element: <WeeklyReviewPage /> },
-      { path: 'finance', element: <FinancePage /> },
-      { path: 'finance/transactions', element: <TransactionsPage /> },
-      { path: 'finance/budgets', element: <BudgetsPage /> },
-      { path: 'finance/recurring', element: <RecurringPage /> },
-      { path: 'finance/splits', element: <SplitsPage /> },
-      { path: 'finance/networth', element: <NetWorthPage /> },
-      { path: 'fitness', element: <FitnessPage /> },
-      { path: 'fitness/workout', element: <WorkoutPage /> },
-      { path: 'fitness/log', element: <WorkoutLogPage /> },
-      { path: 'fitness/habits', element: <FitnessHabitsPage /> },
-      { path: 'fitness/meals', element: <MealsPage /> },
-      { path: 'fitness/food-log', element: <FoodLogPage /> },
-      { path: 'fitness/grocery', element: <GroceryPage /> },
-      { path: 'fitness/supplements', element: <SupplementsPage /> },
-      { path: 'fitness/body', element: <BodyPage /> },
-      { path: 'fitness/cardio', element: <CardioPage /> },
-      { path: 'fitness/sleep', element: <SleepPage /> },
-      { path: 'cfa', element: <CFAPage /> },
-      { path: 'cfa/topics', element: <CFATopicsPage /> },
-      { path: 'cfa/revision', element: <CFARevisionPage /> },
+      { path: 'home', ...page(() => import('@/modules/home/home-page')) },
+      { path: 'tasks', ...page(() => import('@/modules/tasks/tasks-page')) },
+      { path: 'timetable', ...page(() => import('@/modules/timetable/timetable-page')) },
+      { path: 'timetable/daily', ...page(() => import('@/modules/timetable/daily-planner-page')) },
+      { path: 'timetable/habits', ...page(() => import('@/modules/timetable/habit-tracker-page')) },
+      { path: 'timetable/placement', ...page(() => import('@/modules/timetable/placement-page')) },
+      { path: 'timetable/academic', ...page(() => import('@/modules/timetable/academic-page')) },
+      { path: 'timetable/brand', ...page(() => import('@/modules/timetable/personal-brand-page')) },
+      { path: 'timetable/review', ...page(() => import('@/modules/timetable/weekly-review-page')) },
+      { path: 'finance', ...page(() => import('@/modules/finance/finance-page')) },
+      { path: 'finance/transactions', ...page(() => import('@/modules/finance/transactions-page')) },
+      { path: 'finance/budgets', ...page(() => import('@/modules/finance/budgets-page')) },
+      { path: 'finance/recurring', ...page(() => import('@/modules/finance/recurring-page')) },
+      { path: 'finance/splits', ...page(() => import('@/modules/finance/splits-page')) },
+      { path: 'finance/networth', ...page(() => import('@/modules/finance/net-worth-page')) },
+      { path: 'fitness', ...page(() => import('@/modules/fitness/fitness-page')) },
+      { path: 'fitness/workout', ...page(() => import('@/modules/fitness/workout-page')) },
+      { path: 'fitness/log', ...page(() => import('@/modules/fitness/workout-log-page')) },
+      { path: 'fitness/habits', ...page(() => import('@/modules/fitness/fitness-habits-page')) },
+      { path: 'fitness/meals', ...page(() => import('@/modules/fitness/meals-page')) },
+      { path: 'fitness/food-log', ...page(() => import('@/modules/fitness/food-log-page')) },
+      { path: 'fitness/grocery', ...page(() => import('@/modules/fitness/grocery-page')) },
+      { path: 'fitness/supplements', ...page(() => import('@/modules/fitness/supplements-page')) },
+      { path: 'fitness/body', ...page(() => import('@/modules/fitness/body-page')) },
+      { path: 'fitness/cardio', ...page(() => import('@/modules/fitness/cardio-page')) },
+      { path: 'fitness/sleep', ...page(() => import('@/modules/fitness/sleep-page')) },
+      { path: 'cfa', ...page(() => import('@/modules/cfa/cfa-page')) },
+      { path: 'cfa/topics', ...page(() => import('@/modules/cfa/cfa-topics-page')) },
+      { path: 'cfa/revision', ...page(() => import('@/modules/cfa/cfa-revision-page')) },
       { path: 'settings', element: <Navigate to="/home" replace /> },
     ],
   },

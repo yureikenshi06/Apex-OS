@@ -5,14 +5,14 @@ import { useAuth } from '@/hooks/use-auth';
 import type { CFATopic, CFARevisionPlan, CFATopicInsert } from '@/api/types';
 
 export const CFA_MODULE_CONFIG = [
-  { name: 'M1', fullName: 'Quantitative Methods', short: 'Quant', weight: '6% – 9%', weightMid: 7.5, color: '#3b82f6' },
+  { name: 'M1', fullName: 'Quantitative Methods', short: 'Quant', weight: '6% – 9%', weightMid: 7.5, color: '#3B6EF6' },
   { name: 'M2', fullName: 'Economics', short: 'Econ', weight: '6% – 9%', weightMid: 7.5, color: '#06b6d4' },
   { name: 'M3', fullName: 'Corporate Issuers', aliases: ['Corporate Issuers', 'Corporate Finance', 'CorpFin'], short: 'Corp Issuers', weight: '6% – 9%', weightMid: 7.5, color: '#8b5cf6' },
   { name: 'M4', fullName: 'Financial Statement Analysis', aliases: ['Financial Statement Analysis', 'FSA'], short: 'FSA', weight: '11% – 14%', weightMid: 12.5, color: '#ef4444' },
-  { name: 'M5', fullName: 'Equity Investments', aliases: ['Equity Investments', 'Equities'], short: 'Equities', weight: '11% – 14%', weightMid: 12.5, color: '#10b981' },
-  { name: 'M6', fullName: 'Fixed Income', aliases: ['Fixed Income', 'FixedIncome'], short: 'Fixed Income', weight: '11% – 14%', weightMid: 12.5, color: '#f59e0b' },
+  { name: 'M5', fullName: 'Equity Investments', aliases: ['Equity Investments', 'Equities'], short: 'Equities', weight: '11% – 14%', weightMid: 12.5, color: '#22C55E' },
+  { name: 'M6', fullName: 'Fixed Income', aliases: ['Fixed Income', 'FixedIncome'], short: 'Fixed Income', weight: '11% – 14%', weightMid: 12.5, color: '#F5A524' },
   { name: 'M7', fullName: 'Derivatives', aliases: ['Derivatives'], short: 'Derivatives', weight: '5% – 8%', weightMid: 6.5, color: '#ec4899' },
-  { name: 'M8', fullName: 'Alternative Investments', aliases: ['Alternative Investments', 'Alts'], short: 'Alts', weight: '7% – 10%', weightMid: 8.5, color: '#6366f1' },
+  { name: 'M8', fullName: 'Alternative Investments', aliases: ['Alternative Investments', 'Alts'], short: 'Alts', weight: '7% – 10%', weightMid: 8.5, color: '#3B6EF6' },
   { name: 'M9', fullName: 'Portfolio Management', aliases: ['Portfolio Management', 'Portfolio Construction', 'Portfolio'], short: 'Portfolio', weight: '8% – 12%', weightMid: 10, color: '#14b8a6' },
   { name: 'M10', fullName: 'Ethical and Professional Standards', aliases: ['Ethical and Professional Standards', 'Ethics'], short: 'Ethics', weight: '15% – 20%', weightMid: 17.5, color: '#dc2626' },
 ];
@@ -56,6 +56,7 @@ export function useAddCFATopic() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (topic: Omit<CFATopicInsert, 'owner_id'>) => api.addCFATopic({ ...topic, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cfaTopics'] });
@@ -67,6 +68,7 @@ export function useAddCFATopic() {
 export function useUpdateCFATopic() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (args: { id: string; updates: Partial<CFATopic> }) => api.updateCFATopic(args.id, args.updates),
     onMutate: async ({ id, updates }) => {
       await queryClient.cancelQueries({ queryKey: ['cfaTopics'] });
@@ -91,6 +93,7 @@ export function useUpdateCFATopic() {
 export function useDeleteCFATopic() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (id: string) => api.deleteCFATopic(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cfaTopics'] });
@@ -103,6 +106,7 @@ export function useLinkTopicToTask() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: async (topic: CFATopic) => {
       if (!user?.id) throw new Error('No user');
       const newTask = await addTask({
@@ -128,6 +132,7 @@ export function useLinkTopicToTask() {
 export function useUnlinkTopicFromTask() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: async (topicId: string) => {
       await api.unlinkTopicFromTask(topicId);
       return { topicId };
@@ -152,6 +157,7 @@ export function useAddRevisionItem() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (item: any) => api.addCFARevisionItem({ ...item, owner_id: user?.id! }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cfaRevisionPlan'] }),
   });
@@ -160,6 +166,7 @@ export function useAddRevisionItem() {
 export function useUpdateRevisionItem() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (args: { id: string; updates: Partial<CFARevisionPlan> }) => api.updateCFARevisionItem(args.id, args.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cfaRevisionPlan'] }),
   });
@@ -168,6 +175,7 @@ export function useUpdateRevisionItem() {
 export function useDeleteRevisionItem() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'cfa' },
     mutationFn: (id: string) => api.deleteCFARevisionItem(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cfaRevisionPlan'] }),
   });

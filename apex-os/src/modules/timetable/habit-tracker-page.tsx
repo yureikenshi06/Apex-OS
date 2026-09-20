@@ -30,7 +30,7 @@ export default function HabitTrackerPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto text-foreground">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Habit Tracker</h1>
+        <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Habit Tracker</h1>
         <input 
           type="date" 
           value={date} 
@@ -42,7 +42,7 @@ export default function HabitTrackerPage() {
       <motion.div 
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="bg-card p-6 rounded-2xl border border-border/50 shadow-lg"
+        className="bg-card p-6 rounded-2xl border border-border/50"
       >
         {isLoading ? (
           <div className="animate-pulse h-64 bg-secondary/50 rounded-xl"></div>
@@ -82,7 +82,7 @@ export default function HabitTrackerPage() {
               <button 
                 type="submit" 
                 disabled={upsertMutation.isPending}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors"
               >
                 {upsertMutation.isPending ? 'Saving...' : 'Save Habits'}
               </button>

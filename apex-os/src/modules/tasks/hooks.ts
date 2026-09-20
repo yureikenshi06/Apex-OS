@@ -64,6 +64,7 @@ export function useAddTask() {
   const { user } = useAuth();
 
   return useMutation({
+    meta: { scope: 'tasks' },
     mutationFn: (newTask: Omit<TaskInsert, 'owner_id'>) => 
       addTask({ ...newTask, owner_id: user?.id || '' }),
     onSuccess: () => {
@@ -77,6 +78,7 @@ export function useUpdateTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { scope: 'tasks' },
     mutationFn: ({ id, updates }: { id: string; updates: TaskUpdate }) => 
       updateTask(id, updates),
     onSuccess: () => {
@@ -90,6 +92,7 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    meta: { scope: 'tasks' },
     mutationFn: (id: string) => deleteTask(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] });

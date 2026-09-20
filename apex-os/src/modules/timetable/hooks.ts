@@ -16,6 +16,7 @@ export function useAddBlock() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.addTimetableBlock({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetableBlocks'] }),
   });
@@ -24,6 +25,7 @@ export function useAddBlock() {
 export function useUpdateBlock() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: { id: string; updates: any }) => api.updateTimetableBlock(data.id, data.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetableBlocks'] }),
   });
@@ -32,6 +34,7 @@ export function useUpdateBlock() {
 export function useDeleteBlock() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (id: string) => api.deleteTimetableBlock(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetableBlocks'] }),
   });
@@ -45,6 +48,7 @@ export function usePopulateMasterTimetable() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (blocks: any[]) => api.bulkAddTimetableBlocks(user?.id!, blocks),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['timetableBlocks'] }),
   });
@@ -64,6 +68,7 @@ export function useAddPlannerEntry() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.addDailyPlannerEntry({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] }),
   });
@@ -72,6 +77,7 @@ export function useAddPlannerEntry() {
 export function useUpdatePlannerEntry() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: { id: string; updates: any }) => api.updateDailyPlannerEntry(data.id, data.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] }),
   });
@@ -80,6 +86,7 @@ export function useUpdatePlannerEntry() {
 export function useDeletePlannerEntry() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (id: string) => api.deleteDailyPlannerEntry(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] }),
   });
@@ -89,6 +96,7 @@ export function useClearDailyPlanner() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (date: string) => api.clearDailyPlannerEntries(user?.id!, date),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['dailyPlanner'] });
@@ -101,6 +109,7 @@ export function useGenerateFromTemplate() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: async (date: string) => {
       if (!user?.id) return;
       const jsDay = new Date(date).getDay();
@@ -171,6 +180,7 @@ export function useUpsertHabitTracker() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.upsertHabitTrackerDaily({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['habitTracker'] }),
   });
@@ -190,6 +200,7 @@ export function useAddPlacement() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.addPlacementItem({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['placementTracker'] }),
   });
@@ -198,6 +209,7 @@ export function useAddPlacement() {
 export function useUpdatePlacement() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: { id: string; updates: any }) => api.updatePlacementItem(data.id, data.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['placementTracker'] }),
   });
@@ -206,6 +218,7 @@ export function useUpdatePlacement() {
 export function useDeletePlacement() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (id: string) => api.deletePlacementItem(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['placementTracker'] }),
   });
@@ -225,6 +238,7 @@ export function useAddAcademic() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.addAcademicItem({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['academicTracker'] }),
   });
@@ -233,6 +247,7 @@ export function useAddAcademic() {
 export function useUpdateAcademic() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: { id: string; updates: any }) => api.updateAcademicItem(data.id, data.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['academicTracker'] }),
   });
@@ -241,6 +256,7 @@ export function useUpdateAcademic() {
 export function useDeleteAcademic() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (id: string) => api.deleteAcademicItem(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['academicTracker'] }),
   });
@@ -260,6 +276,7 @@ export function useAddBrand() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.addPersonalBrandItem({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['personalBrand'] }),
   });
@@ -268,6 +285,7 @@ export function useAddBrand() {
 export function useUpdateBrand() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: { id: string; updates: any }) => api.updatePersonalBrandItem(data.id, data.updates),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['personalBrand'] }),
   });
@@ -276,6 +294,7 @@ export function useUpdateBrand() {
 export function useDeleteBrand() {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (id: string) => api.deletePersonalBrandItem(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['personalBrand'] }),
   });
@@ -308,6 +327,7 @@ export function useUpsertWeeklyReview() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'timetable' },
     mutationFn: (data: any) => api.upsertWeeklyReview({ ...data, owner_id: user?.id }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['weeklyReview'] }),
   });

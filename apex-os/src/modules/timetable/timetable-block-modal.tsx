@@ -22,16 +22,16 @@ interface TimetableBlockModalProps {
 }
 
 const CATEGORIES = [
-  { name: 'CFA', color: '#6366f1' },
+  { name: 'CFA', color: '#3B6EF6' },
   { name: 'Placement', color: '#8b5cf6' },
   { name: 'Academic', color: '#06b6d4' },
-  { name: 'Fitness', color: '#10b981' },
-  { name: 'Reading', color: '#f59e0b' },
+  { name: 'Fitness', color: '#22C55E' },
+  { name: 'Reading', color: '#F5A524' },
   { name: 'Personal Brand', color: '#ec4899' },
-  { name: 'Class', color: '#3b82f6' },
-  { name: 'Meal', color: '#64748b' },
-  { name: 'Travel', color: '#475569' },
-  { name: 'Personal Care', color: '#64748b' },
+  { name: 'Class', color: '#3B6EF6' },
+  { name: 'Meal', color: '#6F7C99' },
+  { name: 'Travel', color: '#56627D' },
+  { name: 'Personal Care', color: '#6F7C99' },
 ];
 
 const DAYS = [
@@ -45,9 +45,9 @@ const DAYS = [
 ];
 
 const COLOR_PRESETS = [
-  '#6366f1', '#3b82f6', '#8b5cf6', '#06b6d4',
-  '#10b981', '#f59e0b', '#ec4899', '#f43f5e',
-  '#64748b', '#475569', '#1e293b'
+  '#3B6EF6', '#3B6EF6', '#8b5cf6', '#06b6d4',
+  '#22C55E', '#F5A524', '#ec4899', '#f43f5e',
+  '#6F7C99', '#56627D', '#1A2030'
 ];
 
 export function TimetableBlockModal({
@@ -62,7 +62,7 @@ export function TimetableBlockModal({
   const [endTime, setEndTime] = useState('10:30');
   const [activity, setActivity] = useState('');
   const [category, setCategory] = useState('CFA');
-  const [color, setColor] = useState('#6366f1');
+  const [color, setColor] = useState('#3B6EF6');
   const [selectedTag, setSelectedTag] = useState<string>('Deep Work');
   const [tagManagerOpen, setTagManagerOpen] = useState(false);
 
@@ -78,7 +78,7 @@ export function TimetableBlockModal({
       setEndTime(initialBlock.end_time?.slice(0, 5) || '10:30');
       setActivity(initialBlock.activity || '');
       setCategory(initialBlock.category || 'CFA');
-      setColor(initialBlock.color || '#6366f1');
+      setColor(initialBlock.color || '#3B6EF6');
       // If activity has tag in brackets or matching tag
       const foundTag = tags.find(t => initialBlock.activity?.toLowerCase().includes(t.name.toLowerCase()));
       if (foundTag) setSelectedTag(foundTag.name);
@@ -90,7 +90,7 @@ export function TimetableBlockModal({
       setEndTime(`${endH}:30`);
       setActivity('');
       setCategory('CFA');
-      setColor('#6366f1');
+      setColor('#3B6EF6');
       setSelectedTag('Deep Work');
     }
   }, [initialBlock, isOpen, defaultDay, defaultHour]);
@@ -145,8 +145,8 @@ export function TimetableBlockModal({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-lg bg-[#0b0f19] border-blue-500/30 text-white rounded-3xl shadow-2xl p-6">
-          <DialogHeader className="pb-2 border-b border-white/10">
+        <DialogContent className="sm:max-w-lg bg-surface-1 border-blue-500/30 text-white rounded-[20px] p-6">
+          <DialogHeader className="pb-2 border-b border-line">
             <DialogTitle className="text-xl font-black text-white flex items-center gap-2">
               <CalendarIcon className="w-5 h-5 text-blue-400" />
               {initialBlock ? 'Edit Activity' : 'Add Activity'}
@@ -164,7 +164,7 @@ export function TimetableBlockModal({
                 value={activity}
                 onChange={(e) => setActivity(e.target.value)}
                 placeholder="e.g. CFA — Concept Study (Deep Work)"
-                className="bg-[#111827] border-white/10 text-white rounded-xl h-10 text-sm focus-visible:ring-blue-500"
+                className="bg-surface-2 border-line text-white rounded-xl h-10 text-sm focus-visible:ring-blue-500"
                 autoFocus
               />
             </div>
@@ -172,7 +172,7 @@ export function TimetableBlockModal({
             {/* Day of Week Selector */}
             <div className="space-y-1.5">
               <Label className="text-xs text-zinc-300 font-bold uppercase tracking-wider">Day of Week</Label>
-              <div className="grid grid-cols-7 gap-1 bg-[#111827] p-1 rounded-xl border border-white/10">
+              <div className="grid grid-cols-7 gap-1 bg-surface-2 p-1 rounded-xl border border-line">
                 {DAYS.map((d) => {
                   const isSelected = dayOfWeek === d.id;
                   return (
@@ -182,7 +182,7 @@ export function TimetableBlockModal({
                       onClick={() => setDayOfWeek(d.id)}
                       className={`py-2 text-xs font-bold rounded-lg transition-all ${
                         isSelected
-                          ? 'bg-blue-600 text-white shadow-md shadow-blue-600/30'
+                          ? 'bg-blue-600 text-white'
                           : 'text-zinc-400 hover:text-white hover:bg-white/5'
                       }`}
                       title={d.full}
@@ -195,14 +195,14 @@ export function TimetableBlockModal({
             </div>
 
             {/* Optional Sequence / Time Slot (tucked away) */}
-            <details className="group rounded-xl border border-white/5 bg-[#111827]/40 p-2.5">
+            <details className="group rounded-xl border border-line/70 bg-surface-2/40 p-2.5">
               <summary className="text-[11px] text-zinc-400 font-bold uppercase tracking-wider cursor-pointer select-none flex items-center justify-between">
                 <span>Ordering / Time (Optional)</span>
-                <span className="text-[10px] text-zinc-500 font-normal">tap to edit</span>
+                <span className="text-[11px] text-zinc-500 font-normal">tap to edit</span>
               </summary>
               <div className="mt-2.5 space-y-2">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
+                  <div className="flex items-center gap-2 bg-surface-2 border border-line rounded-xl px-3 py-1.5">
                     <span className="text-[11px] text-zinc-400 font-bold">Start:</span>
                     <Input
                       type="time"
@@ -211,7 +211,7 @@ export function TimetableBlockModal({
                       className="bg-transparent border-0 text-white p-0 h-7 text-xs font-mono focus-visible:ring-0"
                     />
                   </div>
-                  <div className="flex items-center gap-2 bg-[#111827] border border-white/10 rounded-xl px-3 py-1.5">
+                  <div className="flex items-center gap-2 bg-surface-2 border border-line rounded-xl px-3 py-1.5">
                     <span className="text-[11px] text-zinc-400 font-bold">End:</span>
                     <Input
                       type="time"
@@ -237,8 +237,8 @@ export function TimetableBlockModal({
                       onClick={() => handleCategoryChange(cat.name)}
                       className={`px-2.5 py-1 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all border ${
                         isSelected
-                          ? 'bg-white/15 border-white/40 text-white shadow-sm'
-                          : 'bg-[#111827] border-white/5 text-zinc-400 hover:text-white'
+                          ? 'bg-white/15 border-white/40 text-white'
+                          : 'bg-surface-2 border-line/70 text-zinc-400 hover:text-white'
                       }`}
                     >
                       <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
@@ -281,7 +281,7 @@ export function TimetableBlockModal({
                       className={`px-2 py-0.5 rounded-lg text-[11px] font-medium transition-all border ${
                         isSelected
                           ? 'bg-blue-600 text-white border-blue-400'
-                          : 'bg-[#111827] border-white/10 text-zinc-400 hover:text-white'
+                          : 'bg-surface-2 border-line text-zinc-400 hover:text-white'
                       }`}
                     >
                       {t.name}
@@ -301,7 +301,7 @@ export function TimetableBlockModal({
                     type="button"
                     onClick={() => setColor(c)}
                     className={`w-6 h-6 rounded-full transition-transform ${
-                      color === c ? 'scale-125 ring-2 ring-white shadow-lg' : 'opacity-70 hover:opacity-100'
+                      color === c ? 'scale-125 ring-2 ring-white' : 'opacity-70 hover:opacity-100'
                     }`}
                     style={{ backgroundColor: c }}
                   />
@@ -310,7 +310,7 @@ export function TimetableBlockModal({
             </div>
 
             {/* Modal Footer Actions */}
-            <DialogFooter className="pt-3 border-t border-white/10 flex flex-row items-center justify-between gap-2">
+            <DialogFooter className="pt-3 border-t border-line flex flex-row items-center justify-between gap-2">
               <div>
                 {initialBlock && (
                   <Button
@@ -337,7 +337,7 @@ export function TimetableBlockModal({
                 <Button
                   type="submit"
                   disabled={addMutation.isPending || updateMutation.isPending}
-                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold h-9 px-6 rounded-xl shadow-lg shadow-blue-600/30"
+                  className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold h-9 px-6 rounded-xl"
                 >
                   {initialBlock ? 'Save Changes' : 'Add Block'}
                 </Button>

@@ -20,7 +20,7 @@ export default function SettingsPage() {
   }, [settings]);
 
   if (isLoading || !localSettings) {
-    return <div className="flex items-center justify-center min-h-screen text-white/50">Loading settings...</div>;
+    return <div className="flex min-h-[50vh] items-center justify-center text-fg-muted">Loading settings...</div>;
   }
 
   const handleSave = () => {
@@ -48,10 +48,10 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="max-w-4xl mx-auto p-4 md:p-8 pt-20 pb-24">
+    <div className="max-w-4xl mx-auto pb-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
+          <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Settings</h1>
           <p className="text-white/60">Manage your Apex OS preferences</p>
         </div>
         <button 
@@ -83,7 +83,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <div className="bg-white/5 border border-line rounded-2xl p-6">
             
             {activeTab === 'profile' && (
               <div className="space-y-6">
@@ -96,12 +96,12 @@ export default function SettingsPage() {
                         type="text" 
                         value={user?.email || ''} 
                         readOnly 
-                        className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white/60 cursor-not-allowed"
+                        className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white/60 cursor-not-allowed"
                       />
                     </div>
                   </div>
                 </div>
-                <div className="pt-6 border-t border-white/10">
+                <div className="pt-6 border-t border-line">
                   <button 
                     onClick={() => signOut()}
                     className="flex items-center gap-2 px-4 py-2 text-red-400 hover:bg-red-500/10 rounded-xl transition-colors font-medium"
@@ -117,7 +117,7 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-medium text-white mb-4">Appearance</h3>
-                  <div className="flex items-center justify-between p-4 bg-black/20 border border-white/10 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-black/20 border border-line rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-lg">
                         <Moon className="w-5 h-5" />
@@ -145,7 +145,7 @@ export default function SettingsPage() {
                       type="time" 
                       value={localSettings.timetable.wakeTime}
                       onChange={(e) => handleChange('timetable', 'wakeTime', e.target.value)}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -154,7 +154,7 @@ export default function SettingsPage() {
                       type="time" 
                       value={localSettings.timetable.sleepTime}
                       onChange={(e) => handleChange('timetable', 'sleepTime', e.target.value)}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                       type="number" step="0.5"
                       value={localSettings.timetable.sleepTarget}
                       onChange={(e) => handleChange('timetable', 'sleepTarget', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -172,7 +172,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.timetable.gymSessionsTarget}
                       onChange={(e) => handleChange('timetable', 'gymSessionsTarget', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -181,7 +181,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.timetable.cfaHoursTarget}
                       onChange={(e) => handleChange('timetable', 'cfaHoursTarget', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.timetable.placementHoursTarget}
                       onChange={(e) => handleChange('timetable', 'placementHoursTarget', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                 </div>
@@ -207,7 +207,7 @@ export default function SettingsPage() {
                       type="text" 
                       value={localSettings.finance.currencySymbol}
                       onChange={(e) => handleChange('finance', 'currencySymbol', e.target.value)}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -216,7 +216,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.finance.savingsRateTarget}
                       onChange={(e) => handleChange('finance', 'savingsRateTarget', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                 </div>
@@ -233,7 +233,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.fitness.height}
                       onChange={(e) => handleChange('fitness', 'height', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -242,7 +242,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.fitness.startingWeight}
                       onChange={(e) => handleChange('fitness', 'startingWeight', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function SettingsPage() {
                       type="number" 
                       value={localSettings.fitness.targetWeight}
                       onChange={(e) => handleChange('fitness', 'targetWeight', Number(e.target.value))}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                 </div>
@@ -268,7 +268,7 @@ export default function SettingsPage() {
                       type="date" 
                       value={localSettings.cfa.deadlineDate ? new Date(localSettings.cfa.deadlineDate).toISOString().split('T')[0] : ''}
                       onChange={(e) => handleChange('cfa', 'deadlineDate', new Date(e.target.value).toISOString())}
-                      className="w-full px-4 py-2 bg-black/20 border border-white/10 rounded-xl text-white"
+                      className="w-full px-4 py-2 bg-black/20 border border-line rounded-xl text-white"
                     />
                   </div>
                 </div>
@@ -279,7 +279,7 @@ export default function SettingsPage() {
               <div className="space-y-6">
                 <h3 className="text-lg font-medium text-white mb-4">Data Management</h3>
                 <div className="space-y-4">
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="p-4 bg-white/5 border border-line rounded-xl">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-white">Export All Data</div>
@@ -295,7 +295,7 @@ export default function SettingsPage() {
                     </div>
                   </div>
                   
-                  <div className="p-4 bg-white/5 border border-white/10 rounded-xl">
+                  <div className="p-4 bg-white/5 border border-line rounded-xl">
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="font-medium text-white">Export Tasks (CSV)</div>

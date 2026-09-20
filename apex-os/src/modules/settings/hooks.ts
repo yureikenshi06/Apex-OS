@@ -22,6 +22,7 @@ export function useUpdateSettings() {
   const queryClient = useQueryClient();
   
   return useMutation({
+    meta: { scope: 'settings' },
     mutationFn: async (newSettings: Partial<AppSettings>) => {
       if (!user?.id) throw new Error('No user');
       return upsertSettings(user.id, newSettings);

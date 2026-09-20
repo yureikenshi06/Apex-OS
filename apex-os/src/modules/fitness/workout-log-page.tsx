@@ -64,12 +64,12 @@ export default function WorkoutLogPage() {
   };
 
   return (
-    <div className="p-4 md:p-8 space-y-6 max-w-7xl mx-auto text-foreground font-sans">
+    <div className="space-y-6 max-w-7xl mx-auto text-foreground font-sans">
       {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-black text-white tracking-tight">Workout Log & PR Tracker</h1>
+            <h1 className="text-[22px] font-extrabold tracking-tight md:text-3xl">Workout Log & PR Tracker</h1>
             <Badge variant="secondary" className="bg-orange-900/50 text-orange-200 border-orange-700/50 font-bold px-2.5">
               Live Sets
             </Badge>
@@ -85,7 +85,7 @@ export default function WorkoutLogPage() {
             variant="outline"
             size="sm"
             onClick={handleLoadTrainerPlanForDay}
-            className="bg-[#111827] border-white/10 hover:border-orange-500/40 text-orange-300 rounded-xl text-xs h-9 px-3 gap-1.5"
+            className="bg-surface-2 border-line hover:border-orange-500/40 text-orange-300 rounded-xl text-xs h-9 px-3 gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" /> Load from Trainer Plan
           </Button>
@@ -95,7 +95,7 @@ export default function WorkoutLogPage() {
               setEditingLog(null);
               setLogModalOpen(true);
             }}
-            className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl shadow-lg shadow-orange-600/30 gap-1.5 font-bold h-9 text-xs px-4"
+            className="bg-orange-600 hover:bg-orange-500 text-white rounded-xl gap-1.5 font-bold h-9 text-xs px-4"
           >
             <Plus className="w-4 h-4 stroke-[2.5]" /> Log Exercise Set
           </Button>
@@ -104,27 +104,27 @@ export default function WorkoutLogPage() {
 
       {/* Date Filter & Metrics Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-        <div className="p-3 rounded-2xl bg-[#0b0f19]/90 border border-white/10 flex items-center justify-between gap-2">
+        <div className="p-3 rounded-2xl bg-surface-1 border border-line flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-zinc-400">Date:</span>
           <Input
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
-            className="bg-[#111827] border-white/10 text-white rounded-xl h-8 text-xs w-36 font-mono"
+            className="bg-surface-2 border-line text-white rounded-xl h-8 text-xs w-36 font-mono"
           />
         </div>
 
-        <div className="p-3 rounded-2xl bg-[#0b0f19]/90 border border-white/10 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-surface-1 border border-line flex items-center justify-between">
           <span className="text-xs font-bold text-zinc-400">Day Volume:</span>
           <span className="text-sm font-black text-white font-mono">{totalVolumeDay.toLocaleString()} kg</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-[#0b0f19]/90 border border-white/10 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-surface-1 border border-line flex items-center justify-between">
           <span className="text-xs font-bold text-zinc-400">All-Time Volume:</span>
           <span className="text-sm font-black text-orange-400 font-mono">{totalVolumeAll.toLocaleString()} kg</span>
         </div>
 
-        <div className="p-3 rounded-2xl bg-[#0b0f19]/90 border border-white/10 flex items-center justify-between">
+        <div className="p-3 rounded-2xl bg-surface-1 border border-line flex items-center justify-between">
           <span className="text-xs font-bold text-zinc-400">PRs Logged:</span>
           <span className="text-sm font-black text-amber-400 font-mono flex items-center gap-1">
             <Flame className="w-4 h-4" /> {prCount} Records
@@ -133,8 +133,8 @@ export default function WorkoutLogPage() {
       </div>
 
       {/* Logged Exercises Table / Cards */}
-      <Card className="bg-[#0b0f19]/90 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+      <Card className="bg-surface-1 border border-line rounded-[20px] p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-line">
           <h3 className="text-base font-bold text-white flex items-center gap-2">
             <Dumbbell className="w-4 h-4 text-orange-400" />
             Exercises Logged for {selectedDate === todayStr ? 'Today' : selectedDate}
@@ -143,13 +143,13 @@ export default function WorkoutLogPage() {
         </div>
 
         {filteredLogs.length === 0 ? (
-          <div className="text-center py-12 px-4 space-y-3 bg-[#111827]/40 rounded-2xl border border-white/5">
+          <div className="text-center py-12 px-4 space-y-3 bg-surface-2/40 rounded-2xl border border-line/70">
             <p className="text-sm text-zinc-400">No exercises logged for this date yet.</p>
             <div className="flex justify-center gap-2">
               <Button onClick={handleLoadTrainerPlanForDay} className="bg-orange-600 text-white rounded-xl text-xs">
                 Load from Trainer Plan
               </Button>
-              <Button onClick={() => setLogModalOpen(true)} variant="outline" className="border-white/10 text-white rounded-xl text-xs">
+              <Button onClick={() => setLogModalOpen(true)} variant="outline" className="border-line text-white rounded-xl text-xs">
                 Log Manually
               </Button>
             </div>
@@ -159,7 +159,7 @@ export default function WorkoutLogPage() {
             {filteredLogs.map((log) => (
               <div
                 key={log.id}
-                className="p-4 rounded-2xl bg-[#111827]/70 border border-white/5 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+                className="p-4 rounded-2xl bg-surface-2/70 border border-line/70 hover:border-white/15 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
               >
                 <div className="flex items-center gap-3.5">
                   <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
@@ -170,7 +170,7 @@ export default function WorkoutLogPage() {
                     <div className="flex items-center gap-2">
                       <h4 className="text-sm font-bold text-white">{log.exercise}</h4>
                       {log.is_pr && (
-                        <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] gap-1 font-bold">
+                        <Badge className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] gap-1 font-bold">
                           <Flame className="w-3 h-3 text-amber-400" /> PR
                         </Badge>
                       )}
@@ -196,7 +196,7 @@ export default function WorkoutLogPage() {
                     size="sm"
                     variant="ghost"
                     onClick={() => handleDelete(log.id, log.exercise)}
-                    className="p-2 text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="p-2 text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100 transition-opacity"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

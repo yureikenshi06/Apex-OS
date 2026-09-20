@@ -23,6 +23,7 @@ export const useAddTransaction = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (data: Omit<TransactionInsert, 'owner_id'>) => financeApi.addTransaction({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -36,6 +37,7 @@ export const useAddTransaction = () => {
 export const useUpdateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: ({ id, data }: { id: string; data: TransactionUpdate }) => financeApi.updateTransaction(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -49,6 +51,7 @@ export const useUpdateTransaction = () => {
 export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.deleteTransaction(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
@@ -73,6 +76,7 @@ export const useAddBudget = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (data: Omit<BudgetInsert, 'owner_id'>) => financeApi.addBudget({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
@@ -85,6 +89,7 @@ export const useAddBudget = () => {
 export const useUpdateBudget = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: ({ id, data }: { id: string; data: BudgetUpdate }) => financeApi.updateBudget(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
@@ -97,6 +102,7 @@ export const useUpdateBudget = () => {
 export const useDeleteBudget = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.deleteBudget(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgets'] });
@@ -120,6 +126,7 @@ export const useAddRecurring = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (data: Omit<RecurringExpenseInsert, 'owner_id'>) => financeApi.addRecurringExpense({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring'] });
@@ -130,6 +137,7 @@ export const useAddRecurring = () => {
 export const useUpdateRecurring = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: ({ id, data }: { id: string; data: RecurringExpenseUpdate }) => financeApi.updateRecurringExpense(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring'] });
@@ -140,6 +148,7 @@ export const useUpdateRecurring = () => {
 export const useDeleteRecurring = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.deleteRecurringExpense(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring'] });
@@ -151,6 +160,7 @@ export const useMarkRecurringPaid = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.markRecurringAsPaid(id, user?.id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['recurring'] });
@@ -175,6 +185,7 @@ export const useAddSplit = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (data: Omit<PeopleSplitInsert, 'owner_id'>) => financeApi.addPeopleSplit({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['splits'] });
@@ -185,6 +196,7 @@ export const useAddSplit = () => {
 export const useUpdateSplit = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: ({ id, data }: { id: string; data: PeopleSplitUpdate }) => financeApi.updatePeopleSplit(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['splits'] });
@@ -195,6 +207,7 @@ export const useUpdateSplit = () => {
 export const useDeleteSplit = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.deletePeopleSplit(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['splits'] });
@@ -216,6 +229,7 @@ export const useAddNetWorthEntry = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (data: Omit<NetWorthEntryInsert, 'owner_id'>) => financeApi.addNetWorthEntry({ ...data, owner_id: user?.id! }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['net-worth'] });
@@ -226,6 +240,7 @@ export const useAddNetWorthEntry = () => {
 export const useUpdateNetWorthEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: ({ id, data }: { id: string; data: NetWorthEntryUpdate }) => financeApi.updateNetWorthEntry(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['net-worth'] });
@@ -236,6 +251,7 @@ export const useUpdateNetWorthEntry = () => {
 export const useDeleteNetWorthEntry = () => {
   const queryClient = useQueryClient();
   return useMutation({
+    meta: { scope: 'finance' },
     mutationFn: (id: string) => financeApi.deleteNetWorthEntry(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['net-worth'] });

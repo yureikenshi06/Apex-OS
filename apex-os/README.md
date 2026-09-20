@@ -180,3 +180,22 @@ apex-os/
 ## License
 
 Private — built for personal use by Prakhar Singh.
+
+## Design system (v2)
+
+- **Tokens** live in one place: CSS variables in `src/styles/globals.css`, exposed to Tailwind in `tailwind.config.ts`
+  (`bg-surface-1/2/3`, `border-line`, `text-fg-muted`, `bg-primary`, `bg-danger`, …). Don't hardcode hex colours.
+  Surface ramp: `void → surface-1 → surface-2 → surface-3`; blue = primary/focus, red = alerts/destructive.
+- **Type**: Manrope for all reading text; IBM Plex Mono (`font-mono`) only for numbers, times and currency.
+  Fonts are self-hosted from `public/fonts` so the PWA works offline.
+- **Motion** (see the keyframes in `globals.css`): `animate-enter` 180ms, `.tap` press 90ms, complete 260ms,
+  score ring fill 900ms, one ambient glow. Everything honours `prefers-reduced-motion`.
+- **Responsive**: bottom nav + FAB below `md`, sidebar from `md`; `Dialog` renders as a bottom sheet on phones;
+  `StatGrid` is a swipe row on phones and a grid from `sm`.
+- **Offline**: every mutation carries `meta: { scope }`; `src/lib/sync-tracker.ts` mirrors paused (offline) mutations
+  into the sync store, which drives the sidebar status and per-card `<SyncPill scope="…" />`.
+
+### Visual preview without logging in (dev only)
+
+`npm run dev`, then open `http://localhost:5173/?preview=1`. The app renders against an in-memory fake of the Supabase
+REST API (`src/dev/preview.ts`) with realistic data. It is compiled out of production builds.
